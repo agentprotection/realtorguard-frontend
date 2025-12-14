@@ -21,20 +21,22 @@ body {      margin: 0;
   justify-content: center;
   margin-bottom: 30px;
 }
-logo {
-  width: 320px;   /* BIG logo */
-  height: auto;/* Mobile logo fix */
-@media (max-width: 768px) {
-  .logo {
-    width: 220px;
-  }
+/* Logo sizing & centering */
+.logo {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
+/* Mobile phones */
 @media (max-width: 480px) {
   .logo {
-    width: 180px;
+    max-width: 160px;
   }
-}%
+}}/* Mobile phones */
+
 }    p {
       font-size: 18px;
       max-width: 600px;
