@@ -13,7 +13,7 @@
     }
 
     body {
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,41 +23,39 @@
 
     .container {
       text-align: center;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
     }
 
     .logo {
-      width: 140px;
+      width: 160px;
       margin-bottom: 30px;
     }
 
     h1 {
+      margin-bottom: 25px;
       font-size: 22px;
-      margin-bottom: 30px;
-      color: #0b2c4f;
-    }
-
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
     }
 
     .btn {
-      padding: 14px 24px;
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
       font-size: 16px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: none;
       cursor: pointer;
-      width: 220px;
     }
 
     .agent {
       background-color: #0b2c4f;
-      color: white;
+      color: #ffffff;
     }
 
     .observer {
-      background-color: white;
+      background-color: #ffffff;
       color: #0b2c4f;
       border: 2px solid #0b2c4f;
     }
@@ -74,15 +72,13 @@
 
     <h1>Who are you?</h1>
 
-    <div class="buttons">
-      <button class="btn agent" onclick="location.href='agent-login.html'">
-        I’m an Agent
-      </button>
+    <button class="btn agent" onclick="location.href='agent-login.html'">
+      I’m an Agent
+    </button>
 
-      <button class="btn observer" onclick="location.href='observer-signup.html'">
-        I’m an Observer
-      </button>
-    </div>
+    <button class="btn observer" onclick="location.href='observer-signup.html'">
+      I’m an Observer
+    </button>
   </div>
 </body>
 </html>
