@@ -13,24 +13,23 @@
     }
 
     body {
-      min-height: 100vh;
       background: #ffffff;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      font-family: Arial, sans-serif;
     }
 
     .page {
       width: 100%;
       max-width: 420px;
-      text-align: center;
       padding-top: 30px;
+      text-align: center;
     }
 
     .logo {
-      width: 140px; /* slightly smaller than landing */
-      height: auto;
+      width: 160px;
+      max-width: 70%;
       margin-bottom: 30px;
     }
 
@@ -41,18 +40,20 @@
     }
 
     .btn {
+      display: block;
       width: 100%;
-      padding: 16px;
+      padding: 14px;
+      margin-bottom: 16px;
       font-size: 16px;
       border-radius: 8px;
-      margin-bottom: 16px;
       cursor: pointer;
-      border: none;
+      text-decoration: none;
     }
 
     .agent {
       background: #0b2c4f;
       color: #ffffff;
+      border: none;
     }
 
     .observer {
@@ -65,17 +66,21 @@
 
 <body>
   <div class="page">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+    <img
+      src="images/logo.png"
+      alt="Realtor Guard Logo"
+      class="logo"
+    />
 
     <h1>Who are you?</h1>
 
-    <button class="btn agent" onclick="location.href='agent-login.html'">
+    <a href="agent-login.html" class="btn agent">
       I’m an Agent
-    </button>
+    </a>
 
-    <button class="btn observer" onclick="location.href='observer-signup.html'">
+    <a href="observer-signup.html" class="btn observer">
       I’m an Observer
-    </button>
+    </a>
   </div>
 </body>
 </html>
