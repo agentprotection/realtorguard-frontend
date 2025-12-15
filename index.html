@@ -6,97 +6,49 @@
   <title>Realtor Guard</title>
 
   <style>
-body {      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #0b2c4f;
-      text-align: center;
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    header {
-      padding: 40px 20px 20px;
-    }
-.logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-/* Logo sizing & centering */
-.logo {
-  width: 100%;
-  max-width: 220px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-/* Mobile phones */
-@media (max-width: 480px) {
-  .logo {
-    max-width: 160px;
-  }
-}}/* Mobile phones */
-
-}    p {
-      font-size: 18px;
-      max-width: 600px;
-      margin: 0 auto 30px;
-      line-height: 1.5;
-    }
-
-    .buttons {
+    body {
+      height: 100vh;
+      width: 100%;
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-      max-width: 300px;
-      margin: 0 auto;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      font-family: Arial, sans-serif;
     }
 
-    .btn {
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;.
+    /* Centered clickable logo */
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-wrapper img {
+      width: 240px;       /* Perfect app splash size */
+      max-width: 80vw;    /* Safety on very small screens */
+      height: auto;
       cursor: pointer;
-      font-weight: bold;
     }
 
-    .btn-agent {
-      background-color: #0b2c4f;
-      color: white;
-    }
-
-    .btn-observer {
-      background-color: #f1f5f9;
-      color: #0b2c4f;
-      border: 2px solid #0b2c4f;
-    }
-
-    footer {
-      margin-top: 50px;
-      padding: 20px;
-      font-size: 14px;
-      color: #555;
+    /* Mobile optimization */
+    @media (max-width: 480px) {
+      .logo-wrapper img {
+        width: 180px;
+      }
     }
   </style>
 </head>
 
 <body>
-
-<header>
-  <div class="logo-container">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
-  </div>
-
-  <p>On-demand safety observers for real estate showings and open houses.</p>    <div class="buttons">
-<a href="agent-login.html" class="btn btn-agent">Agent Login</a>
-<a href="observer-signup.html" class="btn btn-observer">Observer Sign Up</a>
-    </div>
-  </header>
-
-  <footer>
-    © 2025 Realtor Guard. All rights reserved.
-  </footer>
-
+  <a href="agent-login.html" class="logo-wrapper">
+    <img src="images/logo.png" alt="Realtor Guard App Logo" />
+  </a>
 </body>
 </html>
