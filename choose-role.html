@@ -1,73 +1,29 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choose Role | Realtor Guard</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      height: 100vh;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-    }
-
-    .container {
-      text-align: center;
-    }
-
-    .logo {
-      width: 140px;
-      margin-bottom: 25px;
-    }
-
-    h1 {
-      margin-bottom: 25px;
-      font-size: 22px;
-      color: #0b2c4f;
-    }
-
-    .btn {
-      width: 220px;
-      padding: 14px;
-      margin: 10px auto;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: block;
-      text-decoration: none;
-      text-align: center;
-    }
-
-    .agent {
-      background: #0b2c4f;
-      color: #ffffff;
-    }
-
-    .observer {
-      background: #ffffff;
-      color: #0b2c4f;
-      border: 2px solid #0b2c4f;
-    }
-  </style>
+  <!-- CSS -->
+  (PASTE THE SAME SHARED CSS HERE)
 </head>
 
 <body>
-  <div class="container">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+  <div class="app-header">
+    <img src="images/logo.png" alt="Realtor Guard Logo">
+  </div>
+
+  <div class="page-content">
     <h1>Who are you?</h1>
 
-    <a href="agent-login.html" class="btn agent">I’m an Agent</a>
-    <a href="observer-login.html" class="btn observer">I’m an Observer</a>
+    <button class="btn btn-primary" onclick="location.href='agent-login.html'">
+      I’m an Agent
+    </button>
+
+    <button class="btn btn-outline" onclick="location.href='observer-login.html'">
+      I’m an Observer
+    </button>
   </div>
 </body>
 </html>
