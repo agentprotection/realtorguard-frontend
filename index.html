@@ -1,19 +1,46 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Realtor Guard</title>
 
-  <!-- CSS -->
-  (PASTE THE SHARED CSS HERE)
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: Arial, sans-serif;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 420px; /* mobile-first */
+      text-align: center;
+      padding-top: 40px;
+    }
+
+    .logo {
+      width: 160px;   /* SAFE size for app + web */
+      height: auto;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="app-header">
+  <div class="page">
     <a href="choose-role.html">
-      <img src="images/logo.png" alt="Realtor Guard Logo">
+      <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
     </a>
   </div>
 </body>
-</html
+</html>
