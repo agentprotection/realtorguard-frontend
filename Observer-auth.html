@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observer Login | Realtor Guard</title>
+  <title>Observer Access | Realtor Guard</title>
 
   <style>
     * {
@@ -16,6 +16,7 @@
       background: #ffffff;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
 
     .page {
@@ -25,84 +26,118 @@
       text-align: center;
     }
 
-    /* Logo — SAME SIZE AS AGENT */
     .logo {
-      width: 180px;
+      width: 150px;
       margin: 16px auto 24px;
       display: block;
     }
 
-    h1 {
+    h2 {
       color: #0b2c4f;
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
       margin-bottom: 24px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      cursor: pointer;
+      border-bottom: 2px solid #ccc;
+      font-weight: bold;
+    }
+
+    .tab.active {
+      border-bottom: 3px solid #0b2c4f;
+      color: #0b2c4f;
     }
 
     input {
       width: 100%;
       padding: 14px;
-      margin-bottom: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      margin-bottom: 14px;
       font-size: 16px;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      background-color: #0b2c4f;
-      color: white;
+      background: #0b2c4f;
+      color: #fff;
       border: none;
-      border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
-      margin-bottom: 12px;
+      margin-top: 8px;
     }
 
-    button.secondary {
-      background-color: white;
-      color: #0b2c4f;
-      border: 2px solid #0b2c4f;
-    }
-
-    .link {
-      margin-top: 16px;
+    .forgot {
+      margin-top: 14px;
       font-size: 14px;
     }
 
-    .link a {
+    .forgot a {
       color: #0b2c4f;
       text-decoration: none;
-      font-weight: bold;
     }
 
-    .link a:hover {
-      text-decoration: underline;
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
   <div class="page">
+
+    <!-- LOGO -->
     <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
-    <h1>Observer Access</h1>
+    <h2>Observer Access</h2>
 
-    <!-- Email -->
-    <input type="email" placeholder="Email address" />
-
-    <!-- Password -->
-    <input type="password" placeholder="Password" />
-
-    <!-- Login -->
-    <button>Sign In</button>
-
-    <!-- Sign Up -->
-    <button class="secondary">Create Observer Account</button>
-
-    <!-- Forgot Password -->
-    <div class="link">
-      <a href="#">Forgot password?</a>
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" onclick="showLogin()">Sign In</div>
+      <div class="tab" onclick="showSignup()">Sign Up</div>
     </div>
+
+    <!-- LOGIN -->
+    <div id="login">
+      <input type="email" placeholder="Email address" />
+      <input type="password" placeholder="Password" />
+      <button>Sign In</button>
+
+      <div class="forgot">
+        <a href="#">Forgot password?</a>
+      </div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup" class="hidden">
+      <input type="email" placeholder="Email address" />
+      <input type="password" placeholder="Password" />
+      <input type="password" placeholder="Confirm password" />
+      <button>Create Observer Account</button>
+    </div>
+
   </div>
+
+  <script>
+    function showLogin() {
+      document.getElementById('login').classList.remove('hidden');
+      document.getElementById('signup').classList.add('hidden');
+      document.querySelectorAll('.tab')[0].classList.add('active');
+      document.querySelectorAll('.tab')[1].classList.remove('active');
+    }
+
+    function showSignup() {
+      document.getElementById('signup').classList.remove('hidden');
+      document.getElementById('login').classList.add('hidden');
+      document.querySelectorAll('.tab')[1].classList.add('active');
+      document.querySelectorAll('.tab')[0].classList.remove('active');
+    }
+  </script>
 </body>
-</html>
+</html>     
