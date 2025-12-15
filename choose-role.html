@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -13,55 +13,50 @@
     }
 
     body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      height: 100vh;
       background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: Arial, sans-serif;
     }
 
     .container {
       text-align: center;
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
     }
 
     .logo {
-      width: 160px;
-      margin-bottom: 30px;
+      width: 140px;
+      margin-bottom: 25px;
     }
 
     h1 {
       margin-bottom: 25px;
       font-size: 22px;
+      color: #0b2c4f;
     }
 
     .btn {
-      display: block;
-      width: 100%;
+      width: 220px;
       padding: 14px;
-      margin: 12px 0;
+      margin: 10px auto;
       font-size: 16px;
       border-radius: 6px;
-      border: none;
       cursor: pointer;
+      display: block;
+      text-decoration: none;
+      text-align: center;
     }
 
     .agent {
-      background-color: #0b2c4f;
+      background: #0b2c4f;
       color: #ffffff;
     }
 
     .observer {
-      background-color: #ffffff;
+      background: #ffffff;
       color: #0b2c4f;
       border: 2px solid #0b2c4f;
-    }
-
-    .btn:hover {
-      opacity: 0.9;
     }
   </style>
 </head>
@@ -69,16 +64,10 @@
 <body>
   <div class="container">
     <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
-
     <h1>Who are you?</h1>
 
-    <button class="btn agent" onclick="location.href='agent-login.html'">
-      I’m an Agent
-    </button>
-
-    <button class="btn observer" onclick="location.href='observer-signup.html'">
-      I’m an Observer
-    </button>
+    <a href="agent-login.html" class="btn agent">I’m an Agent</a>
+    <a href="observer-login.html" class="btn observer">I’m an Observer</a>
   </div>
 </body>
 </html>
