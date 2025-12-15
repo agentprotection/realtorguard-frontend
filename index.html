@@ -14,32 +14,30 @@
 
     body {
       height: 100vh;
-      width: 100%;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       background: #ffffff;
       font-family: Arial, sans-serif;
     }
 
-    .splash img {
-      width: 240px;
-      max-width: 80vw;
-      height: auto;
+    .logo {
+      width: 240px;              /* perfect app splash size */
+      max-width: 80vw;           /* safe on small phones */
       cursor: pointer;
     }
 
     @media (max-width: 480px) {
-      .splash img {
-        width: 180px;
+      .logo {
+        width: 180px;            /* mobile optimization */
       }
     }
   </style>
 </head>
 
 <body>
-  <a href="choose-role.html" class="splash">
-    <img src="images/logo.png" alt="Realtor Guard App Logo" />
+  <a href="choose-role.html">
+    <img src="images/logo.png" alt="Realtor Guard App Logo" class="logo" />
   </a>
 </body>
 </html>
