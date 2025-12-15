@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observer Login | Realtor Guard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* Logo — SAME SIZE AS AGENT */
+    .logo {
+      width: 180px;
+      margin: 16px auto 24px;
+      display: block;
+    }
+
+    h1 {
+      color: #0b2c4f;
+      margin-bottom: 24px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #0b2c4f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    button.secondary {
+      background-color: white;
+      color: #0b2c4f;
+      border: 2px solid #0b2c4f;
+    }
+
+    .link {
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #0b2c4f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+
+    <h1>Observer Access</h1>
+
+    <!-- Email -->
+    <input type="email" placeholder="Email address" />
+
+    <!-- Password -->
+    <input type="password" placeholder="Password" />
+
+    <!-- Login -->
+    <button>Sign In</button>
+
+    <!-- Sign Up -->
+    <button class="secondary">Create Observer Account</button>
+
+    <!-- Forgot Password -->
+    <div class="link">
+      <a href="#">Forgot password?</a>
+    </div>
+  </div>
+</body>
+</html>
