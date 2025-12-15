@@ -15,37 +15,36 @@
     body {
       height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       background: #ffffff;
       font-family: Arial, sans-serif;
     }
 
-    .landing {
+    .splash {
       text-align: center;
     }
 
-    .landing img {
-      width: 220px;          /* perfect app splash size */
-      max-width: 70vw;       /* mobile-safe */
+    .splash img {
+      width: 240px;          /* perfect app size */
+      max-width: 80vw;       /* safe on small phones */
       height: auto;
       cursor: pointer;
     }
 
     @media (max-width: 480px) {
-      .landing img {
-        width: 180px;
+      .splash img {
+        width: 180px;        /* mobile optimization */
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="landing">
+  <div class="splash">
     <a href="choose-role.html">
-      <img src="images/logo.png" alt="Realtor Guard App Logo">
+      <img src="images/logo.png" alt="Realtor Guard Logo" />
     </a>
   </div>
 </body>
 </html>
-✅ What this does
