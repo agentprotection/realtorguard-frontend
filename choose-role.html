@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose Role | Realtor Guard</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .logo {
+      width: 140px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 30px;
+      color: #0b2c4f;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      width: 220px;
+    }
+
+    .agent {
+      background-color: #0b2c4f;
+      color: white;
+    }
+
+    .observer {
+      background-color: white;
+      color: #0b2c4f;
+      border: 2px solid #0b2c4f;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+
+    <h1>Who are you?</h1>
+
+    <div class="buttons">
+      <button class="btn agent" onclick="location.href='agent-login.html'">
+        I’m an Agent
+      </button>
+
+      <button class="btn observer" onclick="location.href='observer-signup.html'">
+        I’m an Observer
+      </button>
+    </div>
+  </div>
+</body>
+</html>
