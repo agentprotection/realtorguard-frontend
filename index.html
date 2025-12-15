@@ -6,7 +6,6 @@
   <title>Realtor Guard</title>
 
   <style>
-    /* Reset */
     * {
       margin: 0;
       padding: 0;
@@ -15,31 +14,26 @@
 
     body {
       height: 100vh;
-      width: 100%;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       background: #ffffff;
       font-family: Arial, sans-serif;
     }
 
-    /* Centered clickable logo */
-    .logo-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .landing {
+      text-align: center;
     }
 
-    .logo-wrapper img {
-      width: 240px;       /* Perfect app splash size */
-      max-width: 80vw;    /* Safety on very small screens */
+    .landing img {
+      width: 220px;          /* perfect app splash size */
+      max-width: 70vw;       /* mobile-safe */
       height: auto;
       cursor: pointer;
     }
 
-    /* Mobile optimization */
     @media (max-width: 480px) {
-      .logo-wrapper img {
+      .landing img {
         width: 180px;
       }
     }
@@ -47,8 +41,11 @@
 </head>
 
 <body>
-  <a href="agent-login.html" class="logo-wrapper">
-    <img src="images/logo.png" alt="Realtor Guard App Logo" />
-  </a>
+  <div class="landing">
+    <a href="choose-role.html">
+      <img src="images/logo.png" alt="Realtor Guard App Logo">
+    </a>
+  </div>
 </body>
 </html>
+✅ What this does
