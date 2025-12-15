@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -13,25 +13,30 @@
     }
 
     body {
-      min-height: 100vh;
       background: #ffffff;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      font-family: Arial, sans-serif;
     }
 
     .page {
       width: 100%;
       max-width: 420px; /* mobile-first */
-      text-align: center;
       padding-top: 40px;
+      text-align: center;
     }
 
     .logo {
-      width: 160px;   /* SAFE size for app + web */
-      height: auto;
+      width: 180px;
+      max-width: 70%;
       cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .logo {
+        width: 200px;
+      }
     }
   </style>
 </head>
@@ -39,7 +44,11 @@
 <body>
   <div class="page">
     <a href="choose-role.html">
-      <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+      <img
+        src="images/logo.png"
+        alt="Realtor Guard Logo"
+        class="logo"
+      />
     </a>
   </div>
 </body>
