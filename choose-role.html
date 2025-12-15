@@ -5,23 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choose Role | Realtor Guard</title>
 
-  <!-- CSS -->
-  (PASTE THE SAME SHARED CSS HERE)
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      font-family: Arial, sans-serif;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      padding-top: 30px;
+    }
+
+    .logo {
+      width: 140px; /* slightly smaller than landing */
+      height: auto;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      color: #0b2c4f;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .agent {
+      background: #0b2c4f;
+      color: #ffffff;
+    }
+
+    .observer {
+      background: #ffffff;
+      color: #0b2c4f;
+      border: 2px solid #0b2c4f;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="app-header">
-    <img src="images/logo.png" alt="Realtor Guard Logo">
-  </div>
+  <div class="page">
+    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
-  <div class="page-content">
     <h1>Who are you?</h1>
 
-    <button class="btn btn-primary" onclick="location.href='agent-login.html'">
+    <button class="btn agent" onclick="location.href='agent-login.html'">
       I’m an Agent
     </button>
 
-    <button class="btn btn-outline" onclick="location.href='observer-login.html'">
+    <button class="btn observer" onclick="location.href='observer-signup.html'">
       I’m an Observer
     </button>
   </div>
