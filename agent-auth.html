@@ -1,141 +1,131 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Agent Access | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Access | Realtor Guard</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
 
-    /* LOGO */
-    .logo-wrapper {
-      margin-top: 30px;
-      margin-bottom: 20px;
-    }
+body {
+  margin: 0;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+}
 
-    .logo-wrapper img {
-      width: 160px;
-      max-width: 80%;
-      height: auto;
-    }
+.page {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  text-align: center;
+}
 
-    /* CARD */
-    .auth-card {
-      width: 100%;
-      max-width: 360px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 24px;
-      box-sizing: border-box;
-    }
+.logo {
+  width: 140px;
+  margin: 24px auto;
+  display: block;
+}
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-    }
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
+.tab {
+  flex: 1;
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  font-weight: bold;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #0b2c4f;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
+.tab.active {
+  border-color: #0b2c4f;
+  color: #0b2c4f;
+}
 
-    .link {
-      text-align: center;
-      margin-top: 12px;
-      font-size: 14px;
-      color: #0b2c4f;
-      cursor: pointer;
-    }
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 14px;
+  font-size: 16px;
+}
 
-    .hidden {
-      display: none;
-    }
-  </style>
+button {
+  width: 100%;
+  padding: 14px;
+  background: #0b2c4f;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.link {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #0b2c4f;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+</style>
 </head>
 
 <body>
+<div class="page">
+  <img src="images/logo.png" class="logo" alt="Realtor Guard Logo" />
 
-  <!-- LOGO -->
-  <div class="logo-wrapper">
-    <img src="images/logo.png" alt="Realtor Guard Logo" />
+  <div class="tabs">
+    <div class="tab active" onclick="showLogin()">Login</div>
+    <div class="tab" onclick="showSignup()">Sign Up</div>
   </div>
 
   <!-- LOGIN -->
-  <div class="auth-card" id="loginCard">
-    <h2>Agent Login</h2>
-    <input type="email" placeholder="Email" />
+  <div id="login">
+    <input type="email" placeholder="Email address" />
     <input type="password" placeholder="Password" />
-    <button onclick="goDashboard()">Login</button>
-
-    <div class="link" onclick="showSignup()">Create an account</div>
-    <div class="link" onclick="showForgot()">Forgot password?</div>
+    <button onclick="login()">Sign In</button>
+    <div class="link" onclick="forgot()">Forgot password?</div>
   </div>
 
   <!-- SIGN UP -->
-  <div class="auth-card hidden" id="signupCard">
-    <h2>Agent Sign Up</h2>
-    <input type="email" placeholder="Email" />
+  <div id="signup" class="hidden">
+    <input type="email" placeholder="Email address" />
     <input type="password" placeholder="Password" />
-    <button>Create Account</button>
-
-    <div class="link" onclick="showLogin()">Already have an account?</div>
+    <input type="password" placeholder="Confirm password" />
+    <button onclick="signup()">Create Agent Account</button>
   </div>
+</div>
 
-  <!-- FORGOT PASSWORD -->
-  <div class="auth-card hidden" id="forgotCard">
-    <h2>Reset Password</h2>
-    <input type="email" placeholder="Enter your email" />
-    <button>Send Reset Link</button>
+<script>
+function showLogin() {
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("signup").classList.add("hidden");
+  document.querySelectorAll(".tab")[0].classList.add("active");
+  document.querySelectorAll(".tab")[1].classList.remove("active");
+}
 
-    <div class="link" onclick="showLogin()">Back to login</div>
-  </div>
+function showSignup() {
+  document.getElementById("signup").classList.remove("hidden");
+  document.getElementById("login").classList.add("hidden");
+  document.querySelectorAll(".tab")[1].classList.add("active");
+  document.querySelectorAll(".tab")[0].classList.remove("active");
+}
 
-  <script>
-    function showSignup() {
-      loginCard.classList.add("hidden");
-      forgotCard.classList.add("hidden");
-      signupCard.classList.remove("hidden");
-    }
+function login() {
+  window.location.href = "agent-dashboard.html";
+}
 
-    function showLogin() {
-      signupCard.classList.add("hidden");
-      forgotCard.classList.add("hidden");
-      loginCard.classList.remove("hidden");
-    }
+function signup() {
+  window.location.href = "agent-dashboard.html";
+}
 
-    function showForgot() {
-      loginCard.classList.add("hidden");
-      signupCard.classList.add("hidden");
-      forgotCard.classList.remove("hidden");
-    }
-
-    function goDashboard() {
-      window.location.href = "agent-dashboard.html";
-    }
-  </script>
-
+function forgot() {
+  alert("Password reset link will be sent to your email.");
+}
+</script>
 </body>
 </html>
