@@ -1,82 +1,141 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Agent Access | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Login | Realtor Guard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #ffffff;
-      color: #0b2c4f;
-    }
-
-    .page {
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    .logo {
+    /* LOGO */
+    .logo-wrapper {
       margin-top: 30px;
       margin-bottom: 20px;
     }
 
-    .logo img {
-      width: 180px;
+    .logo-wrapper img {
+      width: 160px;
+      max-width: 80%;
+      height: auto;
     }
 
-    .card {
+    /* CARD */
+    .auth-card {
       width: 100%;
       max-width: 360px;
-      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
     }
 
     input {
       width: 100%;
       padding: 12px;
-      margin-bottom: 15px;
+      margin: 10px 0;
       font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       background: #0b2c4f;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
     }
 
     .link {
-      margin-top: 15px;
       text-align: center;
+      margin-top: 12px;
       font-size: 14px;
+      color: #0b2c4f;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
 
-    <div class="logo">
-      <img src="images/logo.png" alt="Realtor Guard Logo" />
-    </div>
-
-    <div class="card">
-      <input type="email" placeholder="Email" />
-      <input type="password" placeholder="Password" />
-
-      <button>Login</button>
-
-      <div class="link">Forgot password?</div>
-      <div class="link">Create an account</div>
-    </div>
-
+  <!-- LOGO -->
+  <div class="logo-wrapper">
+    <img src="images/logo.png" alt="Realtor Guard Logo" />
   </div>
+
+  <!-- LOGIN -->
+  <div class="auth-card" id="loginCard">
+    <h2>Agent Login</h2>
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password" />
+    <button onclick="goDashboard()">Login</button>
+
+    <div class="link" onclick="showSignup()">Create an account</div>
+    <div class="link" onclick="showForgot()">Forgot password?</div>
+  </div>
+
+  <!-- SIGN UP -->
+  <div class="auth-card hidden" id="signupCard">
+    <h2>Agent Sign Up</h2>
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Password" />
+    <button>Create Account</button>
+
+    <div class="link" onclick="showLogin()">Already have an account?</div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div class="auth-card hidden" id="forgotCard">
+    <h2>Reset Password</h2>
+    <input type="email" placeholder="Enter your email" />
+    <button>Send Reset Link</button>
+
+    <div class="link" onclick="showLogin()">Back to login</div>
+  </div>
+
+  <script>
+    function showSignup() {
+      loginCard.classList.add("hidden");
+      forgotCard.classList.add("hidden");
+      signupCard.classList.remove("hidden");
+    }
+
+    function showLogin() {
+      signupCard.classList.add("hidden");
+      forgotCard.classList.add("hidden");
+      loginCard.classList.remove("hidden");
+    }
+
+    function showForgot() {
+      loginCard.classList.add("hidden");
+      signupCard.classList.add("hidden");
+      forgotCard.classList.remove("hidden");
+    }
+
+    function goDashboard() {
+      window.location.href = "agent-dashboard.html";
+    }
+  </script>
+
 </body>
 </html>
