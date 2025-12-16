@@ -16,7 +16,6 @@
       background: #ffffff;
       display: flex;
       justify-content: center;
-      min-height: 100vh;
     }
 
     .page {
@@ -27,8 +26,8 @@
     }
 
     .logo {
-      width: 140px;
-      margin: 24px auto 16px;
+      width: 150px;
+      margin: 20px auto 10px;
       display: block;
     }
 
@@ -46,29 +45,19 @@
       flex: 1;
       padding: 12px;
       cursor: pointer;
-      border-bottom: 2px solid #ccc;
+      border-bottom: 3px solid transparent;
       font-weight: bold;
     }
 
     .tab.active {
-      border-bottom: 3px solid #0b2c4f;
+      border-color: #0b2c4f;
       color: #0b2c4f;
-    }
-
-    .form {
-      display: none;
-    }
-
-    .form.active {
-      display: block;
     }
 
     input {
       width: 100%;
       padding: 14px;
       margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
       font-size: 16px;
     }
 
@@ -76,9 +65,8 @@
       width: 100%;
       padding: 14px;
       background: #0b2c4f;
-      color: #ffffff;
+      color: white;
       border: none;
-      border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       margin-top: 10px;
@@ -93,11 +81,16 @@
       color: #0b2c4f;
       text-decoration: none;
     }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 
 <body>
   <div class="page">
+
     <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
     <h2>Observer Access</h2>
@@ -108,7 +101,7 @@
     </div>
 
     <!-- LOGIN -->
-    <div id="login" class="form active">
+    <div id="login">
       <input type="email" placeholder="Email address" />
       <input type="password" placeholder="Password" />
       <button>Sign In</button>
@@ -119,28 +112,30 @@
     </div>
 
     <!-- SIGN UP -->
-    <div id="signup" class="form">
+    <div id="signup" class="hidden">
       <input type="email" placeholder="Email address" />
       <input type="password" placeholder="Password" />
       <input type="password" placeholder="Confirm password" />
       <button>Create Observer Account</button>
     </div>
+
   </div>
 
   <script>
     function showLogin() {
-      document.getElementById("login").classList.add("active");
-      document.getElementById("signup").classList.remove("active");
+      document.getElementById("login").classList.remove("hidden");
+      document.getElementById("signup").classList.add("hidden");
       document.querySelectorAll(".tab")[0].classList.add("active");
       document.querySelectorAll(".tab")[1].classList.remove("active");
     }
 
     function showSignup() {
-      document.getElementById("signup").classList.add("active");
-      document.getElementById("login").classList.remove("active");
+      document.getElementById("signup").classList.remove("hidden");
+      document.getElementById("login").classList.add("hidden");
       document.querySelectorAll(".tab")[1].classList.add("active");
       document.querySelectorAll(".tab")[0].classList.remove("active");
     }
   </script>
+
 </body>
 </html>
