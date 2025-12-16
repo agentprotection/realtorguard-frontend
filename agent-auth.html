@@ -1,26 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Agent Access | Realtor Guard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Login | Realtor Guard</title>
+
   <style>
-    body { font-family: Arial; text-align: center; padding: 40px; }
-    input, button { width: 90%; max-width: 300px; padding: 12px; margin: 10px 0; }
-    a { display: block; margin-top: 10px; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #0b2c4f;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 180px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 360px;
+      padding: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #0b2c4f;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .link {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
   </style>
 </head>
+
 <body>
+  <div class="page">
 
-  <img src="images/logo.png" width="120" />
+    <div class="logo">
+      <img src="images/logo.png" alt="Realtor Guard Logo" />
+    </div>
 
-  <h2>Agent Login / Sign Up</h2>
+    <div class="card">
+      <input type="email" placeholder="Email" />
+      <input type="password" placeholder="Password" />
 
-  <input type="email" placeholder="Email" />
-  <input type="password" placeholder="Password" />
+      <button>Login</button>
 
-  <button onclick="location.href='agent-dashboard.html'">Login</button>
-  <button onclick="location.href='agent-dashboard.html'">Sign Up</button>
+      <div class="link">Forgot password?</div>
+      <div class="link">Create an account</div>
+    </div>
 
-  <a href="#">Forgot password?</a>
-
+  </div>
 </body>
 </html>
