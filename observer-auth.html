@@ -1,141 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Access | Realtor Guard</title>
-
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #ffffff;
-      display: flex;
-      justify-content: center;
-    }
-
-    .page {
-      width: 100%;
-      max-width: 420px;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .logo {
-      width: 150px;
-      margin: 20px auto 10px;
-      display: block;
-    }
-
-    h2 {
-      color: #0b2c4f;
-      margin-bottom: 20px;
-    }
-
-    .tabs {
-      display: flex;
-      margin-bottom: 20px;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 12px;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      font-weight: bold;
-    }
-
-    .tab.active {
-      border-color: #0b2c4f;
-      color: #0b2c4f;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #0b2c4f;
-      color: white;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .forgot {
-      margin-top: 12px;
-      font-size: 14px;
-    }
-
-    .forgot a {
-      color: #0b2c4f;
-      text-decoration: none;
-    }
-
-    .hidden {
-      display: none;
-    }
+    body { font-family: Arial; text-align: center; padding: 40px; }
+    input, button { width: 90%; max-width: 300px; padding: 12px; margin: 10px 0; }
+    a { display: block; margin-top: 10px; }
   </style>
 </head>
-
 <body>
-  <div class="page">
 
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+  <img src="images/logo.png" width="120" />
 
-    <h2>Observer Access</h2>
+  <h2>Observer Login / Sign Up</h2>
 
-    <div class="tabs">
-      <div class="tab active" onclick="showLogin()">Sign In</div>
-      <div class="tab" onclick="showSignup()">Sign Up</div>
-    </div>
+  <input type="email" placeholder="Email" />
+  <input type="password" placeholder="Password" />
 
-    <!-- LOGIN -->
-    <div id="login">
-      <input type="email" placeholder="Email address" />
-      <input type="password" placeholder="Password" />
-      <button>Sign In</button>
+  <button onclick="location.href='observer-dashboard.html'">Login</button>
+  <button onclick="location.href='observer-dashboard.html'">Sign Up</button>
 
-      <div class="forgot">
-        <a href="#">Forgot password?</a>
-      </div>
-    </div>
-
-    <!-- SIGN UP -->
-    <div id="signup" class="hidden">
-      <input type="email" placeholder="Email address" />
-      <input type="password" placeholder="Password" />
-      <input type="password" placeholder="Confirm password" />
-      <button>Create Observer Account</button>
-    </div>
-
-  </div>
-
-  <script>
-    function showLogin() {
-      document.getElementById("login").classList.remove("hidden");
-      document.getElementById("signup").classList.add("hidden");
-      document.querySelectorAll(".tab")[0].classList.add("active");
-      document.querySelectorAll(".tab")[1].classList.remove("active");
-    }
-
-    function showSignup() {
-      document.getElementById("signup").classList.remove("hidden");
-      document.getElementById("login").classList.add("hidden");
-      document.querySelectorAll(".tab")[1].classList.add("active");
-      document.querySelectorAll(".tab")[0].classList.remove("active");
-    }
-  </script>
+  <a href="#">Forgot password?</a>
 
 </body>
-</html>
+</html> .
