@@ -1,86 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observer Login | Realtor Guard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Observer Access | Realtor Guard</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-      color: #0b2c4f;
-    }
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
 
-    .page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 40px;
-    }
+body {
+  margin: 0;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+}
 
-    .logo {
-      width: 180px;
-      max-width: 70%;
-      margin-bottom: 30px;
-    }
+.page {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  text-align: center;
+}
 
-    .content {
-      width: 100%;
-      max-width: 360px;
-      padding: 0 20px;
-      text-align: center;
-    }
+.logo {
+  width: 140px;
+  margin: 24px auto;
+  display: block;
+}
 
-    h2 {
-      margin-bottom: 20px;
-    }
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 16px;
-    }
+.tab {
+  flex: 1;
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  font-weight: bold;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background: #0b2c4f;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      margin-bottom: 10px;
-    }
+.tab.active {
+  border-color: #0b2c4f;
+  color: #0b2c4f;
+}
 
-    .link {
-      font-size: 14px;
-      color: #0b2c4f;
-      cursor: pointer;
-      text-decoration: underline;
-      margin-top: 10px;
-    }
-  </style>
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: #0b2c4f;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.link {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #0b2c4f;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+</style>
 </head>
 
 <body>
-  <div class="page">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+<div class="page">
+  <img src="images/logo.png" class="logo" alt="Realtor Guard Logo" />
 
-    <div class="content">
-      <h2>Observer Login</h2>
-
-      <input type="email" placeholder="Email" />
-      <input type="password" placeholder="Password" />
-
-      <button>Log In</button>
-
-      <div class="link">Forgot password?</div>
-      <div class="link">Create an Observer Account</div>
-    </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showLogin()">Login</div>
+    <div class="tab" onclick="showSignup()">Sign Up</div>
   </div>
+
+  <div id="login">
+    <input type="email" placeholder="Email address" />
+    <input type="password" placeholder="Password" />
+    <button onclick="login()">Sign In</button>
+    <div class="link" onclick="forgot()">Forgot password?</div>
+  </div>
+
+  <div id="signup" class="hidden">
+    <input type="email" placeholder="Email address" />
+    <input type="password" placeholder="Password" />
+    <input type="password" placeholder="Confirm password" />
+    <button onclick="signup()">Create Observer Account</button>
+  </div>
+</div>
+
+<script>
+function showLogin() {
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("signup").classList.add("hidden");
+  document.querySelectorAll(".tab")[0].classList.add("active");
+  document.querySelectorAll(".tab")[1].classList.remove("active");
+}
+
+function showSignup() {
+  document.getElementById("signup").classList.remove("hidden");
+  document.getElementById("login").classList.add("hidden");
+  document.querySelectorAll(".tab")[1].classList.add("active");
+  document.querySelectorAll(".tab")[0].classList.remove("active");
+}
+
+function login() {
+  window.location.href = "observer-dashboard.html";
+}
+
+function signup() {
+  window.location.href = "observer-dashboard.html";
+}
+
+function forgot() {
+  alert("Password reset link will be sent to your email.");
+}
+</script>
 </body>
 </html>
