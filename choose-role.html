@@ -3,82 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Who Are You | Realtor Guard</title>
+  <title>Choose Role | Realtor Guard</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
       background: #ffffff;
-      color: #0b2c4f;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
     }
 
     .page {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .logo {
-      margin-top: 30px;
-      margin-bottom: 40px;
-    }
-
-    .logo img {
-      width: 180px;
-      height: auto;
-    }
-
-    .card {
       width: 100%;
-      max-width: 360px;
-      padding: 20px;
+      max-width: 420px;
+      padding: 32px 20px;
       text-align: center;
     }
 
+    .logo {
+      width: 140px;
+      margin: 0 auto 24px;
+      display: block;
+    }
+
     h1 {
-      margin-bottom: 30px;
+      font-size: 24px;
+      color: #0b2c4f;
+      margin-bottom: 24px;
     }
 
     .btn {
       display: block;
       width: 100%;
-      padding: 14px;
-      margin-bottom: 15px;
+      padding: 16px;
       font-size: 16px;
-      border-radius: 8px;
-      border: none;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      text-decoration: none;
       cursor: pointer;
-      background: #0b2c4f;
-      color: #fff;
     }
 
-    .btn.secondary {
-      background: #2e7d32;
+    .agent {
+      background: #0b2c4f;
+      color: white;
+    }
+
+    .observer {
+      border: 2px solid #0b2c4f;
+      color: #0b2c4f;
+      background: white;
     }
   </style>
 </head>
 
 <body>
   <div class="page">
+    <img src="images/logo.png" class="logo" alt="Realtor Guard Logo" />
 
-    <div class="logo">
-      <img src="images/logo.png" alt="Realtor Guard Logo" />
-    </div>
+    <h1>Who are you?</h1>
 
-    <div class="card">
-      <h1>Who are you?</h1>
-
-      <button class="btn" onclick="location.href='agent-auth.html'">
-        I’m an Agent
-      </button>
-
-      <button class="btn secondary" onclick="location.href='observer-auth.html'">
-        I’m an Observer
-      </button>
-    </div>
-
+    <a href="agent-auth.html" class="btn agent">I’m an Agent</a>
+    <a href="observer-auth.html" class="btn observer">I’m an Observer</a>
   </div>
 </body>
 </html>
