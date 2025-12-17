@@ -1,88 +1,91 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Navigate to Property</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navigate to Property | Realtor Guard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #ffffff;
-      color: #0b2c4f;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
       text-align: center;
     }
 
     .container {
-      max-width: 400px;
       width: 100%;
-      padding: 20px;
+      max-width: 420px;
+      padding: 24px;
     }
 
-    img {
+    .logo {
       width: 140px;
-      margin-bottom: 30px;
+      margin: 0 auto 24px;
+      display: block;
     }
 
     h1 {
       font-size: 22px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      color: #0b2c4f;
     }
 
     p {
-      font-size: 15px;
-      margin-bottom: 25px;
-      color: #555;
+      font-size: 16px;
+      margin-bottom: 24px;
+      color: #333;
     }
 
     input {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: 14px;
       font-size: 16px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
 
     button {
       width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: #0b2c4f;
-      color: #fff;
+      padding: 16px;
+      font-size: 18px;
+      border-radius: 10px;
       border: none;
-      border-radius: 6px;
+      background: #0b2c4f;
+      color: #ffffff;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #09315a;
+    button:active {
+      opacity: 0.9;
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <img src="images/logo.png" alt="Realtor Guard Logo" />
 
-    <h1>Navigate to Location</h1>
-    <p>Enter the property address to get directions.</p>
+  <div class="container">
+    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+
+    <h1>Navigate to Property</h1>
+    <p>Enter the property address and open directions.</p>
 
     <input
-      type="text"
       id="address"
-      placeholder="Enter property address"
+      type="text"
+      placeholder="123 Main St, City, State"
     />
 
-    <button onclick="openNavigation()">Get Directions</button>
+    <button onclick="openMaps()">Open Directions</button>
   </div>
 
   <script>
-    function openNavigation() {
-      const address = document.getElementById("address").value;
+    function openMaps() {
+      const address = document.getElementById("address").value.trim();
 
       if (!address) {
         alert("Please enter an address");
@@ -90,12 +93,12 @@
       }
 
       const encodedAddress = encodeURIComponent(address);
+      const mapsUrl =
+        "https://www.google.com/maps/dir/?api=1&destination=" + encodedAddress;
 
-      // Mobile + Web compatible
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
-
-      window.open(mapsUrl, "_blank");
+      window.location.href = mapsUrl;
     }
   </script>
+
 </body>
 </html>
