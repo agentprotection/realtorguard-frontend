@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Observer Access | Realtor Guard</title>
 
 <style>
@@ -15,7 +15,7 @@ body {
   justify-content: center;
 }
 
-.page {
+.container {
   width: 100%;
   max-width: 420px;
   padding: 24px;
@@ -28,28 +28,12 @@ body {
   display: block;
 }
 
-.tabs {
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.tab {
-  flex: 1;
-  padding: 12px;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  font-weight: bold;
-}
-
-.tab.active {
-  border-color: #0b2c4f;
-  color: #0b2c4f;
-}
+h2 { color: #0b2c4f; }
 
 input {
   width: 100%;
   padding: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   font-size: 16px;
 }
 
@@ -60,12 +44,10 @@ button {
   color: white;
   border: none;
   font-size: 16px;
-  cursor: pointer;
 }
 
 .link {
   margin-top: 12px;
-  font-size: 14px;
   color: #0b2c4f;
   cursor: pointer;
 }
@@ -75,55 +57,65 @@ button {
 </head>
 
 <body>
-<div class="page">
-  <img src="images/logo.png" class="logo" alt="Realtor Guard Logo" />
+<div class="container">
 
-  <div class="tabs">
-    <div class="tab active" onclick="showLogin()">Login</div>
-    <div class="tab" onclick="showSignup()">Sign Up</div>
-  </div>
+<img src="images/logo.png" class="logo">
 
-  <div id="login">
-    <input type="email" placeholder="Email address" />
-    <input type="password" placeholder="Password" />
-    <button onclick="login()">Sign In</button>
-    <div class="link" onclick="forgot()">Forgot password?</div>
-  </div>
+<h2 id="title">Observer Login</h2>
 
-  <div id="signup" class="hidden">
-    <input type="email" placeholder="Email address" />
-    <input type="password" placeholder="Password" />
-    <input type="password" placeholder="Confirm password" />
-    <button onclick="signup()">Create Observer Account</button>
-  </div>
+<div id="login">
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Password">
+  <button onclick="goDashboard()">Login</button>
+
+  <div class="link" onclick="showSignup()">Create account</div>
+  <div class="link" onclick="showForgot()">Forgot password?</div>
+</div>
+
+<div id="signup" class="hidden">
+  <input type="email" placeholder="Email">
+  <input type="password" placeholder="Password">
+  <input type="password" placeholder="Confirm Password">
+  <button onclick="goDashboard()">Create Account</button>
+
+  <div class="link" onclick="showLogin()">Back to login</div>
+</div>
+
+<div id="forgot" class="hidden">
+  <input type="email" placeholder="Email">
+  <button onclick="showLogin()">Send reset link</button>
+
+  <div class="link" onclick="showLogin()">Back to login</div>
+</div>
+
 </div>
 
 <script>
-function showLogin() {
-  document.getElementById("login").classList.remove("hidden");
-  document.getElementById("signup").classList.add("hidden");
-  document.querySelectorAll(".tab")[0].classList.add("active");
-  document.querySelectorAll(".tab")[1].classList.remove("active");
-}
-
 function showSignup() {
-  document.getElementById("signup").classList.remove("hidden");
-  document.getElementById("login").classList.add("hidden");
-  document.querySelectorAll(".tab")[1].classList.add("active");
-  document.querySelectorAll(".tab")[0].classList.remove("active");
+  title.innerText = "Observer Sign Up";
+  login.classList.add("hidden");
+  forgot.classList.add("hidden");
+  signup.classList.remove("hidden");
 }
 
-function login() {
+function showLogin() {
+  title.innerText = "Observer Login";
+  signup.classList.add("hidden");
+  forgot.classList.add("hidden");
+  login.classList.remove("hidden");
+}
+
+function showForgot() {
+  title.innerText = "Reset Password";
+  login.classList.add("hidden");
+  signup.classList.add("hidden");
+  forgot.classList.remove("hidden");
+}
+
+function goDashboard() {
   window.location.href = "observer-dashboard.html";
-}
-
-function signup() {
-  window.location.href = "observer-dashboard.html";
-}
-
-function forgot() {
-  alert("Password reset link will be sent to your email.");
 }
 </script>
+
 </body>
 </html>
