@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Navigate to Property | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
       background: #ffffff;
       display: flex;
       justify-content: center;
@@ -23,22 +27,20 @@
       padding: 24px;
     }
 
-    .logo {
-      width: 140px;
-      margin: 0 auto 24px;
-      display: block;
+    img {
+      width: 120px;
+      margin-bottom: 20px;
     }
 
     h1 {
-      font-size: 22px;
-      margin-bottom: 12px;
       color: #0b2c4f;
+      margin-bottom: 10px;
     }
 
     p {
-      font-size: 16px;
-      margin-bottom: 24px;
       color: #333;
+      margin-bottom: 24px;
+      font-size: 16px;
     }
 
     input {
@@ -50,29 +52,36 @@
       border: 1px solid #ccc;
     }
 
-    button {
+    .btn {
+      display: block;
       width: 100%;
       padding: 16px;
+      margin-bottom: 14px;
       font-size: 18px;
       border-radius: 10px;
-      border: none;
-      background: #0b2c4f;
-      color: #ffffff;
-      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
     }
 
-    button:active {
-      opacity: 0.9;
+    .google {
+      background: #0b2c4f;
+      color: #ffffff;
+    }
+
+    .apple {
+      background: #ffffff;
+      color: #0b2c4f;
+      border: 2px solid #0b2c4f;
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="container">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
+    <img src="images/logo.png" alt="Realtor Guard Logo" />
 
     <h1>Navigate to Property</h1>
-    <p>Enter the property address and open directions.</p>
+    <p>Enter the address and open directions in your maps app.</p>
 
     <input
       id="address"
@@ -80,25 +89,47 @@
       placeholder="123 Main St, City, State"
     />
 
-    <button onclick="openMaps()">Open Directions</button>
+    <!-- GOOGLE MAPS -->
+    <a
+      class="btn google"
+      href="#"
+      onclick="openGoogleMaps()"
+    >
+      Open in Google Maps
+    </a>
+
+    <!-- APPLE MAPS -->
+    <a
+      class="btn apple"
+      href="#"
+      onclick="openAppleMaps()"
+    >
+      Open in Apple Maps
+    </a>
   </div>
 
   <script>
-    function openMaps() {
-      const address = document.getElementById("address").value.trim();
-
+    function openGoogleMaps() {
+      const address = document.getElementById("address").value;
       if (!address) {
         alert("Please enter an address");
         return;
       }
+      window.location.href =
+        "https://www.google.com/maps/dir/?api=1&destination=" +
+        encodeURIComponent(address);
+    }
 
-      const encodedAddress = encodeURIComponent(address);
-      const mapsUrl =
-        "https://www.google.com/maps/dir/?api=1&destination=" + encodedAddress;
-
-      window.location.href = mapsUrl;
+    function openAppleMaps() {
+      const address = document.getElementById("address").value;
+      if (!address) {
+        alert("Please enter an address");
+        return;
+      }
+      window.location.href =
+        "https://maps.apple.com/?daddr=" +
+        encodeURIComponent(address);
     }
   </script>
-
 </body>
 </html>
