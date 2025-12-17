@@ -1,15 +1,28 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Dashboard | Realtor Guard</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
       text-align: center;
     }
 
@@ -19,36 +32,67 @@
       display: block;
     }
 
-    .box {
-      background: white;
-      max-width: 420px;
-      margin: auto;
-      padding: 25px;
+    h1 {
+      color: #0b2c4f;
+      margin-bottom: 10px;
     }
 
-    button {
+    p {
+      color: #444;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #0b2c4f;
+    }
+
+    .btn {
+      display: block;
       width: 100%;
       padding: 14px;
-      margin: 10px 0;
-      font-size: 16px;
-      border: none;
-      cursor: pointer;
+      margin-top: 15px;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
       background: #0b2c4f;
-      color: white;
+      color: #ffffff;
+      font-size: 16px;
+    }
+
+    .btn.secondary {
+      background: #ffffff;
+      color: #0b2c4f;
+      border: 2px solid #0b2c4f;
     }
   </style>
 </head>
+
 <body>
+  <div class="page">
+    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
-  <img src="images/logo.png" class="logo" />
+    <h1>Agent Dashboard</h1>
+    <p>Manage your showings and request an observer</p>
 
-  <div class="box">
-    <h2>Agent Dashboard</h2>
-    <button>Request Observer</button>
-    <button>Upcoming Showings</button>
-    <button>Profile</button>
-    <button>Logout</button>
+    <div class="card">
+      <h3>Upcoming Showing</h3>
+      <p><strong>Address:</strong> 123 Main St, Miami, FL</p>
+      <p><strong>Date:</strong> Today at 4:00 PM</p>
+
+      <!-- WIRED TO NAVIGATION -->
+      <a href="navigation.html" class="btn">Navigate to Property</a>
+    </div>
+
+    <a href="choose-role.html" class="btn secondary">Log Out</a>
   </div>
-
 </body>
 </html>
