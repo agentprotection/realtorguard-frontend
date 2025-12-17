@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     * {
@@ -21,14 +21,14 @@
 
     .page {
       width: 100%;
-      max-width: 480px;
-      padding: 20px;
+      max-width: 520px;
+      padding: 24px;
       text-align: center;
     }
 
     .logo {
       width: 120px;
-      margin: 20px auto;
+      margin: 10px auto 20px;
       display: block;
     }
 
@@ -38,20 +38,22 @@
     }
 
     p {
-      color: #444;
-      margin-bottom: 30px;
+      color: #333;
+      margin-bottom: 24px;
+      font-size: 16px;
     }
 
-    .card {
+    .assignment {
       border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
       text-align: left;
     }
 
-    .card h3 {
-      margin-top: 0;
+    .assignment strong {
+      display: block;
+      margin-bottom: 6px;
       color: #0b2c4f;
     }
 
@@ -59,13 +61,13 @@
       display: block;
       width: 100%;
       padding: 14px;
-      margin-top: 15px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 8px;
+      margin-top: 12px;
       background: #0b2c4f;
       color: #ffffff;
+      text-decoration: none;
+      border-radius: 8px;
       font-size: 16px;
+      text-align: center;
     }
 
     .btn.secondary {
@@ -81,19 +83,17 @@
     <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
     <h1>Observer Dashboard</h1>
-    <p>Your assigned jobs appear below</p>
+    <p>Available assignments near you.</p>
 
-    <div class="card">
-      <h3>Assignment</h3>
-      <p><strong>Agent:</strong> Jane Smith</p>
-      <p><strong>Address:</strong> 123 Main St, Miami, FL</p>
-      <p><strong>Time:</strong> Today at 4:00 PM</p>
-
-      <!-- WIRED TO NAVIGATION -->
-      <a href="navigation.html" class="btn">Start Navigation</a>
+    <div class="assignment">
+      <strong>Assignment Available</strong>
+      123 Main St, Miami FL  
+      <br />
+      Today at 4:00 PM
     </div>
 
-    <a href="choose-role.html" class="btn secondary">Log Out</a>
+    <a href="#" class="btn">Accept Assignment</a>
+    <a href="navigation.html" class="btn secondary">Navigate to Property</a>
   </div>
 </body>
 </html>
