@@ -1,0 +1,110 @@
+agent-request<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Request Observer | Realtor Guard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+    }
+
+    .page {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0b2c4f;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      display: block;
+      margin-top: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: #0b2c4f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <iframe src="navigation.html" style="width:100%;height:60px;border:none;"></iframe>
+
+  <div class="page">
+    <h1>Request an Observer</h1>
+
+    <label>Agent Name</label>
+    <input id="agentName" placeholder="Enter your name" />
+
+    <label>Street Address</label>
+    <input id="street" placeholder="123 Main St" />
+
+    <label>City</label>
+    <input id="city" placeholder="City" />
+
+    <label>State</label>
+    <input id="state" placeholder="State" />
+
+    <label>ZIP Code</label>
+    <input id="zip" placeholder="ZIP Code" />
+
+    <label>Date</label>
+    <input id="date" type="date" />
+
+    <label>Time</label>
+    <input id="time" type="time" />
+
+    <button onclick="submitRequest()">Submit Request</button>
+  </div>
+
+  <script>
+    localStorage.setItem("role", "agent");
+
+    function submitRequest() {
+      const request = {
+        agentName: agentName.value,
+        street: street.value,
+        city: city.value,
+        state: state.value,
+        zip: zip.value,
+        date: date.value,
+        time: time.value,
+        status: "waiting"
+      };
+
+      localStorage.setItem("assignmentRequest", JSON.stringify(request));
+      localStorage.setItem("assignmentStatus", "waiting");
+
+      window.location.href = "agent-dashboard.html";
+    }
+  </script>
+
+</body>
+</html>
