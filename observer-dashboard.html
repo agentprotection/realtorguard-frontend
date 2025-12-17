@@ -2,34 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Observer Dashboard | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
     body {
       margin: 0;
+      font-family: Arial, sans-serif;
       background: #ffffff;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
     }
 
     .page {
-      width: 100%;
       max-width: 520px;
-      padding: 24px;
+      margin: 0 auto;
+      padding: 20px;
       text-align: center;
-    }
-
-    .logo {
-      width: 120px;
-      margin: 10px auto 20px;
-      display: block;
     }
 
     h1 {
@@ -37,63 +24,68 @@
       margin-bottom: 10px;
     }
 
-    p {
-      color: #333;
-      margin-bottom: 24px;
-      font-size: 16px;
-    }
-
-    .assignment {
+    .card {
       border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 15px;
       text-align: left;
     }
 
-    .assignment strong {
-      display: block;
-      margin-bottom: 6px;
-      color: #0b2c4f;
+    .card h3 {
+      margin: 0 0 8px;
+      color: #333;
+    }
+
+    .card p {
+      margin: 4px 0;
+      font-size: 14px;
     }
 
     .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
       background: #0b2c4f;
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 16px;
-      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
     }
 
-    .btn.secondary {
-      background: #ffffff;
-      color: #0b2c4f;
-      border: 2px solid #0b2c4f;
+    .btn:disabled {
+      background: #999;
+      cursor: default;
     }
   </style>
 </head>
-
 <body>
+
+  <!-- Shared Navigation -->
+  <iframe src="navigation.html" style="width:100%;height:60px;border:none;"></iframe>
+
   <div class="page">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
-
     <h1>Observer Dashboard</h1>
-    <p>Available assignments near you.</p>
+    <p>Available assignment requests</p>
 
-    <div class="assignment">
-      <strong>Assignment Available</strong>
-      123 Main St, Miami FL  
-      <br />
-      Today at 4:00 PM
+    <div class="card">
+      <h3>Property Showing</h3>
+      <p><strong>Location:</strong> 123 Main St</p>
+      <p><strong>Date:</strong> Tomorrow</p>
+      <p><strong>Time:</strong> 2:00 PM</p>
+      <button class="btn" onclick="acceptAssignment(this)">Accept Assignment</button>
     </div>
 
-    <a href="#" class="btn">Accept Assignment</a>
-    <a href="navigation.html" class="btn secondary">Navigate to Property</a>
   </div>
+
+  <script>
+    localStorage.setItem("role", "observer");
+
+    function acceptAssignment(button) {
+      button.textContent = "Assignment Accepted";
+      button.disabled = true;
+    }
+  </script>
+
 </body>
 </html>
