@@ -1,0 +1,101 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Navigate to Property</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      color: #0b2c4f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    img {
+      width: 140px;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      margin-bottom: 25px;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: #0b2c4f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #09315a;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <img src="images/logo.png" alt="Realtor Guard Logo" />
+
+    <h1>Navigate to Location</h1>
+    <p>Enter the property address to get directions.</p>
+
+    <input
+      type="text"
+      id="address"
+      placeholder="Enter property address"
+    />
+
+    <button onclick="openNavigation()">Get Directions</button>
+  </div>
+
+  <script>
+    function openNavigation() {
+      const address = document.getElementById("address").value;
+
+      if (!address) {
+        alert("Please enter an address");
+        return;
+      }
+
+      const encodedAddress = encodeURIComponent(address);
+
+      // Mobile + Web compatible
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+
+      window.open(mapsUrl, "_blank");
+    }
+  </script>
+</body>
+</html>
