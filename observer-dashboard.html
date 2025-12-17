@@ -39,7 +39,7 @@
 
     .status {
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .available {
@@ -53,11 +53,11 @@
     .btn {
       width: 100%;
       padding: 10px;
+      margin-top: 10px;
       border: none;
       border-radius: 4px;
       font-size: 15px;
       cursor: pointer;
-      margin-top: 10px;
     }
 
     .accept {
@@ -78,16 +78,17 @@
 
   <div class="page">
     <h1>Observer Dashboard</h1>
-    <p class="sub">Assignment requests</p>
+    <p class="sub">Assignment request</p>
 
     <div class="card">
-      <div id="status" class="status available">Status: Available</div>
+      <div id="status" class="status available">
+        Status: Available
+      </div>
 
       <p><strong>Location:</strong> 123 Main St</p>
       <p><strong>Date:</strong> Tomorrow</p>
       <p><strong>Time:</strong> 2:00 PM</p>
 
-      <!-- Buttons -->
       <button
         id="acceptBtn"
         class="btn accept"
@@ -108,14 +109,14 @@
   </div>
 
   <script>
-    // role lock
+    // lock role
     localStorage.setItem("role", "observer");
 
-    let assignmentAccepted = false;
-
     function acceptAssignment() {
-      assignmentAccepted = true;
+      // sync to agent dashboard
+      localStorage.setItem("assignmentStatus", "accepted");
 
+      // update UI
       document.getElementById("status").textContent =
         "Status: Active Assignment";
       document.getElementById("status").className =
