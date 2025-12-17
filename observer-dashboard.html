@@ -9,7 +9,6 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #ffffff;
     }
 
     .page {
@@ -19,22 +18,12 @@
       text-align: center;
     }
 
-    h1 {
-      color: #0b2c4f;
-      margin-bottom: 5px;
-    }
-
-    .sub {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 20px;
-    }
-
     .card {
       border: 1px solid #ddd;
       border-radius: 6px;
       padding: 15px;
       text-align: left;
+      margin-top: 20px;
     }
 
     .status {
@@ -42,100 +31,85 @@
       margin-bottom: 10px;
     }
 
-    .available {
-      color: #0b2c4f;
-    }
+    .available { color: #0b2c4f; }
+    .active { color: green; }
 
-    .active {
-      color: green;
-    }
-
-    .btn {
+    button {
       width: 100%;
-      padding: 10px;
       margin-top: 10px;
+      padding: 10px;
       border: none;
       border-radius: 4px;
-      font-size: 15px;
       cursor: pointer;
-    }
-
-    .accept {
-      background: #0b2c4f;
       color: white;
     }
 
-    .start {
-      background: green;
-      color: white;
-    }
+    .accept { background: #0b2c4f; }
+    .start { background: green; }
   </style>
 </head>
 <body>
 
-  <!-- Shared Navigation -->
   <iframe src="navigation.html" style="width:100%;height:60px;border:none;"></iframe>
 
   <div class="page">
     <h1>Observer Dashboard</h1>
-    <p class="sub">Assignment request</p>
 
-    <div class="card">
-      <div id="status" class="status available">
-        Status: Available
-      </div>
-
-      <p><strong>Location:</strong> 123 Main St</p>
-      <p><strong>Date:</strong> Tomorrow</p>
-      <p><strong>Time:</strong> 2:00 PM</p>
-
-      <button
-        id="acceptBtn"
-        class="btn accept"
-        onclick="acceptAssignment()"
-      >
-        Accept Assignment
-      </button>
-
-      <button
-        id="startBtn"
-        class="btn start"
-        onclick="startAssignment()"
-        style="display:none;"
-      >
-        Start Assignment
-      </button>
-    </div>
+    <div id="card" class="card"></div>
   </div>
 
   <script>
-    // lock role
     localStorage.setItem("role", "observer");
 
-    function acceptAssignment() {
-      // sync to agent dashboard
+    function render() {
+      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+      const status = localStorage.getItem("assignmentStatus");
+
+      if (!req) {
+        card.innerHTML = "No assignments available.";
+        return;
+      }
+
+      if (status === "accepted") {
+        card.innerHTML = `
+          <div class="status active">Status: Active Assignment</div>
+          <strong>Agent:</strong> ${req.agentName}<br/>
+          <strong>Location:</strong> ${req.street}, ${req.city}, ${req.state} ${req.zip}<br/>
+          <strong>Date:</strong> ${req.date}<br/>
+          <strong>Time:</strong> ${req.time}<br/>
+          <button class="start" onclick="start('${req.street}, ${req.city}, ${req.state} ${req.zip}')">
+            Start Assignment
+          </button>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="status available">Status: Available</div>
+          <strong>Agent:</strong> ${req.agentName}<br/>
+          <strong>Location:</strong> ${req.street}, ${req.city}, ${req.state} ${req.zip}<br/>
+          <strong>Date:</strong> ${req.date}<br/>
+          <strong>Time:</strong> ${req.time}<br/>
+          <button class="accept" onclick="accept()">Accept Assignment</button>
+        `;
+      }
+    }
+
+    function accept() {
       localStorage.setItem("assignmentStatus", "accepted");
-
-      // update UI
-      document.getElementById("status").textContent =
-        "Status: Active Assignment";
-      document.getElementById("status").className =
-        "status active";
-
-      document.getElementById("acceptBtn").style.display = "none";
-      document.getElementById("startBtn").style.display = "block";
+      render();
     }
 
-    function startAssignment() {
-      const address = "123 Main St";
-
-      const mapsUrl =
+    function start(address) {
+      window.open(
         "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(address);
-
-      window.open(mapsUrl, "_blank");
+        encodeURIComponent(address),
+        "_blank"
+      );
     }
+
+    render();
+    setInterval(render, 1000);
   </script>
 
 </body>
 </html>
+
