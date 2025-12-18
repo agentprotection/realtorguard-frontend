@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Observer Dashboard | Realtor Guard</title>
 
   <style>
-    :root{
-      --navy:#0B2C4F;
-      --white:#FFFFFF;
-      --border:#E5E7EB;
-      --success:#16A34A;
-    }
+    :root{ --navy:#0B2C4F; --white:#FFFFFF; --border:#E5E7EB; --success:#16A34A; }
     body{ margin:0; font-family:Arial,sans-serif; background:var(--white); color:var(--navy); }
 
     .nav{
@@ -22,29 +17,29 @@
     .brand img{ width:28px; height:28px; object-fit:contain; }
     .actions button{
       background:var(--navy); color:var(--white); border:none; padding:8px 12px;
-      border-radius:6px; font-size:14px; cursor:pointer;
+      border-radius:10px; font-size:14px; cursor:pointer;
     }
 
-    .page{ max-width:720px; margin:0 auto; padding:24px; }
-    h1{ text-align:center; margin:18px 0 8px; }
+    .page{ max-width:900px; margin:0 auto; padding:24px; }
+    h1{ text-align:center; margin:10px 0 6px; }
     .muted{ text-align:center; color:#666; margin:0 0 18px; }
 
     .card{
       border:1px solid var(--border);
-      border-radius:12px;
+      border-radius:14px;
       padding:16px;
-      margin-top:14px;
       background:#fff;
+      margin-top:14px;
     }
     .label{ font-size:13px; color:#555; margin-top:10px; }
-    .value{ font-weight:700; margin-top:2px; }
+    .value{ font-weight:800; margin-top:2px; }
 
     .btn{
       width:100%;
-      margin-top:16px;
+      margin-top:14px;
       padding:12px;
       border:none;
-      border-radius:10px;
+      border-radius:12px;
       font-size:16px;
       cursor:pointer;
       background:var(--success);
@@ -53,11 +48,11 @@
 
     .empty{
       border:1px dashed var(--border);
-      border-radius:12px;
+      border-radius:14px;
       padding:18px;
-      color:#666;
       text-align:center;
-      margin-top:18px;
+      color:#666;
+      margin-top:14px;
     }
 
     .pill{
@@ -71,8 +66,8 @@
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="nav">
     <div class="brand" onclick="goHome()">
       <img src="logo.png" alt="Realtor Guard" onerror="this.style.display='none'">
@@ -86,78 +81,89 @@
   <div class="page">
     <h1>Observer Dashboard</h1>
     <p class="muted">Available requests</p>
-
     <div id="content"></div>
   </div>
 
-  <script>
-    function goHome(){ window.location.href = "choose-role.html"; }
-    function logout(){ localStorage.clear(); window.location.href = "index.html"; }
+<script>
+  function goHome(){ window.location.href="choose-role.html"; }
+  function logout(){ localStorage.clear(); window.location.href="index.html"; }
 
-    function render() {
-      const container = document.getElementById("content");
-      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+  function render(){
+    const c = document.getElementById("content");
+    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
 
-      if (!req || req.status !== "pending") {
-        container.innerHTML = `<div class="empty">No assignments available.</div>`;
-        return;
-      }
-
-      const props = Array.isArray(req.properties) ? req.properties : [];
-      if (props.length === 0) {
-        container.innerHTML = `<div class="empty">No properties found in request.</div>`;
-        return;
-      }
-
-      const listHtml = props.map((p, idx) => `
-        <div class="card">
-          <div class="value">Property ${idx + 1} <span class="pill">${p.visitType || "Visit"}</span></div>
-
-          <div class="label">Address</div>
-          <div class="value">
-            ${(p.street || "-")}<br/>
-            ${(p.city || "-")}, ${(p.state || "-")} ${(p.zip || "-")}
-          </div>
-
-          <div class="label">Date & Time (${req.timeZone || "Time Zone"})</div>
-          <div class="value">${(p.date || "-")} @ ${(p.time || "-")}</div>
-
-          ${p.visitType === "Other" && p.otherDesc ? `
-            <div class="label">Other Details</div>
-            <div class="value">${p.otherDesc}</div>
-          ` : ``}
-        </div>
-      `).join("");
-
-      container.innerHTML = `
-        <div class="card">
-          <div class="label">Agent</div>
-          <div class="value">${req.agentName || "-"}</div>
-
-          <div class="label">Properties in this request</div>
-          <div class="value">${props.length}</div>
-
-          <button class="btn" onclick="accept()">Accept Request</button>
-        </div>
-
-        ${listHtml}
-      `;
+    if(!req || req.status !== "pending"){
+      c.innerHTML = `<div class="empty">No assignments available.</div>`;
+      return;
     }
 
-    function accept() {
-      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-      req.status = "accepted";
-      req.observerAcceptedAt = new Date().toISOString();
+    const props = Array.isArray(req.properties) ? req.properties : [];
+    const cards = props.map((p, i) => `
+      <div class="card">
+        <div class="value">Property ${i+1} <span class="pill">${p.visitType || "Visit"}</span></div>
 
-      localStorage.setItem("assignmentRequest", JSON.stringify(req));
-      localStorage.setItem("role", "observer");
-      localStorage.setItem("activePropertyIndex", "0");
+        <div class="label">Address</div>
+        <div class="value">
+          ${escapeHTML(p.street || "-")}<br/>
+          ${escapeHTML(p.city || "-")}, ${escapeHTML(p.state || "-")} ${escapeHTML(p.zip || "-")}
+        </div>
 
-      window.location.href = "navigation.html";
-    }
+        <div class="label">Date & Time (${escapeHTML(req.timeZone || "Time Zone")})</div>
+        <div class="value">${escapeHTML(p.date || "-")} @ ${escapeHTML(p.time || "-")}</div>
 
-    render();
-  </script>
+        ${p.visitType === "Other" && p.otherDesc ? `
+          <div class="label">Other Details</div>
+          <div class="value">${escapeHTML(p.otherDesc)}</div>
+        ` : ``}
+      </div>
+    `).join("");
 
+    c.innerHTML = `
+      <div class="card">
+        <div class="label">Agent</div>
+        <div class="value">${escapeHTML(req.agentName || "-")}</div>
+
+        <div class="label">Properties</div>
+        <div class="value">${props.length}</div>
+
+        <button class="btn" onclick="accept()">Accept Request</button>
+      </div>
+
+      ${cards}
+    `;
+  }
+
+  function accept(){
+    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+
+    // Mock observer profile (backend-ready shape)
+    req.observer = {
+      fullName: "Marcus Reed",
+      phone: "5551234567",
+      photoUrl: "", // add later
+      vehicle: { make:"Honda", model:"Accord", year:"2022", color:"White" },
+      rating: "4.8 ★",
+      reviewsCount: 87
+    };
+
+    req.status = "accepted";
+    req.observerAcceptedAt = new Date().toISOString();
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    localStorage.setItem("role","observer");
+    localStorage.setItem("activePropertyIndex","0");
+
+    // go to navigation (if you want)
+    window.location.href = "navigation.html";
+  }
+
+  function escapeHTML(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  render();
+</script>
 </body>
 </html>
