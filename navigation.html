@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,67 +6,130 @@
   <title>Navigation | Realtor Guard</title>
 
   <style>
+    :root {
+      --navy: #0B2C4F;
+      --white: #FFFFFF;
+      --border: #E5E7EB;
+      --success: #16A34A;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #ffffff;
+      background: var(--white);
+      color: var(--navy);
     }
 
+    /* Top Nav */
     .nav {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid #ddd;
-      background: #fff;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
     }
 
-    .nav-logo {
+    .brand {
+      display: flex;
+      align-items: center;
       font-weight: bold;
-      color: #0b2c4f;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    .nav-links a {
-      margin-left: 15px;
-      text-decoration: none;
-      color: #0b2c4f;
-      font-size: 14px;
+    .brand span {
+      margin-left: 8px;
     }
 
-    .nav-links a:hover {
-      text-decoration: underline;
+    .actions button {
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Page */
+    .page {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 24px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px;
+      text-align: left;
+      margin-top: 20px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .value {
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    .start-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: var(--success);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
+  <!-- Top Navigation -->
   <div class="nav">
-    <div class="nav-logo" onclick="goHome()">Realtor Guard</div>
+    <div class="brand" onclick="goDashboard()">
+      🛡️ <span>Realtor Guard</span>
+    </div>
 
-    <div class="nav-links">
-      <a href="#" onclick="goDashboard()">Dashboard</a>
-      <a href="#" onclick="logout()">Logout</a>
+    <div class="actions">
+      <button onclick="logout()">Logout</button>
     </div>
   </div>
 
+  <!-- Page Content -->
+  <div class="page">
+    <h1>Assignment Navigation</h1>
+    <p>Use your maps app to navigate to the property</p>
+
+    <div class="card" id="details">
+      Loading assignment...
+    </div>
+
+    <button class="start-btn" onclick="startNavigation()">
+      Open Maps
+    </button>
+  </div>
+
   <script>
-    function getRole() {
-      return localStorage.getItem("role");
-    }
-
-    function goHome() {
-      window.location.href = "index.html";
-    }
-
     function goDashboard() {
-      const role = getRole();
-      if (role === "agent") {
-        window.location.href = "agent-dashboard.html";
-      } else if (role === "observer") {
+      const role = localStorage.getItem("role");
+      if (role === "observer") {
         window.location.href = "observer-dashboard.html";
       } else {
-        window.location.href = "choose-role.html";
+        window.location.href = "agent-dashboard.html";
       }
     }
 
@@ -74,6 +137,47 @@
       localStorage.clear();
       window.location.href = "index.html";
     }
+
+    function loadAssignment() {
+      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+      if (!req) {
+        document.getElementById("details").innerHTML =
+          "No active assignment.";
+        return;
+      }
+
+      document.getElementById("details").innerHTML = `
+        <div class="label">Agent</div>
+        <div class="value">${req.agentName}</div>
+
+        <div class="label">Location</div>
+        <div class="value">
+          ${req.street}<br/>
+          ${req.city}, ${req.state} ${req.zip}
+        </div>
+
+        <div class="label">Date & Time</div>
+        <div class="value">${req.date} @ ${req.time}</div>
+      `;
+    }
+
+    function startNavigation() {
+      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+      if (!req) return;
+
+      const address =
+        `${req.street}, ${req.city}, ${req.state} ${req.zip}`;
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      const url = isIOS
+        ? `https://maps.apple.com/?q=${encodeURIComponent(address)}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+      window.open(url, "_blank");
+    }
+
+    loadAssignment();
   </script>
 
 </body>
