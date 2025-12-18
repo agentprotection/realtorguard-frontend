@@ -1,51 +1,73 @@
-agent-request<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Request Observer | Realtor Guard</title>
+  <title>Agent Request | Realtor Guard</title>
 
   <style>
+    :root {
+      --navy: #0B2C4F;
+      --white: #FFFFFF;
+      --border: #E5E7EB;
+      --primary: #0B2C4F;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #ffffff;
+      background: var(--white);
+      color: var(--navy);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .page {
       max-width: 520px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px;
     }
 
     h1 {
       text-align: center;
-      color: #0b2c4f;
-      margin-bottom: 20px;
+    }
+
+    form {
+      margin-top: 20px;
     }
 
     label {
-      font-size: 14px;
-      font-weight: bold;
+      font-size: 13px;
       display: block;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     input {
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      font-size: 14px;
-      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 6px;
       border-radius: 4px;
+      border: 1px solid var(--border);
+      font-size: 14px;
     }
 
     button {
       width: 100%;
       margin-top: 20px;
       padding: 12px;
-      background: #0b2c4f;
-      color: white;
+      background: var(--primary);
+      color: var(--white);
       border: none;
       border-radius: 4px;
       font-size: 16px;
@@ -55,52 +77,61 @@ agent-request<!DOCTYPE html>
 </head>
 <body>
 
-  <iframe src="navigation.html" style="width:100%;height:60px;border:none;"></iframe>
+  <div class="nav">
+    <div class="brand" onclick="goDashboard()">🛡️ Realtor Guard</div>
+  </div>
 
   <div class="page">
     <h1>Request an Observer</h1>
 
-    <label>Agent Name</label>
-    <input id="agentName" placeholder="Enter your name" />
+    <form onsubmit="submitRequest(event)">
+      <label>Agent Name</label>
+      <input id="agentName" required />
 
-    <label>Street Address</label>
-    <input id="street" placeholder="123 Main St" />
+      <label>Street Address</label>
+      <input id="street" required />
 
-    <label>City</label>
-    <input id="city" placeholder="City" />
+      <label>City</label>
+      <input id="city" required />
 
-    <label>State</label>
-    <input id="state" placeholder="State" />
+      <label>State</label>
+      <input id="state" required />
 
-    <label>ZIP Code</label>
-    <input id="zip" placeholder="ZIP Code" />
+      <label>Zip Code</label>
+      <input id="zip" required />
 
-    <label>Date</label>
-    <input id="date" type="date" />
+      <label>Date</label>
+      <input type="date" id="date" required />
 
-    <label>Time</label>
-    <input id="time" type="time" />
+      <label>Time</label>
+      <input type="time" id="time" required />
 
-    <button onclick="submitRequest()">Submit Request</button>
+      <button type="submit">Submit Request</button>
+    </form>
   </div>
 
   <script>
-    localStorage.setItem("role", "agent");
+    function goDashboard() {
+      window.location.href = "agent-dashboard.html";
+    }
 
-    function submitRequest() {
+    function submitRequest(e) {
+      e.preventDefault();
+
       const request = {
-        agentName: agentName.value,
-        street: street.value,
-        city: city.value,
-        state: state.value,
-        zip: zip.value,
-        date: date.value,
-        time: time.value,
-        status: "waiting"
+        agentName: document.getElementById("agentName").value,
+        street: document.getElementById("street").value,
+        city: document.getElementById("city").value,
+        state: document.getElementById("state").value,
+        zip: document.getElementById("zip").value,
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        status: "pending",
+        createdAt: new Date().toISOString()
       };
 
       localStorage.setItem("assignmentRequest", JSON.stringify(request));
-      localStorage.setItem("assignmentStatus", "waiting");
+      localStorage.setItem("role", "agent");
 
       window.location.href = "agent-dashboard.html";
     }
@@ -108,3 +139,4 @@ agent-request<!DOCTYPE html>
 
 </body>
 </html>
+   
