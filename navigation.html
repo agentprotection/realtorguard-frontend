@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,168 +6,160 @@
   <title>Navigation | Realtor Guard</title>
 
   <style>
-    :root {
-      --navy: #0B2C4F;
-      --white: #FFFFFF;
-      --border: #E5E7EB;
-      --success: #16A34A;
+    :root{
+      --navy:#0B2C4F;
+      --white:#FFFFFF;
+      --border:#E5E7EB;
+      --success:#16A34A;
+    }
+    body{ margin:0; font-family:Arial,sans-serif; background:var(--white); color:var(--navy); }
+
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; border-bottom:1px solid var(--border); background:var(--white);
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; }
+    .brand img{ width:28px; height:28px; object-fit:contain; }
+    .actions button{
+      background:var(--navy); color:var(--white); border:none; padding:8px 12px;
+      border-radius:6px; font-size:14px; cursor:pointer;
     }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--white);
-      color: var(--navy);
+    .page{ max-width:720px; margin:0 auto; padding:24px; text-align:center; }
+    h1{ margin:18px 0 8px; }
+    .muted{ color:#666; margin:0 0 18px; }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      background:#fff;
+      text-align:left;
+      margin-top:14px;
+    }
+    .label{ font-size:13px; color:#555; margin-top:10px; }
+    .value{ font-weight:700; margin-top:2px; }
+
+    select{
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      font-size:14px;
+      background:#fff;
     }
 
-    /* Top Nav */
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--white);
+    .btn{
+      width:100%;
+      margin-top:16px;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+      cursor:pointer;
+      background:var(--success);
+      color:var(--white);
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .brand span {
-      margin-left: 8px;
-    }
-
-    .actions button {
-      background: var(--navy);
-      color: var(--white);
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* Page */
-    .page {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 24px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 16px;
-      text-align: left;
-      margin-top: 20px;
-    }
-
-    .label {
-      font-size: 13px;
-      color: #555;
-      margin-top: 10px;
-    }
-
-    .value {
-      font-weight: bold;
-      margin-top: 2px;
-    }
-
-    .start-btn {
-      width: 100%;
-      margin-top: 20px;
-      padding: 12px;
-      background: var(--success);
-      color: var(--white);
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
+    .empty{
+      border:1px dashed var(--border);
+      border-radius:12px;
+      padding:18px;
+      color:#666;
+      text-align:center;
+      margin-top:18px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
   <div class="nav">
     <div class="brand" onclick="goDashboard()">
-      🛡️ <span>Realtor Guard</span>
+      <img src="logo.png" alt="Realtor Guard" onerror="this.style.display='none'">
+      <span>Realtor Guard</span>
     </div>
-
     <div class="actions">
       <button onclick="logout()">Logout</button>
     </div>
   </div>
 
-  <!-- Page Content -->
   <div class="page">
     <h1>Assignment Navigation</h1>
-    <p>Use your maps app to navigate to the property</p>
+    <p class="muted">Choose a property and open your maps app.</p>
 
-    <div class="card" id="details">
-      Loading assignment...
-    </div>
-
-    <button class="start-btn" onclick="startNavigation()">
-      Open Maps
-    </button>
+    <div id="content"></div>
   </div>
 
   <script>
-    function goDashboard() {
+    function logout(){ localStorage.clear(); window.location.href = "index.html"; }
+
+    function goDashboard(){
       const role = localStorage.getItem("role");
-      if (role === "observer") {
-        window.location.href = "observer-dashboard.html";
-      } else {
-        window.location.href = "agent-dashboard.html";
-      }
+      if (role === "observer") window.location.href = "observer-dashboard.html";
+      else window.location.href = "agent-dashboard.html";
     }
 
-    function logout() {
-      localStorage.clear();
-      window.location.href = "index.html";
-    }
-
-    function loadAssignment() {
+    function render() {
+      const content = document.getElementById("content");
       const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-      if (!req) {
-        document.getElementById("details").innerHTML =
-          "No active assignment.";
+
+      if (!req || !Array.isArray(req.properties) || req.properties.length === 0) {
+        content.innerHTML = `<div class="empty">No active assignment found.</div>`;
         return;
       }
 
-      document.getElementById("details").innerHTML = `
-        <div class="label">Agent</div>
-        <div class="value">${req.agentName}</div>
+      let idx = parseInt(localStorage.getItem("activePropertyIndex") || "0", 10);
+      if (Number.isNaN(idx) || idx < 0 || idx >= req.properties.length) idx = 0;
 
-        <div class="label">Location</div>
-        <div class="value">
-          ${req.street}<br/>
-          ${req.city}, ${req.state} ${req.zip}
+      const options = req.properties.map((p, i) => {
+        const label = `Property ${i + 1} — ${p.city || ""} ${p.state || ""} (${p.visitType || "Visit"})`;
+        return `<option value="${i}" ${i === idx ? "selected" : ""}>${label}</option>`;
+      }).join("");
+
+      const p = req.properties[idx];
+
+      content.innerHTML = `
+        <div class="card">
+          <div class="label">Select Property</div>
+          <select id="propSelect">${options}</select>
+
+          <div class="label">Agent</div>
+          <div class="value">${req.agentName || "-"}</div>
+
+          <div class="label">Address</div>
+          <div class="value">
+            ${(p.street || "-")}<br/>
+            ${(p.city || "-")}, ${(p.state || "-")} ${(p.zip || "-")}
+          </div>
+
+          <div class="label">Date & Time (${req.timeZone || "Time Zone"})</div>
+          <div class="value">${(p.date || "-")} @ ${(p.time || "-")}</div>
+
+          <div class="label">Visit Type</div>
+          <div class="value">${p.visitType || "-"}</div>
+
+          ${p.visitType === "Other" && p.otherDesc ? `
+            <div class="label">Other Details</div>
+            <div class="value">${p.otherDesc}</div>
+          ` : ``}
+
+          <button class="btn" onclick="openMaps()">Open Maps</button>
         </div>
-
-        <div class="label">Date & Time</div>
-        <div class="value">${req.date} @ ${req.time}</div>
       `;
+
+      document.getElementById("propSelect").addEventListener("change", (e) => {
+        localStorage.setItem("activePropertyIndex", e.target.value);
+        render();
+      });
     }
 
-    function startNavigation() {
+    function openMaps() {
       const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-      if (!req) return;
+      const idx = parseInt(localStorage.getItem("activePropertyIndex") || "0", 10) || 0;
+      const p = req.properties[idx];
 
-      const address =
-        `${req.street}, ${req.city}, ${req.state} ${req.zip}`;
-
+      const address = `${p.street}, ${p.city}, ${p.state} ${p.zip}`;
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       const url = isIOS
@@ -177,7 +169,7 @@
       window.open(url, "_blank");
     }
 
-    loadAssignment();
+    render();
   </script>
 
 </body>
