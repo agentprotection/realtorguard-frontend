@@ -6,110 +6,182 @@
   <title>Observer Dashboard | Realtor Guard</title>
 
   <style>
+    :root {
+      --navy: #0B2C4F;
+      --white: #FFFFFF;
+      --border: #E5E7EB;
+      --success: #16A34A;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
+      background: var(--white);
+      color: var(--navy);
     }
 
+    /* Top Nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .brand span {
+      margin-left: 8px;
+    }
+
+    .actions button {
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Page */
     .page {
       max-width: 520px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px;
       text-align: center;
     }
 
+    h1 {
+      margin-bottom: 10px;
+    }
+
     .card {
-      border: 1px solid #ddd;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 15px;
+      padding: 16px;
       text-align: left;
       margin-top: 20px;
     }
 
-    .status {
-      font-weight: bold;
-      margin-bottom: 10px;
+    .label {
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
     }
 
-    .available { color: #0b2c4f; }
-    .active { color: green; }
+    .value {
+      font-weight: bold;
+      margin-top: 2px;
+    }
 
-    button {
+    .accept-btn {
       width: 100%;
-      margin-top: 10px;
-      padding: 10px;
+      margin-top: 20px;
+      padding: 12px;
+      background: var(--success);
+      color: var(--white);
       border: none;
       border-radius: 4px;
+      font-size: 16px;
       cursor: pointer;
-      color: white;
     }
 
-    .accept { background: #0b2c4f; }
-    .start { background: green; }
+    .empty {
+      border: 1px dashed var(--border);
+      padding: 20px;
+      border-radius: 6px;
+      margin-top: 20px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
 
-  <iframe src="navigation.html" style="width:100%;height:60px;border:none;"></iframe>
+  <!-- Top Navigation -->
+  <div class="nav">
+    <div class="brand" onclick="goHome()">
+      🛡️ <span>Realtor Guard</span>
+    </div>
 
+    <div class="actions">
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Page Content -->
   <div class="page">
     <h1>Observer Dashboard</h1>
+    <p>Available assignments</p>
 
-    <div id="card" class="card"></div>
+    <div id="content"></div>
   </div>
 
   <script>
-    localStorage.setItem("role", "observer");
+    function goHome() {
+      window.location.href = "choose-role.html";
+    }
 
-    function render() {
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    function loadAssignments() {
+      const container = document.getElementById("content");
       const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-      const status = localStorage.getItem("assignmentStatus");
 
-      if (!req) {
-        card.innerHTML = "No assignments available.";
+      if (!req || req.status !== "pending") {
+        container.innerHTML = `
+          <div class="empty">
+            No assignments available.
+          </div>
+        `;
         return;
       }
 
-      if (status === "accepted") {
-        card.innerHTML = `
-          <div class="status active">Status: Active Assignment</div>
-          <strong>Agent:</strong> ${req.agentName}<br/>
-          <strong>Location:</strong> ${req.street}, ${req.city}, ${req.state} ${req.zip}<br/>
-          <strong>Date:</strong> ${req.date}<br/>
-          <strong>Time:</strong> ${req.time}<br/>
-          <button class="start" onclick="start('${req.street}, ${req.city}, ${req.state} ${req.zip}')">
-            Start Assignment
+      container.innerHTML = `
+        <div class="card">
+          <div class="label">Agent</div>
+          <div class="value">${req.agentName}</div>
+
+          <div class="label">Property Address</div>
+          <div class="value">
+            ${req.street}<br/>
+            ${req.city}, ${req.state} ${req.zip}
+          </div>
+
+          <div class="label">Date & Time</div>
+          <div class="value">${req.date} @ ${req.time}</div>
+
+          <button class="accept-btn" onclick="acceptAssignment()">
+            Accept Assignment
           </button>
-        `;
-      } else {
-        card.innerHTML = `
-          <div class="status available">Status: Available</div>
-          <strong>Agent:</strong> ${req.agentName}<br/>
-          <strong>Location:</strong> ${req.street}, ${req.city}, ${req.state} ${req.zip}<br/>
-          <strong>Date:</strong> ${req.date}<br/>
-          <strong>Time:</strong> ${req.time}<br/>
-          <button class="accept" onclick="accept()">Accept Assignment</button>
-        `;
-      }
+        </div>
+      `;
     }
 
-    function accept() {
-      localStorage.setItem("assignmentStatus", "accepted");
-      render();
+    function acceptAssignment() {
+      const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+      req.status = "accepted";
+      req.observerAcceptedAt = new Date().toISOString();
+
+      localStorage.setItem("assignmentRequest", JSON.stringify(req));
+      localStorage.setItem("role", "observer");
+
+      window.location.href = "navigation.html";
     }
 
-    function start(address) {
-      window.open(
-        "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(address),
-        "_blank"
-      );
-    }
-
-    render();
-    setInterval(render, 1000);
+    loadAssignments();
   </script>
 
 </body>
 </html>
-
