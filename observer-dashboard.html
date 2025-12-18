@@ -6,181 +6,157 @@
   <title>Observer Dashboard | Realtor Guard</title>
 
   <style>
-    :root {
-      --navy: #0B2C4F;
-      --white: #FFFFFF;
-      --border: #E5E7EB;
-      --success: #16A34A;
+    :root{
+      --navy:#0B2C4F;
+      --white:#FFFFFF;
+      --border:#E5E7EB;
+      --success:#16A34A;
+    }
+    body{ margin:0; font-family:Arial,sans-serif; background:var(--white); color:var(--navy); }
+
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; border-bottom:1px solid var(--border); background:var(--white);
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; }
+    .brand img{ width:28px; height:28px; object-fit:contain; }
+    .actions button{
+      background:var(--navy); color:var(--white); border:none; padding:8px 12px;
+      border-radius:6px; font-size:14px; cursor:pointer;
     }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--white);
-      color: var(--navy);
+    .page{ max-width:720px; margin:0 auto; padding:24px; }
+    h1{ text-align:center; margin:18px 0 8px; }
+    .muted{ text-align:center; color:#666; margin:0 0 18px; }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      margin-top:14px;
+      background:#fff;
+    }
+    .label{ font-size:13px; color:#555; margin-top:10px; }
+    .value{ font-weight:700; margin-top:2px; }
+
+    .btn{
+      width:100%;
+      margin-top:16px;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      font-size:16px;
+      cursor:pointer;
+      background:var(--success);
+      color:var(--white);
     }
 
-    /* Top Nav */
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--white);
+    .empty{
+      border:1px dashed var(--border);
+      border-radius:12px;
+      padding:18px;
+      color:#666;
+      text-align:center;
+      margin-top:18px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      font-weight: bold;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .brand span {
-      margin-left: 8px;
-    }
-
-    .actions button {
-      background: var(--navy);
-      color: var(--white);
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* Page */
-    .page {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 24px;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 16px;
-      text-align: left;
-      margin-top: 20px;
-    }
-
-    .label {
-      font-size: 13px;
-      color: #555;
-      margin-top: 10px;
-    }
-
-    .value {
-      font-weight: bold;
-      margin-top: 2px;
-    }
-
-    .accept-btn {
-      width: 100%;
-      margin-top: 20px;
-      padding: 12px;
-      background: var(--success);
-      color: var(--white);
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .empty {
-      border: 1px dashed var(--border);
-      padding: 20px;
-      border-radius: 6px;
-      margin-top: 20px;
-      color: #666;
+    .pill{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      font-size:12px;
+      color:#555;
+      margin-left:8px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
   <div class="nav">
     <div class="brand" onclick="goHome()">
-      🛡️ <span>Realtor Guard</span>
+      <img src="logo.png" alt="Realtor Guard" onerror="this.style.display='none'">
+      <span>Realtor Guard</span>
     </div>
-
     <div class="actions">
       <button onclick="logout()">Logout</button>
     </div>
   </div>
 
-  <!-- Page Content -->
   <div class="page">
     <h1>Observer Dashboard</h1>
-    <p>Available assignments</p>
+    <p class="muted">Available requests</p>
 
     <div id="content"></div>
   </div>
 
   <script>
-    function goHome() {
-      window.location.href = "choose-role.html";
-    }
+    function goHome(){ window.location.href = "choose-role.html"; }
+    function logout(){ localStorage.clear(); window.location.href = "index.html"; }
 
-    function logout() {
-      localStorage.clear();
-      window.location.href = "index.html";
-    }
-
-    function loadAssignments() {
+    function render() {
       const container = document.getElementById("content");
       const req = JSON.parse(localStorage.getItem("assignmentRequest"));
 
       if (!req || req.status !== "pending") {
-        container.innerHTML = `
-          <div class="empty">
-            No assignments available.
-          </div>
-        `;
+        container.innerHTML = `<div class="empty">No assignments available.</div>`;
         return;
       }
+
+      const props = Array.isArray(req.properties) ? req.properties : [];
+      if (props.length === 0) {
+        container.innerHTML = `<div class="empty">No properties found in request.</div>`;
+        return;
+      }
+
+      const listHtml = props.map((p, idx) => `
+        <div class="card">
+          <div class="value">Property ${idx + 1} <span class="pill">${p.visitType || "Visit"}</span></div>
+
+          <div class="label">Address</div>
+          <div class="value">
+            ${(p.street || "-")}<br/>
+            ${(p.city || "-")}, ${(p.state || "-")} ${(p.zip || "-")}
+          </div>
+
+          <div class="label">Date & Time (${req.timeZone || "Time Zone"})</div>
+          <div class="value">${(p.date || "-")} @ ${(p.time || "-")}</div>
+
+          ${p.visitType === "Other" && p.otherDesc ? `
+            <div class="label">Other Details</div>
+            <div class="value">${p.otherDesc}</div>
+          ` : ``}
+        </div>
+      `).join("");
 
       container.innerHTML = `
         <div class="card">
           <div class="label">Agent</div>
-          <div class="value">${req.agentName}</div>
+          <div class="value">${req.agentName || "-"}</div>
 
-          <div class="label">Property Address</div>
-          <div class="value">
-            ${req.street}<br/>
-            ${req.city}, ${req.state} ${req.zip}
-          </div>
+          <div class="label">Properties in this request</div>
+          <div class="value">${props.length}</div>
 
-          <div class="label">Date & Time</div>
-          <div class="value">${req.date} @ ${req.time}</div>
-
-          <button class="accept-btn" onclick="acceptAssignment()">
-            Accept Assignment
-          </button>
+          <button class="btn" onclick="accept()">Accept Request</button>
         </div>
+
+        ${listHtml}
       `;
     }
 
-    function acceptAssignment() {
+    function accept() {
       const req = JSON.parse(localStorage.getItem("assignmentRequest"));
       req.status = "accepted";
       req.observerAcceptedAt = new Date().toISOString();
 
       localStorage.setItem("assignmentRequest", JSON.stringify(req));
       localStorage.setItem("role", "observer");
+      localStorage.setItem("activePropertyIndex", "0");
 
       window.location.href = "navigation.html";
     }
 
-    loadAssignments();
+    render();
   </script>
 
 </body>
