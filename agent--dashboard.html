@@ -1,209 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Agent Dashboard | Realtor Guard</title>
+  <meta charset="UTF-8" />
+  <title>Agent Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-:root{
-  --navy:#0B2C4F;
-  --border:#E5E7EB;
-  --danger:#B91C1C;
-  --muted:#6B7280;
-}
-body{margin:0;font-family:Arial,sans-serif;color:var(--navy);}
-.nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;}
-.page{max-width:980px;margin:auto;padding:24px;}
-.card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-@media(max-width:760px){.grid{grid-template-columns:1fr;}}
-label{font-size:13px;margin-top:10px;display:block;}
-input,select,textarea{
-  width:100%;padding:10px;margin-top:6px;
-  border-radius:10px;border:1px solid var(--border);
-}
-textarea{min-height:80px;}
-.row{display:flex;gap:10px;flex-wrap:wrap;}
-.btn{
-  padding:12px 14px;border:none;border-radius:10px;
-  font-size:15px;cursor:pointer;
-}
-.primary{background:var(--navy);color:white;width:100%;}
-.outline{background:white;border:1px solid var(--navy);color:var(--navy);}
-.danger{background:var(--danger);color:white;}
-.badge{padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;}
-.small{font-size:12px;color:var(--muted);}
-</style>
+  <style>
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f4f4; }
+    .container { max-width: 620px; margin: 0 auto; padding: 16px; }
+    h1 { margin: 8px 0 14px; }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    label { display: block; font-weight: 900; margin-top: 12px; font-size: 14px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    textarea { resize: vertical; }
+    .row2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 560px) { .row2 { grid-template-columns: 1fr 1fr; } }
+
+    .btn {
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      border-radius: 12px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btnSecondary {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 900;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .btnDanger {
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 900;
+      border: 1px solid #ffb3b3;
+      border-radius: 12px;
+      background: #ffecec;
+      color: #7a0000;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .muted { color: #666; font-size: 13px; margin-top: 6px; }
+    .divider { height: 1px; background: #eee; margin: 16px 0; }
+
+    .propertyBox {
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fafafa;
+      margin-top: 12px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      background: #eee;
+      margin-bottom: 8px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
 
 <body>
+  <div class="container">
+    <h1>Request an Observer</h1>
 
-<div class="nav">🛡️ Realtor Guard — Agent Dashboard</div>
-
-<div class="page">
-  <h2>Request an Observer</h2>
-  <div id="content"></div>
-  <div class="small">MVP note: Agent & Observer must be tested in the same browser (localStorage).</div>
-</div>
-
-<script>
-const MAX_PROPERTIES = 3;
-
-const STATES = [
-"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS",
-"KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY",
-"NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV",
-"WI","WY"
-];
-
-let propertyCount = 1;
-
-function render(){
-  const c = document.getElementById("content");
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-
-  if(!req){
-    c.innerHTML = formHTML();
-    renderProperties();
-    return;
-  }
-
-  c.innerHTML = `
     <div class="card">
-      <b>Status:</b> Properties posted
-      <span class="badge">OPEN</span>
-      <div class="small">
-        Each property is now visible to observers.  
-        Observers may accept or decline individually.
+      <label>Agent Name</label>
+      <input id="agentName" placeholder="Your full name" />
+
+      <div id="propertiesWrap"></div>
+
+      <label>USA Time Zone</label>
+      <select id="timeZone"></select>
+
+      <label>Type of Visit</label>
+      <select id="visitType" onchange="toggleOther()">
+        <option>Property Showing</option>
+        <option>Open House</option>
+        <option>Other</option>
+      </select>
+
+      <div id="otherBox" class="hidden">
+        <label>Description (Other)</label>
+        <textarea id="otherDesc" rows="3"></textarea>
       </div>
-      <button class="btn danger" style="margin-top:12px;" onclick="reset()">Cancel Request</button>
+
+      <div class="row2">
+        <div>
+          <label>Date</label>
+          <input id="date" type="date" />
+        </div>
+        <div>
+          <label>Time</label>
+          <select id="timeSelect"></select>
+        </div>
+      </div>
+
+      <label>Duration</label>
+      <select id="duration"></select>
+
+      <!-- ✅ MOVED HERE -->
+      <button class="btnSecondary" onclick="addProperty()">+ Add Another Property (Max 3)</button>
+
+      <button class="btn" onclick="submitRequests()">Request an Observer</button>
     </div>
-  `;
-}
+  </div>
 
-function formHTML(){
-return `
-<div class="card">
-  <label>Agent Full Name</label>
-  <input id="agentName" placeholder="Enter full name"/>
+  <script>
+    const REQUEST_KEY = "rg_agent_requests_v1";
+    const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+    const USA_TZ = ["America/New_York","America/Chicago","America/Denver","America/Los_Angeles","America/Anchorage","Pacific/Honolulu"];
 
-  <label>US Time Zone</label>
-  <select id="timeZone">
-    <option value="">Select time zone</option>
-    <option>Eastern</option>
-    <option>Central</option>
-    <option>Mountain</option>
-    <option>Pacific</option>
-    <option>Alaska</option>
-    <option>Hawaii</option>
-  </select>
+    let propertyCount = 0;
 
-  <div id="properties"></div>
+    function propertyTemplate(i) {
+      return `
+        <div class="propertyBox">
+          <div class="pill">Property ${i + 1}</div>
+          <label>Property Address</label>
+          <input class="propAddress" />
+          <label>City</label>
+          <input class="propCity" />
+          <label>State</label>
+          <select class="propState">${US_STATES.map(s=>`<option>${s}</option>`).join("")}</select>
+        </div>
+      `;
+    }
 
-  <button class="btn outline" onclick="addProperty()">+ Add Property</button>
-  <button class="btn primary" onclick="submit()">Submit Request</button>
+    function addProperty() {
+      if (propertyCount >= 3) return alert("Max 3 properties");
+      document.getElementById("propertiesWrap").insertAdjacentHTML("beforeend", propertyTemplate(propertyCount));
+      propertyCount++;
+    }
 
-  <div class="small">Up to 3 properties per request.</div>
-</div>`;
-}
+    function toggleOther() {
+      document.getElementById("otherBox").className =
+        document.getElementById("visitType").value === "Other" ? "" : "hidden";
+    }
 
-function propertyBlock(i){
-return `
-<div class="card">
-<b>Property ${i+1}</b>
+    function submitRequests() {
+      const agentName = agentNameEl().value.trim();
+      if (!agentName) return alert("Enter agent name");
 
-<label>Street Address</label><input id="street_${i}">
-<label>City</label><input id="city_${i}">
-<label>State</label>
-<select id="state_${i}">
-  <option value="">Select state</option>
-  ${STATES.map(s=>`<option>${s}</option>`).join("")}
-</select>
-<label>Zip Code</label><input id="zip_${i}">
+      const props = [...document.querySelectorAll(".propertyBox")].map(b => ({
+        address: b.querySelector(".propAddress").value,
+        city: b.querySelector(".propCity").value,
+        state: b.querySelector(".propState").value
+      })).filter(p => p.address && p.city);
 
-<label>Date</label><input type="date" id="date_${i}">
+      if (!props.length) return alert("Add at least one property");
 
-<label>Time (AM / PM)</label>
-<div class="row">
-  <select id="hour_${i}">
-    ${Array.from({length:12},(_,h)=>`<option>${h+1}</option>`).join("")}
-  </select>
-  <select id="min_${i}">
-    <option>00</option><option>15</option><option>30</option><option>45</option>
-  </select>
-  <select id="ampm_${i}">
-    <option>AM</option><option>PM</option>
-  </select>
-</div>
+      const list = JSON.parse(localStorage.getItem(REQUEST_KEY)) || [];
+      props.forEach((p,i)=>list.push({
+        id:"req_"+Date.now()+"_"+i,
+        agentName,
+        address:`${p.address}, ${p.city}, ${p.state}`,
+        date:dateEl().value,
+        time:timeEl().value
+      }));
+      localStorage.setItem(REQUEST_KEY, JSON.stringify(list));
+      alert("Request sent to observer dashboard");
+    }
 
-<label>Visit Type</label>
-<select id="visit_${i}">
-  <option>Showing</option>
-  <option>Open House</option>
-  <option>Other</option>
-</select>
+    const agentNameEl=()=>document.getElementById("agentName");
+    const dateEl=()=>document.getElementById("date");
+    const timeEl=()=>document.getElementById("timeSelect");
 
-${i>0 ? `<button class="btn danger" onclick="removeProperty()">Delete Property</button>` : ""}
-</div>`;
-}
+    function init() {
+      addProperty();
+      const tSel = document.getElementById("timeSelect");
+      for (let h=6; h<=21; h++) {
+        ["00","30"].forEach(m=>{
+          const ampm=h>=12?"PM":"AM";
+          let hh=h%12||12;
+          tSel.innerHTML+=`<option>${hh}:${m} ${ampm}</option>`;
+        });
+      }
+      document.getElementById("duration").innerHTML =
+        ["30 min","1 hr","1.5 hr","2 hr","2.5 hr","3 hr"].map(d=>`<option>${d}</option>`).join("");
+      document.getElementById("timeZone").innerHTML =
+        USA_TZ.map(t=>`<option>${t}</option>`).join("");
+    }
 
-function renderProperties(){
-  const p = document.getElementById("properties");
-  p.innerHTML = "";
-  for(let i=0;i<propertyCount;i++) p.innerHTML += propertyBlock(i);
-}
-
-function addProperty(){
-  if(propertyCount >= MAX_PROPERTIES){
-    alert("Maximum 3 properties allowed.");
-    return;
-  }
-  propertyCount++;
-  renderProperties();
-}
-
-function removeProperty(){
-  propertyCount--;
-  renderProperties();
-}
-
-function submit(){
-  const properties = [];
-  for(let i=0;i<propertyCount;i++){
-    properties.push({
-      id: "prop_" + i + "_" + Date.now(),
-      street: document.getElementById(`street_${i}`).value,
-      city: document.getElementById(`city_${i}`).value,
-      state: document.getElementById(`state_${i}`).value,
-      zip: document.getElementById(`zip_${i}`).value,
-      date: document.getElementById(`date_${i}`).value,
-      time: `${document.getElementById(`hour_${i}`).value}:${document.getElementById(`min_${i}`).value} ${document.getElementById(`ampm_${i}`).value}`,
-      visitType: document.getElementById(`visit_${i}`).value,
-      status: "open",          // 🔑 REQUIRED FOR OBSERVER LIST
-      observer: null,
-      declinedBy: []
-    });
-  }
-
-  localStorage.setItem("assignmentRequest", JSON.stringify({
-    agentName: document.getElementById("agentName").value,
-    timeZone: document.getElementById("timeZone").value,
-    properties
-  }));
-
-  render();
-}
-
-function reset(){
-  if(!confirm("Cancel the entire request?")) return;
-  localStorage.removeItem("assignmentRequest");
-  render();
-}
-
-render();
-</script>
+    init();
+  </script>
 </body>
 </html>
-
- 
