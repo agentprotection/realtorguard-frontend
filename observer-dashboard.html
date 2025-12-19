@@ -1,327 +1,394 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Observer Dashboard | Realtor Guard</title>
+import React, { useEffect, useMemo, useState } from "react";
 
-  <style>
-    :root{
-      --navy:#0B2C4F;
-      --border:#E5E7EB;
-      --success:#16A34A;
-      --danger:#B91C1C;
-      --muted:#6B7280;
-    }
-    body{margin:0;font-family:Arial,sans-serif;color:var(--navy);background:#fff;}
-    .nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;display:flex;gap:10px;align-items:center;}
-    .page{max-width:980px;margin:0 auto;padding:24px;}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
-    .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;background:#fff;}
-    .btn{padding:12px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
-    .success{background:var(--success);color:#fff;}
-    .danger{background:var(--danger);color:#fff;}
-    .outline{background:#fff;border:1px solid var(--navy);color:var(--navy);}
-    .disabled{opacity:.55;pointer-events:none;}
-    .badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:#444;}
-    .small{font-size:12px;color:var(--muted);line-height:1.4;}
-    .title{font-weight:900;font-size:18px;}
-    .divider{height:1px;background:var(--border);margin:12px 0;}
-    .empty{border:1px dashed var(--border);border-radius:14px;padding:18px;text-align:center;color:var(--muted);margin-top:16px;}
-    .left{display:flex;align-items:center;gap:10px;}
-    .logo{width:34px;height:34px;}
-  </style>
-</head>
+/**
+ * Observer Dashboard (Clean Rewrite)
+ * - Shows incoming requests
+ * - Per-request status: pending | accepted | declined
+ * - Accept/Decline actions
+ * - Countdown timer to scheduled date/time
+ * - Start Assignment opens Google Maps after accepted
+ *
+ * IMPORTANT:
+ * - This version works even if your backend doesn't yet store status.
+ * - It persists status locally in localStorage so refresh won't wipe it.
+ * - Later, we can wire status to backend (still no patching—full rewrite when ready).
+ */
 
-<body>
-  <div class="nav">
-    <div class="left">
-      <img class="logo" src="logo.png" alt="logo"/>
-      <div>Realtor Guard — Observer Dashboard</div>
-    </div>
-  </div>
+const STORAGE_KEY = "rg_observer_request_status_v1";
 
-  <div class="page">
-    <div class="row">
-      <h2 style="margin:0;">Available Property Assignments</h2>
-      <button class="btn outline" onclick="render()">Refresh</button>
-    </div>
-    <div class="small">Marketplace model: accept what you can, decline what you can’t. Declined properties go back to the pool.</div>
-
-    <div id="content"></div>
-  </div>
-
-<script>
-  // MVP Observer identity (later this comes from observer auth)
-  const OBSERVER = {
-    id: "observer-001",
-    fullName: "Marcus Reed",
-    phone: "5551234567",
-    vehicle: { make:"Honda", model:"Accord", year:"2022", color:"White" },
-    rating: "4.8 ★",
-    reviewsCount: 87,
-    photoUrl: ""
-  };
-
-  function safeParse(s){ try { return JSON.parse(s); } catch { return null; } }
-  function escapeHTML(s){
-    return String(s ?? "").replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
+function safeJsonParse(str, fallback) {
+  try {
+    const v = JSON.parse(str);
+    return v ?? fallback;
+  } catch {
+    return fallback;
   }
+}
 
-  function render(){
-    const c = document.getElementById("content");
-    const req = safeParse(localStorage.getItem("assignmentRequest"));
+function buildScheduleDateTime(request) {
+  // Supports a few common field names without breaking.
+  // Preferred: request.date (YYYY-MM-DD) + request.time (HH:mm)
+  // Alternate: request.visitDate, request.visitTime, request.scheduledDate, request.scheduledTime
+  const date =
+    request?.date ||
+    request?.visitDate ||
+    request?.scheduledDate ||
+    request?.appointmentDate ||
+    "";
+  const time =
+    request?.time ||
+    request?.visitTime ||
+    request?.scheduledTime ||
+    request?.appointmentTime ||
+    "";
 
-    if(!req || !Array.isArray(req.properties) || req.properties.length === 0){
-      c.innerHTML = `<div class="empty">No assignments available.</div>`;
-      return;
-    }
+  if (!date || !time) return null;
 
-    const cards = req.properties
-      .map((p,i)=>buildCard(req,p,i))
-      .filter(Boolean)
-      .join("");
+  // Create local Date object: "YYYY-MM-DDTHH:mm"
+  const dt = new Date(`${date}T${time}`);
+  if (Number.isNaN(dt.getTime())) return null;
+  return dt;
+}
 
-    c.innerHTML = cards || `<div class="empty">No assignments available.</div>`;
-  }
+function formatCountdown(ms) {
+  if (ms <= 0) return "00:00:00";
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
-  function buildCard(req,p,i){
-    // Normalize fields
-    p.status = (p.status || "open").toLowerCase();
-    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+  const hh = String(hours).padStart(2, "0");
+  const mm = String(minutes).padStart(2, "0");
+  const ss = String(seconds).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
 
-    // Hide canceled
-    if(p.status === "canceled") return null;
+function openGoogleMaps(address) {
+  const query = encodeURIComponent(address || "");
+  const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
 
-    // Hide if this observer declined it before
-    if(p.declinedBy.includes(OBSERVER.id)) return null;
+export default function ObserverDashboard() {
+  const [requests, setRequests] = useState([]);
+  const [statusMap, setStatusMap] = useState({});
+  const [nowTick, setNowTick] = useState(Date.now());
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-    // Hide if accepted by someone else
-    if(p.status === "accepted" && p.observer?.id && p.observer.id !== OBSERVER.id) return null;
+  // Load persisted statuses (so refresh keeps Accept/Decline)
+  useEffect(() => {
+    const saved = safeJsonParse(localStorage.getItem(STORAGE_KEY), {});
+    setStatusMap(saved);
+  }, []);
 
-    const agentName = req.agentName || "(Agent name missing)";
-    const tz = req.timeZone || "(Time zone missing)";
-    const addressFull = [
-      p.street, p.city, p.state, p.zip
-    ].filter(Boolean).join(", ");
+  // Persist statuses on change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statusMap || {}));
+  }, [statusMap]);
 
-    const visitType = p.visitType || "(Visit type missing)";
-    const otherDesc = p.otherDesc || "";
+  // Countdown tick (1s)
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
-    const isOpen = p.status === "open";
-    const acceptedByMe = p.status === "accepted" && p.observer?.id === OBSERVER.id;
-    const inProgressByMe = p.status === "in_progress" && p.observer?.id === OBSERVER.id;
+  // Fetch requests for observer
+  useEffect(() => {
+    // ✅ CHANGE THIS ENDPOINT if your backend uses a different route
+    // Common options: /api/requests, /api/assignments, /api/observer/requests
+    const ENDPOINT = "/api/requests";
 
-    // Countdown + lock
-    let timerHTML = "";
-    let startDisabled = true;
-    let startTs = null;
+    async function load() {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        const res = await fetch(ENDPOINT, { credentials: "include" });
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        const data = await res.json();
 
-    if(acceptedByMe){
-      startTs = getStartTimestamp(req.timeZone, p.date, p.time);
-      startDisabled = Date.now() < startTs;
-
-      timerHTML = `
-        <div class="divider"></div>
-        <div class="small"><b>Start Assignment</b></div>
-        <div class="small">Scheduled: ${escapeHTML(p.date)} ${escapeHTML(p.time)} (${escapeHTML(tz)})</div>
-        <div class="small">Countdown: <span id="timer-${i}">...</span></div>
-      `;
-
-      setTimeout(()=>startCountdown(i,startTs),100);
-    }
-
-    // Buttons
-    let actionHTML = "";
-
-    if(isOpen){
-      actionHTML = `
-        <div class="divider"></div>
-        <div class="row" style="justify-content:flex-start;">
-          <button class="btn success" onclick="accept(${i})">Accept</button>
-          <button class="btn danger" onclick="decline(${i})">Decline</button>
-        </div>
-      `;
-    }
-
-    if(acceptedByMe){
-      actionHTML = `
-        <div class="divider"></div>
-        <div class="row" style="justify-content:flex-start;">
-          <button class="btn outline ${startDisabled ? "disabled" : ""}" onclick="startAssignment(${i})">
-            Start Assignment
-          </button>
-          <button class="btn danger" onclick="release(${i})">Release</button>
-        </div>
-        <div class="small">Start button unlocks at the scheduled time. When you start, Google Maps opens automatically.</div>
-      `;
-    }
-
-    if(inProgressByMe){
-      actionHTML = `
-        <div class="divider"></div>
-        <span class="badge">IN PROGRESS</span>
-        <div class="small">Navigation already launched. (Next: live tracking)</div>
-      `;
-    }
-
-    return `
-      <div class="card">
-        <div class="row">
-          <div class="title">Property ${i+1}</div>
-          <span class="badge">${escapeHTML(p.status.toUpperCase())}</span>
-        </div>
-
-        <div class="small"><b>Agent:</b> ${escapeHTML(agentName)}</div>
-        <div class="small"><b>Address:</b> ${escapeHTML(addressFull || "(Address missing)")}</div>
-        <div class="small"><b>Schedule:</b> ${escapeHTML(p.date || "")} @ ${escapeHTML(p.time || "")} (${escapeHTML(tz)})</div>
-
-        <div class="divider"></div>
-        <div class="small"><b>Visit Type:</b> ${escapeHTML(visitType)}</div>
-        ${visitType === "Other" && otherDesc ? `<div class="small"><b>Other Details:</b> ${escapeHTML(otherDesc)}</div>` : ""}
-
-        ${acceptedByMe ? `
-          <div class="divider"></div>
-          <div class="small"><b>Assigned to you:</b> ${escapeHTML(OBSERVER.fullName)}</div>
-          <div class="small"><b>Vehicle:</b> ${escapeHTML(formatVehicle(OBSERVER.vehicle))}</div>
-          <div class="small"><b>Reviews:</b> ${escapeHTML(OBSERVER.rating)} (${OBSERVER.reviewsCount})</div>
-        ` : ""}
-
-        ${acceptedByMe ? timerHTML : ""}
-        ${actionHTML}
-      </div>
-    `;
-  }
-
-  function accept(i){
-    const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req?.properties?.[i]) return;
-
-    const p = req.properties[i];
-    p.status = "accepted";
-    p.observer = {
-      id: OBSERVER.id,
-      fullName: OBSERVER.fullName,
-      phone: OBSERVER.phone,
-      vehicle: OBSERVER.vehicle,
-      rating: OBSERVER.rating,
-      reviewsCount: OBSERVER.reviewsCount,
-      photoUrl: OBSERVER.photoUrl
-    };
-    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
-
-    localStorage.setItem("assignmentRequest", JSON.stringify(req));
-    render();
-  }
-
-  function decline(i){
-    const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req?.properties?.[i]) return;
-
-    const p = req.properties[i];
-    p.status = "open";
-    p.observer = null;
-
-    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
-    if(!p.declinedBy.includes(OBSERVER.id)) p.declinedBy.push(OBSERVER.id);
-
-    localStorage.setItem("assignmentRequest", JSON.stringify(req));
-    render();
-  }
-
-  function release(i){
-    if(!confirm("Release this property so another observer can accept it?")) return;
-
-    const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req?.properties?.[i]) return;
-
-    const p = req.properties[i];
-    p.status = "open";
-    p.observer = null;
-
-    // hide from this observer after release
-    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
-    if(!p.declinedBy.includes(OBSERVER.id)) p.declinedBy.push(OBSERVER.id);
-
-    localStorage.setItem("assignmentRequest", JSON.stringify(req));
-    render();
-  }
-
-  function startAssignment(i){
-    const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req?.properties?.[i]) return;
-
-    const p = req.properties[i];
-    if(p.observer?.id !== OBSERVER.id){
-      alert("This property is not assigned to you.");
-      return;
-    }
-
-    const startTs = getStartTimestamp(req.timeZone, p.date, p.time);
-    if(Date.now() < startTs){
-      alert("Start is locked until the scheduled time.");
-      return;
-    }
-
-    p.status = "in_progress";
-    p.startedAt = new Date().toISOString();
-
-    localStorage.setItem("assignmentRequest", JSON.stringify(req));
-
-    // ✅ GOOGLE MAPS AUTO OPEN (Option 1)
-    const address = [p.street, p.city, p.state, p.zip].filter(Boolean).join(", ");
-    const url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(address) + "&travelmode=driving";
-    window.open(url, "_blank", "noopener,noreferrer");
-
-    render();
-  }
-
-  function startCountdown(i, targetTs){
-    const el = document.getElementById(`timer-${i}`);
-    if(!el) return;
-
-    const tick = () => {
-      const diff = targetTs - Date.now();
-      if(diff <= 0){
-        el.textContent = "Ready ✅";
-        render(); // unlock Start Assignment
-        return;
+        // Accepts either { requests: [...] } OR just [...]
+        const list = Array.isArray(data) ? data : data?.requests || [];
+        setRequests(list);
+      } catch (err) {
+        setErrorMsg(err?.message || "Failed to load requests");
+      } finally {
+        setLoading(false);
       }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      el.textContent = `${h}h ${m}m ${s}s`;
-      setTimeout(tick, 1000);
-    };
-    tick();
+    }
+
+    load();
+  }, []);
+
+  // Normalize requests to always have a stable ID
+  const normalized = useMemo(() => {
+    return (requests || []).map((r, idx) => {
+      // Try common ID fields; fallback to index-based key (not ideal but safe)
+      const id = r?._id || r?.id || r?.requestId || r?.uuid || `idx-${idx}`;
+      return { ...r, __rid: String(id) };
+    });
+  }, [requests]);
+
+  function getStatus(rid) {
+    return statusMap?.[rid] || "pending";
   }
 
-  // MVP timezone conversion (DST imperfect; backend will enforce later)
-  function getStartTimestamp(tz, dateStr, timeStr){
-    const offsets = { Eastern:-5, Central:-6, Mountain:-7, Pacific:-8, Alaska:-9, Hawaii:-10 };
-    const off = offsets[tz] ?? -5;
-
-    const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
-    if(!dateStr || !m) return Date.now();
-
-    let hour = parseInt(m[1],10) % 12;
-    const minute = parseInt(m[2],10);
-    const ap = m[3].toUpperCase();
-    if(ap === "PM") hour += 12;
-
-    const utc = new Date(`${dateStr}T00:00:00Z`);
-    utc.setUTCHours(hour - off, minute, 0, 0);
-    return utc.getTime();
+  function setStatus(rid, nextStatus) {
+    setStatusMap((prev) => ({
+      ...(prev || {}),
+      [rid]: nextStatus,
+    }));
   }
 
-  function formatVehicle(v){
-    if(!v) return "—";
-    return [v.make, v.model, v.year, v.color].filter(Boolean).join(" • ") || "—";
+  async function handleAccept(req) {
+    const rid = req.__rid;
+    setStatus(rid, "accepted");
+
+    // OPTIONAL: If your backend supports status updates, wire it here later.
+    // For now, we keep it local so UI works immediately.
   }
 
-  render();
-</script>
-</body>
-</html>
+  async function handleDecline(req) {
+    const rid = req.__rid;
+    setStatus(rid, "declined");
+
+    // OPTIONAL: backend wire later
+  }
+
+  function handleStartAssignment(req) {
+    const address =
+      req?.propertyAddress ||
+      req?.address ||
+      req?.location ||
+      req?.propertyLocation ||
+      "";
+    openGoogleMaps(address);
+  }
+
+  return (
+    <div style={styles.page}>
+      <div style={styles.headerRow}>
+        <h2 style={styles.title}>Observer Dashboard</h2>
+        <div style={styles.badge}>
+          Requests: <b>{normalized.length}</b>
+        </div>
+      </div>
+
+      {loading && <div style={styles.info}>Loading requests…</div>}
+      {errorMsg && <div style={styles.error}>Error: {errorMsg}</div>}
+
+      {!loading && !errorMsg && normalized.length === 0 && (
+        <div style={styles.info}>No requests yet.</div>
+      )}
+
+      <div style={styles.grid}>
+        {normalized.map((req) => {
+          const rid = req.__rid;
+          const status = getStatus(rid);
+
+          const agentName = req?.agentName || req?.name || "Unknown Agent";
+          const visitType = req?.visitType || req?.typeOfVisit || "Showing";
+          const date =
+            req?.date || req?.visitDate || req?.scheduledDate || "—";
+          const time =
+            req?.time || req?.visitTime || req?.scheduledTime || "—";
+          const address =
+            req?.propertyAddress ||
+            req?.address ||
+            req?.location ||
+            req?.propertyLocation ||
+            "—";
+
+          const scheduled = buildScheduleDateTime(req);
+          const msLeft = scheduled ? scheduled.getTime() - nowTick : null;
+          const countdown = msLeft == null ? "—" : formatCountdown(msLeft);
+
+          return (
+            <div key={rid} style={styles.card}>
+              <div style={styles.cardTop}>
+                <div>
+                  <div style={styles.cardTitle}>{address}</div>
+                  <div style={styles.meta}>
+                    <span><b>Agent:</b> {agentName}</span>
+                    <span style={styles.dot}>•</span>
+                    <span><b>Visit:</b> {visitType}</span>
+                  </div>
+                  <div style={styles.meta}>
+                    <span><b>Date:</b> {date}</span>
+                    <span style={styles.dot}>•</span>
+                    <span><b>Time:</b> {time}</span>
+                  </div>
+                </div>
+
+                <div style={styles.statusPill(status)}>
+                  {status.toUpperCase()}
+                </div>
+              </div>
+
+              <div style={styles.countdownRow}>
+                <div style={styles.countdownLabel}>Countdown</div>
+                <div style={styles.countdownValue}>{countdown}</div>
+              </div>
+
+              {/* ACTIONS */}
+              {status === "pending" && (
+                <div style={styles.actions}>
+                  <button
+                    style={styles.btnPrimary}
+                    onClick={() => handleAccept(req)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    style={styles.btnDanger}
+                    onClick={() => handleDecline(req)}
+                  >
+                    Decline
+                  </button>
+                </div>
+              )}
+
+              {status === "accepted" && (
+                <div style={styles.actions}>
+                  <button
+                    style={styles.btnPrimary}
+                    onClick={() => handleStartAssignment(req)}
+                  >
+                    Start Assignment (Open Maps)
+                  </button>
+                </div>
+              )}
+
+              {status === "declined" && (
+                <div style={styles.infoSmall}>
+                  You declined this request.
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Simple mobile-safe styling (no external CSS needed) */
+const styles = {
+  page: {
+    padding: 16,
+    maxWidth: 980,
+    margin: "0 auto",
+    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+  },
+  headerRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    flexWrap: "wrap",
+    marginBottom: 12,
+  },
+  title: { margin: 0, fontSize: 22 },
+  badge: {
+    padding: "6px 10px",
+    borderRadius: 999,
+    border: "1px solid #ddd",
+    fontSize: 14,
+    background: "#fafafa",
+  },
+  info: {
+    padding: 12,
+    borderRadius: 12,
+    background: "#f6f6f6",
+    marginTop: 10,
+  },
+  error: {
+    padding: 12,
+    borderRadius: 12,
+    background: "#ffe8e8",
+    marginTop: 10,
+    border: "1px solid #ffb3b3",
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: 12,
+    marginTop: 12,
+  },
+  card: {
+    border: "1px solid #e5e5e5",
+    borderRadius: 16,
+    padding: 14,
+    background: "#fff",
+    boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
+  },
+  cardTop: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  cardTitle: { fontWeight: 800, fontSize: 16, marginBottom: 6 },
+  meta: { fontSize: 13, color: "#444", display: "flex", flexWrap: "wrap" },
+  dot: { margin: "0 6px", opacity: 0.6 },
+  statusPill: (status) => ({
+    padding: "6px 10px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 800,
+    border: "1px solid #ddd",
+    background:
+      status === "accepted"
+        ? "#eaffea"
+        : status === "declined"
+        ? "#ffecec"
+        : "#f3f3f3",
+  }),
+  countdownRow: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    marginTop: 12,
+    paddingTop: 10,
+    borderTop: "1px dashed #e6e6e6",
+  },
+  countdownLabel: { fontSize: 12, color: "#666", fontWeight: 700 },
+  countdownValue: { fontSize: 18, fontWeight: 900 },
+  actions: {
+    display: "flex",
+    gap: 10,
+    marginTop: 12,
+    flexWrap: "wrap",
+  },
+  btnPrimary: {
+    flex: 1,
+    minWidth: 140,
+    border: "none",
+    borderRadius: 12,
+    padding: "12px 14px",
+    fontWeight: 800,
+    cursor: "pointer",
+    background: "#111",
+    color: "#fff",
+  },
+  btnDanger: {
+    flex: 1,
+    minWidth: 140,
+    border: "none",
+    borderRadius: 12,
+    padding: "12px 14px",
+    fontWeight: 800,
+    cursor: "pointer",
+    background: "#b00020",
+    color: "#fff",
+  },
+  infoSmall: {
+    marginTop: 12,
+    fontSize: 13,
+    color: "#555",
+    background: "#fafafa",
+    padding: 10,
+    borderRadius: 12,
+    border: "1px solid #eee",
+  },
+};
