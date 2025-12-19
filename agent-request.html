@@ -2,419 +2,138 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Agent Request | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root{
-      --navy:#0B2C4F;
-      --white:#FFFFFF;
-      --border:#E5E7EB;
-      --success:#16A34A;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
     }
 
-    body{ margin:0; font-family:Arial,sans-serif; background:var(--white); color:var(--navy); }
-
-    .nav{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 18px; border-bottom:1px solid var(--border); background:var(--white);
-    }
-    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; }
-    .brand img{ width:28px; height:28px; object-fit:contain; }
-    .actions button{
-      background:var(--navy); color:var(--white); border:none; padding:8px 12px;
-      border-radius:6px; font-size:14px; cursor:pointer;
+    .container {
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 14px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .page{ max-width:720px; margin:0 auto; padding:24px; }
-    h1{ text-align:center; margin:18px 0 8px; }
-    .muted{ text-align:center; color:#666; margin:0 0 18px; }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:700px){
-      .grid{ grid-template-columns: 1fr; }
+    h1 {
+      margin-bottom: 16px;
     }
 
-    label{ font-size:13px; display:block; margin-top:10px; color:#444; }
-    input, select, textarea{
-      width:100%;
-      padding:10px;
-      margin-top:6px;
-      border-radius:10px;
-      border:1px solid var(--border);
-      font-size:14px;
-      background:#fff;
-      box-sizing:border-box;
-    }
-    textarea{ min-height:90px; resize:vertical; }
-
-    .card{
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:16px;
-      margin-top:16px;
-      background:#fff;
-    }
-    .card h2{
-      margin:0 0 10px;
-      font-size:18px;
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 12px;
     }
 
-    .row{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
     }
 
-    .btn{
-      border:none;
-      border-radius:10px;
-      padding:12px 14px;
-      font-size:15px;
-      cursor:pointer;
-    }
-    .btn-primary{ background:var(--navy); color:var(--white); width:100%; margin-top:18px; }
-    .btn-outline{
-      background:#fff;
-      color:var(--navy);
-      border:1px solid var(--navy);
-    }
-    .btn-danger{
-      background:#fff;
-      color:#b91c1c;
-      border:1px solid #b91c1c;
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
     }
 
-    .small{ font-size:12px; color:#666; margin-top:6px; }
-    .pill{
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      font-size:12px;
-      color:#555;
-    }
-
-    .section-actions{
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      align-items:center;
-      margin-top:12px;
-      flex-wrap:wrap;
+    .success {
+      margin-top: 16px;
+      padding: 12px;
+      background: #e6ffe6;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #155724;
+      display: none;
     }
   </style>
 </head>
+
 <body>
-
-  <div class="nav">
-    <div class="brand" onclick="goDashboard()">
-      <img src="logo.png" alt="Realtor Guard" onerror="this.style.display='none'">
-      <span>Realtor Guard</span>
-    </div>
-    <div class="actions">
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
-
-  <div class="page">
+  <div class="container">
     <h1>Request an Observer</h1>
-    <p class="muted">Create up to <b>3 property visits</b> in one request.</p>
 
-    <div class="card">
-      <h2>Agent Details</h2>
-      <div class="grid">
-        <div>
-          <label>Agent Name</label>
-          <input id="agentName" placeholder="Enter your full name" required />
-        </div>
+    <label>Agent Name</label>
+    <input id="agentName" placeholder="Your full name" required />
 
-        <div>
-          <label>US Time Zone</label>
-          <select id="timeZone" required>
-            <option value="">Select time zone...</option>
-            <option value="Eastern">Eastern (ET)</option>
-            <option value="Central">Central (CT)</option>
-            <option value="Mountain">Mountain (MT)</option>
-            <option value="Pacific">Pacific (PT)</option>
-            <option value="Alaska">Alaska (AKT)</option>
-            <option value="Hawaii">Hawaii (HST)</option>
-          </select>
-          <div class="small">Observer will see times in this zone.</div>
-        </div>
-      </div>
-    </div>
+    <label>Type of Visit</label>
+    <select id="visitType">
+      <option>Property Showing</option>
+      <option>Open House</option>
+      <option>Inspection</option>
+      <option>Other</option>
+    </select>
 
-    <div id="propertiesWrap"></div>
+    <label>Property Address</label>
+    <input id="address" placeholder="123 Main St, City, State" required />
 
-    <div class="section-actions">
-      <span class="pill" id="countPill">Properties: 1 / 3</span>
+    <label>Date</label>
+    <input id="date" type="date" required />
 
-      <div class="row">
-        <button class="btn btn-outline" type="button" onclick="addProperty()">+ Add Another Property</button>
-        <button class="btn btn-danger" type="button" onclick="clearRequest()">Clear</button>
-      </div>
-    </div>
+    <label>Time</label>
+    <input id="time" type="time" required />
 
-    <button class="btn btn-primary" type="button" onclick="submitRequest()">Submit Request</button>
+    <button onclick="submitRequest()">Submit Request</button>
 
-    <div class="small">
-      Testing note: For this MVP, Agent and Observer must be tested on the <b>same device + same browser window</b> (localStorage).
+    <div id="success" class="success">
+      ✅ Request submitted successfully
     </div>
   </div>
 
   <script>
-    const MAX_PROPERTIES = 3;
-
-    const STATES = [
-      { code:"AL", name:"Alabama" }, { code:"AK", name:"Alaska" }, { code:"AZ", name:"Arizona" },
-      { code:"AR", name:"Arkansas" }, { code:"CA", name:"California" }, { code:"CO", name:"Colorado" },
-      { code:"CT", name:"Connecticut" }, { code:"DE", name:"Delaware" }, { code:"FL", name:"Florida" },
-      { code:"GA", name:"Georgia" }, { code:"HI", name:"Hawaii" }, { code:"ID", name:"Idaho" },
-      { code:"IL", name:"Illinois" }, { code:"IN", name:"Indiana" }, { code:"IA", name:"Iowa" },
-      { code:"KS", name:"Kansas" }, { code:"KY", name:"Kentucky" }, { code:"LA", name:"Louisiana" },
-      { code:"ME", name:"Maine" }, { code:"MD", name:"Maryland" }, { code:"MA", name:"Massachusetts" },
-      { code:"MI", name:"Michigan" }, { code:"MN", name:"Minnesota" }, { code:"MS", name:"Mississippi" },
-      { code:"MO", name:"Missouri" }, { code:"MT", name:"Montana" }, { code:"NE", name:"Nebraska" },
-      { code:"NV", name:"Nevada" }, { code:"NH", name:"New Hampshire" }, { code:"NJ", name:"New Jersey" },
-      { code:"NM", name:"New Mexico" }, { code:"NY", name:"New York" }, { code:"NC", name:"North Carolina" },
-      { code:"ND", name:"North Dakota" }, { code:"OH", name:"Ohio" }, { code:"OK", name:"Oklahoma" },
-      { code:"OR", name:"Oregon" }, { code:"PA", name:"Pennsylvania" }, { code:"RI", name:"Rhode Island" },
-      { code:"SC", name:"South Carolina" }, { code:"SD", name:"South Dakota" }, { code:"TN", name:"Tennessee" },
-      { code:"TX", name:"Texas" }, { code:"UT", name:"Utah" }, { code:"VT", name:"Vermont" },
-      { code:"VA", name:"Virginia" }, { code:"WA", name:"Washington" }, { code:"WV", name:"West Virginia" },
-      { code:"WI", name:"Wisconsin" }, { code:"WY", name:"Wyoming" }
-    ];
-
-    function goDashboard(){ window.location.href = "agent-dashboard.html"; }
-    function logout(){ localStorage.clear(); window.location.href = "index.html"; }
-
-    function minutesOptions() {
-      // 00,05,10,...55
-      let out = "";
-      for (let m = 0; m < 60; m += 5) {
-        const mm = String(m).padStart(2, "0");
-        out += `<option value="${mm}">${mm}</option>`;
-      }
-      return out;
-    }
-
-    function hoursOptions() {
-      let out = "";
-      for (let h = 1; h <= 12; h++) out += `<option value="${h}">${h}</option>`;
-      return out;
-    }
-
-    function stateOptions() {
-      return `<option value="">Select state...</option>` + STATES.map(s => `<option value="${s.code}">${s.name} (${s.code})</option>`).join("");
-    }
-
-    function propertyCard(index) {
-      return `
-        <div class="card" data-index="${index}">
-          <div class="row" style="justify-content:space-between;">
-            <h2 style="margin:0;">Property ${index + 1}</h2>
-            ${index > 0 ? `<button class="btn btn-danger" type="button" onclick="removeProperty(${index})">Remove</button>` : ``}
-          </div>
-
-          <div class="grid">
-            <div>
-              <label>Street Address</label>
-              <input id="street_${index}" placeholder="123 Main St" required />
-            </div>
-
-            <div>
-              <label>City</label>
-              <input id="city_${index}" placeholder="City" required />
-            </div>
-
-            <div>
-              <label>State</label>
-              <select id="state_${index}" required>
-                ${stateOptions()}
-              </select>
-            </div>
-
-            <div>
-              <label>Zip Code</label>
-              <input id="zip_${index}" placeholder="Zip" required />
-            </div>
-
-            <div>
-              <label>Date</label>
-              <input type="date" id="date_${index}" required />
-            </div>
-
-            <div>
-              <label>Time (AM/PM)</label>
-              <div class="row" style="gap:8px;">
-                <select id="hour_${index}" style="flex:1;" required>
-                  ${hoursOptions()}
-                </select>
-                <select id="minute_${index}" style="flex:1;" required>
-                  ${minutesOptions()}
-                </select>
-                <select id="ampm_${index}" style="flex:1;" required>
-                  <option value="AM">AM</option>
-                  <option value="PM">PM</option>
-                </select>
-              </div>
-              <div class="small">Example: 2 : 30 PM</div>
-            </div>
-
-            <div>
-              <label>Type of Visit</label>
-              <select id="visitType_${index}" onchange="toggleOther(${index})" required>
-                <option value="">Select type...</option>
-                <option value="Showing">Showing</option>
-                <option value="Open House">Open House</option>
-                <option value="Other">Other</option>
-              </select>
-
-              <div id="otherWrap_${index}" style="display:none; margin-top:10px;">
-                <label>Other (describe)</label>
-                <textarea id="otherDesc_${index}" placeholder="Describe the visit type..."></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    let propertyCount = 1;
-
-    function renderProperties() {
-      const wrap = document.getElementById("propertiesWrap");
-      wrap.innerHTML = "";
-      for (let i = 0; i < propertyCount; i++) wrap.innerHTML += propertyCard(i);
-      document.getElementById("countPill").textContent = `Properties: ${propertyCount} / 3`;
-    }
-
-    function addProperty() {
-      if (propertyCount >= MAX_PROPERTIES) return alert("Max 3 properties per request.");
-      propertyCount++;
-      renderProperties();
-    }
-
-    function removeProperty(index) {
-      // Remove by rebuilding from current values except the one removed
-      const current = collectPropertiesSafe();
-      const filtered = current.filter((_, i) => i !== index);
-      propertyCount = Math.max(1, filtered.length);
-      renderProperties();
-      // Rehydrate values
-      filtered.forEach((p, i) => setPropertyValues(i, p));
-    }
-
-    function toggleOther(i) {
-      const type = document.getElementById(`visitType_${i}`).value;
-      const otherWrap = document.getElementById(`otherWrap_${i}`);
-      otherWrap.style.display = (type === "Other") ? "block" : "none";
-    }
-
-    function getTime12(i) {
-      const h = document.getElementById(`hour_${i}`).value;
-      const m = document.getElementById(`minute_${i}`).value;
-      const ap = document.getElementById(`ampm_${i}`).value;
-      return `${h}:${m} ${ap}`;
-    }
-
-    function collectPropertiesSafe() {
-      const out = [];
-      for (let i = 0; i < propertyCount; i++) {
-        const visitType = document.getElementById(`visitType_${i}`)?.value || "";
-        const otherDesc = document.getElementById(`otherDesc_${i}`)?.value?.trim() || "";
-        out.push({
-          street: document.getElementById(`street_${i}`)?.value?.trim() || "",
-          city: document.getElementById(`city_${i}`)?.value?.trim() || "",
-          state: document.getElementById(`state_${i}`)?.value || "",
-          zip: document.getElementById(`zip_${i}`)?.value?.trim() || "",
-          date: document.getElementById(`date_${i}`)?.value || "",
-          time: getTime12(i),
-          visitType,
-          otherDesc
-        });
-      }
-      return out;
-    }
-
-    function setPropertyValues(i, p) {
-      document.getElementById(`street_${i}`).value = p.street || "";
-      document.getElementById(`city_${i}`).value = p.city || "";
-      document.getElementById(`state_${i}`).value = p.state || "";
-      document.getElementById(`zip_${i}`).value = p.zip || "";
-      document.getElementById(`date_${i}`).value = p.date || "";
-
-      // parse "h:mm AM"
-      const t = (p.time || "").trim();
-      const match = t.match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
-      if (match) {
-        document.getElementById(`hour_${i}`).value = String(parseInt(match[1], 10));
-        document.getElementById(`minute_${i}`).value = match[2];
-        document.getElementById(`ampm_${i}`).value = match[3].toUpperCase();
-      }
-
-      document.getElementById(`visitType_${i}`).value = p.visitType || "";
-      toggleOther(i);
-      document.getElementById(`otherDesc_${i}`).value = p.otherDesc || "";
-    }
-
-    function clearRequest() {
-      if (!confirm("Clear this form?")) return;
-      document.getElementById("agentName").value = "";
-      document.getElementById("timeZone").value = "";
-      propertyCount = 1;
-      renderProperties();
-    }
-
-    function validate() {
-      const agentName = document.getElementById("agentName").value.trim();
-      const tz = document.getElementById("timeZone").value;
-
-      if (!agentName) return alert("Agent name is required."), false;
-      if (!tz) return alert("Time zone is required."), false;
-
-      const props = collectPropertiesSafe();
-      for (let i = 0; i < props.length; i++) {
-        const p = props[i];
-        const prefix = `Property ${i + 1}: `;
-        if (!p.street) return alert(prefix + "Street is required."), false;
-        if (!p.city) return alert(prefix + "City is required."), false;
-        if (!p.state) return alert(prefix + "State is required."), false;
-        if (!p.zip) return alert(prefix + "Zip is required."), false;
-        if (!p.date) return alert(prefix + "Date is required."), false;
-        if (!p.visitType) return alert(prefix + "Visit type is required."), false;
-        if (p.visitType === "Other" && !p.otherDesc) return alert(prefix + "Please describe the 'Other' visit type."), false;
-      }
-
-      return true;
-    }
+    const STORAGE_KEY = "rg_agent_requests_v1";
 
     function submitRequest() {
-      if (!validate()) return;
+      const agentName = document.getElementById("agentName").value.trim();
+      const visitType = document.getElementById("visitType").value;
+      const address = document.getElementById("address").value.trim();
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
 
-      const request = {
-        agentName: document.getElementById("agentName").value.trim(),
-        timeZone: document.getElementById("timeZone").value,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-        properties: collectPropertiesSafe()
+      if (!agentName || !address || !date || !time) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const requests =
+        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+      const newRequest = {
+        id: "req_" + Date.now(),
+        agentName,
+        visitType,
+        address,
+        date,
+        time,
+        createdAt: new Date().toISOString()
       };
 
-      localStorage.setItem("assignmentRequest", JSON.stringify(request));
-      localStorage.setItem("role", "agent");
+      requests.push(newRequest);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
 
-      window.location.href = "agent-dashboard.html";
+      document.getElementById("success").style.display = "block";
+
+      // optional reset
+      document.getElementById("agentName").value = "";
+      document.getElementById("address").value = "";
     }
-
-    // Init
-    renderProperties();
   </script>
-
 </body>
 </html>
