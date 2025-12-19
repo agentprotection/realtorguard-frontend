@@ -1,224 +1,482 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Agent Dashboard | Realtor Guard</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Dashboard | Realtor Guard</title>
 
-<style>
-:root{
-  --navy:#0B2C4F;
-  --border:#E5E7EB;
-  --success:#16A34A;
-  --danger:#B91C1C;
-  --muted:#6B7280;
-}
-body{margin:0;font-family:Arial,sans-serif;color:var(--navy);}
-.nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;}
-.page{max-width:920px;margin:auto;padding:24px;}
-.card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
-h1{text-align:center;margin:6px 0;}
-.muted{text-align:center;color:var(--muted);margin-bottom:20px;}
-label{font-size:13px;margin-top:10px;display:block;}
-input,select,textarea{
-  width:100%;padding:10px;margin-top:6px;
-  border-radius:10px;border:1px solid var(--border);
-}
-textarea{min-height:80px;}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-@media(max-width:720px){.grid{grid-template-columns:1fr;}}
-.row{display:flex;gap:10px;flex-wrap:wrap;}
-.btn{
-  padding:12px 14px;border:none;border-radius:10px;
-  font-size:15px;cursor:pointer;
-}
-.primary{background:var(--navy);color:white;width:100%;}
-.success{background:var(--success);color:white;}
-.danger{background:var(--danger);color:white;}
-.outline{background:white;border:1px solid var(--navy);color:var(--navy);}
-.badge{
-  display:inline-block;padding:4px 10px;border-radius:999px;
-  font-size:12px;border:1px solid var(--border);margin-left:8px;
-}
-.canceled{opacity:.55;text-decoration:line-through;}
-.small{font-size:12px;color:var(--muted);}
-</style>
+  <style>
+    :root{
+      --navy:#0B2C4F;
+      --white:#FFFFFF;
+      --border:#E5E7EB;
+      --success:#16A34A;
+      --danger:#B91C1C;
+      --muted:#6B7280;
+    }
+    body{margin:0;font-family:Arial,sans-serif;background:var(--white);color:var(--navy);}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);}
+    .brand{font-weight:800;cursor:pointer;}
+    .page{max-width:980px;margin:0 auto;padding:24px;}
+    h1{text-align:center;margin:10px 0 6px;}
+    .muted{text-align:center;color:var(--muted);margin:0 0 18px;}
+    .card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff;margin-top:14px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    @media(max-width:760px){.grid{grid-template-columns:1fr;}}
+    label{font-size:13px;color:#444;display:block;margin-top:10px;}
+    input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:6px;border-radius:12px;border:1px solid var(--border);font-size:14px;background:#fff;}
+    textarea{min-height:90px;resize:vertical;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .btn{border:none;border-radius:12px;padding:12px 14px;font-size:15px;cursor:pointer;}
+    .btn-primary{background:var(--navy);color:var(--white);width:100%;}
+    .btn-outline{background:#fff;color:var(--navy);border:1px solid var(--navy);}
+    .btn-success{background:var(--success);color:var(--white);}
+    .btn-danger{background:var(--danger);color:var(--white);}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:#555;}
+    .small{font-size:12px;color:var(--muted);margin-top:10px;}
+    .propHeader{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;}
+    .canceled{opacity:.55;}
+    .canceled .strike{text-decoration:line-through;}
+  </style>
 </head>
 
 <body>
+  <div class="nav">
+    <div class="brand" onclick="goHome()">🛡️ Realtor Guard</div>
+    <div class="row">
+      <button class="btn btn-outline" type="button" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
 
-<div class="nav">🛡️ Realtor Guard — Agent Dashboard</div>
-
-<div class="page">
-<h1>Agent Dashboard</h1>
-<p class="muted">Request observers and manage each property independently</p>
-
-<div id="content"></div>
-</div>
+  <div class="page">
+    <h1>Agent Dashboard</h1>
+    <p class="muted">Request an observer and manage each property independently</p>
+    <div id="content"></div>
+    <div class="small">MVP note: Agent + Observer must be tested in the <b>same device + same browser window</b> (localStorage).</div>
+  </div>
 
 <script>
-const MAX_PROPERTIES = 3;
+  const MAX_PROPERTIES = 3;
 
-const STATES = [
-"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS",
-"KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY",
-"NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV",
-"WI","WY"
-];
+  const STATES = [
+    { code:"AL", name:"Alabama" }, { code:"AK", name:"Alaska" }, { code:"AZ", name:"Arizona" },
+    { code:"AR", name:"Arkansas" }, { code:"CA", name:"California" }, { code:"CO", name:"Colorado" },
+    { code:"CT", name:"Connecticut" }, { code:"DE", name:"Delaware" }, { code:"FL", name:"Florida" },
+    { code:"GA", name:"Georgia" }, { code:"HI", name:"Hawaii" }, { code:"ID", name:"Idaho" },
+    { code:"IL", name:"Illinois" }, { code:"IN", name:"Indiana" }, { code:"IA", name:"Iowa" },
+    { code:"KS", name:"Kansas" }, { code:"KY", name:"Kentucky" }, { code:"LA", name:"Louisiana" },
+    { code:"ME", name:"Maine" }, { code:"MD", name:"Maryland" }, { code:"MA", name:"Massachusetts" },
+    { code:"MI", name:"Michigan" }, { code:"MN", name:"Minnesota" }, { code:"MS", name:"Mississippi" },
+    { code:"MO", name:"Missouri" }, { code:"MT", name:"Montana" }, { code:"NE", name:"Nebraska" },
+    { code:"NV", name:"Nevada" }, { code:"NH", name:"New Hampshire" }, { code:"NJ", name:"New Jersey" },
+    { code:"NM", name:"New Mexico" }, { code:"NY", name:"New York" }, { code:"NC", name:"North Carolina" },
+    { code:"ND", name:"North Dakota" }, { code:"OH", name:"Ohio" }, { code:"OK", name:"Oklahoma" },
+    { code:"OR", name:"Oregon" }, { code:"PA", name:"Pennsylvania" }, { code:"RI", name:"Rhode Island" },
+    { code:"SC", name:"South Carolina" }, { code:"SD", name:"South Dakota" }, { code:"TN", name:"Tennessee" },
+    { code:"TX", name:"Texas" }, { code:"UT", name:"Utah" }, { code:"VT", name:"Vermont" },
+    { code:"VA", name:"Virginia" }, { code:"WA", name:"Washington" }, { code:"WV", name:"West Virginia" },
+    { code:"WI", name:"Wisconsin" }, { code:"WY", name:"Wyoming" }
+  ];
 
-let propertyCount = 1;
+  let propertyCount = 1;
 
-function render(){
-  const c = document.getElementById("content");
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+  function goHome(){ window.location.href = "choose-role.html"; }
 
-  if(!req){
-    c.innerHTML = requestForm();
-    renderProperties();
-    return;
+  function resetAll(){
+    if(!confirm("Reset clears saved request data. Continue?")) return;
+    localStorage.removeItem("assignmentRequest");
+    localStorage.removeItem("activePropertyIndex");
+    render();
   }
 
-  if(req.status === "pending"){
-    c.innerHTML = `
+  function stateOptions(){
+    return `<option value="">Select state...</option>` +
+      STATES.map(s=>`<option value="${s.code}">${s.name} (${s.code})</option>`).join("");
+  }
+
+  function hoursOptions(){
+    let out="";
+    for(let h=1; h<=12; h++) out += `<option value="${h}">${h}</option>`;
+    return out;
+  }
+
+  function minutesOptions(){
+    let out="";
+    for(let m=0; m<60; m+=5){
+      const mm = String(m).padStart(2,"0");
+      out += `<option value="${mm}">${mm}</option>`;
+    }
+    return out;
+  }
+
+  function escapeHTML(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function render(){
+    const content = document.getElementById("content");
+    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+
+    if(!req){
+      content.innerHTML = requestFormHTML();
+      renderProperties();
+      updateCountPill();
+      return;
+    }
+
+    // If any property accepted, we treat the whole request as accepted for display
+    if(req.status === "pending"){
+      content.innerHTML = `
+        <div class="card">
+          <div class="row" style="justify-content:space-between;">
+            <div><b>Status:</b> Waiting for observer acceptance</div>
+            <span class="pill">PENDING</span>
+          </div>
+          <div class="small">Once an observer accepts, each property will show its own Text/Cancel buttons.</div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn btn-danger" type="button" onclick="cancelRequest()">Cancel Request</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if(req.status === "accepted"){
+      content.innerHTML = `
+        <div class="card">
+          <div class="row" style="justify-content:space-between;">
+            <div><b>Status:</b> Observer(s) Assigned</div>
+            <span class="pill">ACCEPTED</span>
+          </div>
+          <div class="small">Text or cancel per property below.</div>
+        </div>
+        ${req.properties.map((p,i)=>propertyCardHTML(req, p, i)).join("")}
+      `;
+      return;
+    }
+
+    content.innerHTML = `<div class="card">Unknown status. Use Reset and try again.</div>`;
+  }
+
+  function requestFormHTML(){
+    return `
       <div class="card">
-        <b>Status:</b> Waiting for observer acceptance
-        <div class="small">Observers will appear per property once accepted.</div>
-        <button class="btn danger" style="margin-top:12px;" onclick="cancelAll()">Cancel All</button>
-      </div>`;
-    return;
+        <div class="row" style="justify-content:space-between;">
+          <div><b>Request an Observer</b></div>
+          <span class="pill" id="countPill">Properties: 1 / 3</span>
+        </div>
+
+        <div class="grid" style="margin-top:10px;">
+          <div>
+            <label>Agent Full Name</label>
+            <input id="agentName" placeholder="Enter your full name"/>
+          </div>
+
+          <div>
+            <label>US Time Zone</label>
+            <select id="timeZone">
+              <option value="">Select time zone...</option>
+              <option value="Eastern">Eastern (ET)</option>
+              <option value="Central">Central (CT)</option>
+              <option value="Mountain">Mountain (MT)</option>
+              <option value="Pacific">Pacific (PT)</option>
+              <option value="Alaska">Alaska (AKT)</option>
+              <option value="Hawaii">Hawaii (HST)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="propertiesWrap"></div>
+
+        <div class="row" style="justify-content:space-between;margin-top:12px;">
+          <button class="btn btn-outline" type="button" onclick="addProperty()">+ Add Property</button>
+          <button class="btn btn-danger" type="button" onclick="clearForm()">Clear</button>
+        </div>
+
+        <button class="btn btn-primary" type="button" onclick="submitRequest()">Submit Request</button>
+      </div>
+    `;
   }
 
-  if(req.status === "accepted"){
-    c.innerHTML = req.properties.map((p,i)=>propertyCard(p,i)).join("");
+  function propertyFormHTML(i){
+    return `
+      <div class="card" data-prop="${i}">
+        <div class="propHeader">
+          <div><b>Property ${i+1}</b></div>
+          ${i>0 ? `<button class="btn btn-danger" type="button" onclick="removeProperty(${i})">Delete</button>` : ``}
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Street Address</label>
+            <input id="street_${i}" placeholder="123 Main St"/>
+          </div>
+          <div>
+            <label>City</label>
+            <input id="city_${i}" placeholder="City"/>
+          </div>
+
+          <div>
+            <label>State</label>
+            <select id="state_${i}">${stateOptions()}</select>
+          </div>
+          <div>
+            <label>Zip Code</label>
+            <input id="zip_${i}" placeholder="Zip"/>
+          </div>
+
+          <div>
+            <label>Date</label>
+            <input type="date" id="date_${i}"/>
+          </div>
+
+          <div>
+            <label>Time (AM/PM)</label>
+            <div class="row">
+              <select id="hour_${i}" style="flex:1;">${hoursOptions()}</select>
+              <select id="min_${i}" style="flex:1;">${minutesOptions()}</select>
+              <select id="ampm_${i}" style="flex:1;">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label>Type of Visit</label>
+            <select id="visit_${i}" onchange="toggleOther(${i})">
+              <option value="">Select type...</option>
+              <option value="Showing">Showing</option>
+              <option value="Open House">Open House</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <div id="otherWrap_${i}" style="display:none;margin-top:10px;">
+              <label>Other Description</label>
+              <textarea id="otherDesc_${i}" placeholder="Describe the visit type..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
-}
 
-function requestForm(){
-return `
-<div class="card">
-<label>Agent Full Name</label>
-<input id="agentName"/>
+  function propertyCardHTML(req, p, i){
+    const isCanceled = p.status === "canceled";
+    const obs = p.observer || null;
 
-<div id="properties"></div>
+    const vehicle = obs?.vehicle
+      ? [obs.vehicle.make, obs.vehicle.model, obs.vehicle.year, obs.vehicle.color].filter(Boolean).join(" • ")
+      : "";
 
-<button class="btn outline" onclick="addProperty()">+ Add Property</button>
-<button class="btn primary" onclick="submit()">Submit Request</button>
+    return `
+      <div class="card ${isCanceled ? "canceled":""}">
+        <div class="row" style="justify-content:space-between;">
+          <div class="${isCanceled ? "strike":""}"><b>Property ${i+1}</b></div>
+          <span class="pill">${isCanceled ? "CANCELED" : (p.status || "—").toUpperCase()}</span>
+        </div>
 
-<div class="small">You can add up to 3 properties.</div>
-</div>`;
-}
+        <div class="small ${isCanceled ? "strike":""}">
+          ${escapeHTML(p.street || "")}, ${escapeHTML(p.city || "")}, ${escapeHTML(p.state || "")} ${escapeHTML(p.zip || "")}
+        </div>
+        <div class="small ${isCanceled ? "strike":""}">
+          ${escapeHTML(p.date || "")} @ ${escapeHTML(p.time || "")} (${escapeHTML(req.timeZone || "")})
+        </div>
 
-function propertyBlock(i){
-return `
-<div class="card">
-<b>Property ${i+1}</b>
+        ${obs ? `
+          <div class="small">
+            Observer: <b>${escapeHTML(obs.fullName || obs.name || "")}</b>
+            ${vehicle ? ` • ${escapeHTML(vehicle)}` : ""}
+          </div>
+          <div class="small">
+            Reviews: ${escapeHTML(obs.rating || "N/A")} ${obs.reviewsCount ? `(${obs.reviewsCount} reviews)` : ""}
+          </div>
+        ` : `<div class="small">Observer: not assigned yet</div>`}
 
-<label>Street</label><input id="street${i}">
-<label>City</label><input id="city${i}">
-<label>State</label>
-<select id="state${i}">${STATES.map(s=>`<option>${s}</option>`).join("")}</select>
-<label>Zip</label><input id="zip${i}">
+        ${(!isCanceled && p.status === "accepted" && obs && obs.phone) ? `
+          <div class="row" style="margin-top:12px;">
+            <button class="btn btn-success" type="button" onclick="textObserver(${i})">Text Observer</button>
+            <button class="btn btn-danger" type="button" onclick="cancelProperty(${i})">Cancel Property</button>
+          </div>
+        ` : ""}
 
-<label>Date</label><input type="date" id="date${i}">
+        ${(!isCanceled && p.status !== "accepted") ? `<div class="small">Waiting for observer to accept this property.</div>` : ""}
+      </div>
+    `;
+  }
 
-<label>Time</label>
-<div class="row">
-<select id="hour${i}">${[...Array(12)].map((_,h)=>`<option>${h+1}</option>`).join("")}</select>
-<select id="min${i}"><option>00</option><option>15</option><option>30</option><option>45</option></select>
-<select id="ampm${i}"><option>AM</option><option>PM</option></select>
-</div>
+  function renderProperties(){
+    const wrap = document.getElementById("propertiesWrap");
+    wrap.innerHTML = "";
+    for(let i=0;i<propertyCount;i++) wrap.innerHTML += propertyFormHTML(i);
+  }
 
-${i>0?`<button class="btn danger" onclick="removeProperty(${i})">Delete Property</button>`:""}
-</div>`;
-}
+  function updateCountPill(){
+    const pill = document.getElementById("countPill");
+    if(pill) pill.textContent = `Properties: ${propertyCount} / 3`;
+  }
 
-function propertyCard(p,i){
-const canceled = p.status === "canceled";
-return `
-<div class="card ${canceled?"canceled":""}">
-<b>Property ${i+1}</b>
-${p.status==="accepted"?'<span class="badge">Accepted</span>':""}
-${p.status==="canceled"?'<span class="badge">Canceled</span>':""}
+  function addProperty(){
+    if(propertyCount >= MAX_PROPERTIES){ alert("Maximum 3 properties."); return; }
+    const current = collectPropertiesDraft();
+    propertyCount++;
+    renderProperties();
+    updateCountPill();
+    hydrateDraft(current);
+  }
 
-<div class="small">${p.street}, ${p.city}, ${p.state} ${p.zip}</div>
-<div class="small">${p.date} @ ${p.time}</div>
+  function removeProperty(index){
+    const current = collectPropertiesDraft().filter((_,i)=>i!==index);
+    propertyCount = Math.max(1, current.length);
+    renderProperties();
+    updateCountPill();
+    hydrateDraft(current);
+  }
 
-${p.observer?`
-  <div class="small">
-    Observer: <b>${p.observer.name}</b> • ${p.observer.vehicle}
-  </div>`:""}
+  function toggleOther(i){
+    const type = document.getElementById(`visit_${i}`).value;
+    document.getElementById(`otherWrap_${i}`).style.display = (type === "Other") ? "block" : "none";
+  }
 
-${p.status==="accepted"?`
-<div class="row" style="margin-top:12px;">
-  <button class="btn success" onclick="textObserver(${i})">Text Observer</button>
-  <button class="btn danger" onclick="cancelProperty(${i})">Cancel Property</button>
-</div>`:""}
-</div>`;
-}
+  function getTime12(i){
+    const h = document.getElementById(`hour_${i}`).value;
+    const m = document.getElementById(`min_${i}`).value;
+    const ap = document.getElementById(`ampm_${i}`).value;
+    return `${h}:${m} ${ap}`;
+  }
 
-function renderProperties(){
-  const p=document.getElementById("properties");
-  p.innerHTML="";
-  for(let i=0;i<propertyCount;i++) p.innerHTML+=propertyBlock(i);
-}
+  function collectPropertiesDraft(){
+    const props=[];
+    for(let i=0;i<propertyCount;i++){
+      props.push({
+        street:(document.getElementById(`street_${i}`)?.value||"").trim(),
+        city:(document.getElementById(`city_${i}`)?.value||"").trim(),
+        state:(document.getElementById(`state_${i}`)?.value||""),
+        zip:(document.getElementById(`zip_${i}`)?.value||"").trim(),
+        date:(document.getElementById(`date_${i}`)?.value||""),
+        time:getTime12(i),
+        visitType:(document.getElementById(`visit_${i}`)?.value||""),
+        otherDesc:(document.getElementById(`otherDesc_${i}`)?.value||"").trim()
+      });
+    }
+    return props;
+  }
 
-function addProperty(){
-  if(propertyCount>=MAX_PROPERTIES) return alert("Max 3 properties");
-  propertyCount++;
-  renderProperties();
-}
+  function hydrateDraft(props){
+    props.forEach((p,i)=>{
+      if(!document.getElementById(`street_${i}`)) return;
+      document.getElementById(`street_${i}`).value = p.street || "";
+      document.getElementById(`city_${i}`).value = p.city || "";
+      document.getElementById(`state_${i}`).value = p.state || "";
+      document.getElementById(`zip_${i}`).value = p.zip || "";
+      document.getElementById(`date_${i}`).value = p.date || "";
 
-function removeProperty(i){
-  propertyCount--;
-  renderProperties();
-}
+      // time parse
+      const t=(p.time||"").trim();
+      const m=t.match(/^(\d{1,2}):(\d{2})\s(AM|PM)$/i);
+      if(m){
+        document.getElementById(`hour_${i}`).value = String(parseInt(m[1],10));
+        document.getElementById(`min_${i}`).value = m[2];
+        document.getElementById(`ampm_${i}`).value = m[3].toUpperCase();
+      }
 
-function submit(){
-  const props=[];
-  for(let i=0;i<propertyCount;i++){
-    props.push({
-      street:street${i}.value,
-      city:city${i}.value,
-      state:state${i}.value,
-      zip:zip${i}.value,
-      date:date${i}.value,
-      time:`${hour${i}.value}:${min${i}.value} ${ampm${i}.value}`,
-      status:"pending"
+      document.getElementById(`visit_${i}`).value = p.visitType || "";
+      toggleOther(i);
+      document.getElementById(`otherDesc_${i}`).value = p.otherDesc || "";
     });
   }
 
-  localStorage.setItem("assignmentRequest",JSON.stringify({
-    agentName:agentName.value,
-    status:"pending",
-    properties:props
-  }));
+  function clearForm(){
+    if(!confirm("Clear the form?")) return;
+    document.getElementById("agentName").value = "";
+    document.getElementById("timeZone").value = "";
+    propertyCount = 1;
+    renderProperties();
+    updateCountPill();
+  }
+
+  function validate(){
+    const agentName = (document.getElementById("agentName").value||"").trim();
+    const tz = document.getElementById("timeZone").value;
+
+    if(!agentName){ alert("Agent name is required."); return false; }
+    if(!tz){ alert("US time zone is required."); return false; }
+
+    const props = collectPropertiesDraft();
+    for(let i=0;i<props.length;i++){
+      const p=props[i];
+      const pre=`Property ${i+1}: `;
+      if(!p.street){ alert(pre+"Street address required."); return false; }
+      if(!p.city){ alert(pre+"City required."); return false; }
+      if(!p.state){ alert(pre+"State required."); return false; }
+      if(!p.zip){ alert(pre+"Zip required."); return false; }
+      if(!p.date){ alert(pre+"Date required."); return false; }
+      if(!p.visitType){ alert(pre+"Visit type required."); return false; }
+      if(p.visitType==="Other" && !p.otherDesc){ alert(pre+"Describe Other visit type."); return false; }
+    }
+    return true;
+  }
+
+  function submitRequest(){
+    if(!validate()) return;
+
+    const request = {
+      agentName: document.getElementById("agentName").value.trim(),
+      timeZone: document.getElementById("timeZone").value,
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      properties: collectPropertiesDraft().map(p => ({
+        ...p,
+        status: "pending",     // each property has its own status
+        observer: null         // observer assigned per property
+      }))
+    };
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(request));
+    render();
+  }
+
+  function cancelRequest(){
+    if(!confirm("Cancel the entire request?")) return;
+    localStorage.removeItem("assignmentRequest");
+    render();
+  }
+
+  function textObserver(index){
+    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+    const p = req.properties[index];
+    const obs = p.observer;
+
+    if(!obs || !obs.phone){
+      alert("No observer phone found for this property yet.");
+      return;
+    }
+
+    const address = `${p.street}, ${p.city}, ${p.state} ${p.zip}`;
+    const msg = encodeURIComponent(`Hi, I’m running a few minutes late for ${address}. Thank you for waiting.`);
+    const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+
+    const url = isMobile
+      ? `sms:${obs.phone}?&body=${msg}`
+      : `mailto:?subject=Realtor Guard Update&body=${msg}`;
+
+    window.location.href = url;
+  }
+
+  function cancelProperty(index){
+    if(!confirm("Cancel ONLY this property?")) return;
+
+    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+    req.properties[index].status = "canceled";
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    render();
+  }
+
+  // Init
   render();
-}
-
-function textObserver(i){
-  const req=JSON.parse(localStorage.getItem("assignmentRequest"));
-  const p=req.properties[i];
-  const msg=encodeURIComponent(
-    `Hi, I’m running a few minutes late for ${p.street}, ${p.city}.`
-  );
-  window.location.href=`sms:${p.observer.phone}?&body=${msg}`;
-}
-
-function cancelProperty(i){
-  if(!confirm("Cancel this property only?")) return;
-  const req=JSON.parse(localStorage.getItem("assignmentRequest"));
-  req.properties[i].status="canceled";
-  localStorage.setItem("assignmentRequest",JSON.stringify(req));
-  render();
-}
-
-function cancelAll(){
-  if(!confirm("Cancel entire request?")) return;
-  localStorage.removeItem("assignmentRequest");
-  render();
-}
-
-render();
 </script>
 </body>
 </html>
