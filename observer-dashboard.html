@@ -14,30 +14,37 @@
       --muted:#6B7280;
     }
     body{margin:0;font-family:Arial,sans-serif;color:var(--navy);background:#fff;}
-    .nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;}
+    .nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;display:flex;gap:10px;align-items:center;}
     .page{max-width:980px;margin:0 auto;padding:24px;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
     .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;background:#fff;}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
     .btn{padding:12px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
-    .success{background:var(--success);color:white;}
-    .danger{background:var(--danger);color:white;}
-    .outline{background:white;border:1px solid var(--navy);color:var(--navy);}
+    .success{background:var(--success);color:#fff;}
+    .danger{background:var(--danger);color:#fff;}
+    .outline{background:#fff;border:1px solid var(--navy);color:var(--navy);}
     .disabled{opacity:.55;pointer-events:none;}
     .badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:#444;}
-    .small{font-size:12px;color:var(--muted);}
-    .title{font-weight:800;font-size:16px;}
+    .small{font-size:12px;color:var(--muted);line-height:1.4;}
+    .title{font-weight:900;font-size:18px;}
     .divider{height:1px;background:var(--border);margin:12px 0;}
     .empty{border:1px dashed var(--border);border-radius:14px;padding:18px;text-align:center;color:var(--muted);margin-top:16px;}
+    .left{display:flex;align-items:center;gap:10px;}
+    .logo{width:34px;height:34px;}
   </style>
 </head>
 
 <body>
-  <div class="nav">🛡️ Realtor Guard — Observer Dashboard</div>
+  <div class="nav">
+    <div class="left">
+      <img class="logo" src="logo.png" alt="logo"/>
+      <div>Realtor Guard — Observer Dashboard</div>
+    </div>
+  </div>
 
   <div class="page">
-    <div class="row" style="justify-content:space-between;">
+    <div class="row">
       <h2 style="margin:0;">Available Property Assignments</h2>
-      <button class="btn outline" onclick="refresh()">Refresh</button>
+      <button class="btn outline" onclick="render()">Refresh</button>
     </div>
     <div class="small">Marketplace model: accept what you can, decline what you can’t. Declined properties go back to the pool.</div>
 
@@ -45,7 +52,7 @@
   </div>
 
 <script>
-  // MVP observer identity (later this comes from login)
+  // MVP Observer identity (later this comes from observer auth)
   const OBSERVER = {
     id: "observer-001",
     fullName: "Marcus Reed",
@@ -56,114 +63,119 @@
     photoUrl: ""
   };
 
-  // --- Render ---
-  function refresh(){ render(); }
+  function safeParse(s){ try { return JSON.parse(s); } catch { return null; } }
+  function escapeHTML(s){
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
 
   function render(){
     const c = document.getElementById("content");
     const req = safeParse(localStorage.getItem("assignmentRequest"));
 
-    if(!req || !req.properties || !Array.isArray(req.properties) || req.properties.length === 0){
+    if(!req || !Array.isArray(req.properties) || req.properties.length === 0){
       c.innerHTML = `<div class="empty">No assignments available.</div>`;
       return;
     }
 
-    // Build list of cards observer is allowed to see
     const cards = req.properties
-      .map((p, i) => buildCard(req, p, i))
+      .map((p,i)=>buildCard(req,p,i))
       .filter(Boolean)
       .join("");
 
     c.innerHTML = cards || `<div class="empty">No assignments available.</div>`;
   }
 
-  function buildCard(req, p, index){
-    // Normalize missing fields safely
-    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+  function buildCard(req,p,i){
+    // Normalize fields
     p.status = (p.status || "open").toLowerCase();
+    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
 
     // Hide canceled
     if(p.status === "canceled") return null;
 
-    // Hide if this observer previously declined
+    // Hide if this observer declined it before
     if(p.declinedBy.includes(OBSERVER.id)) return null;
 
-    // Hide if accepted by another observer
-    if(p.status === "accepted" && p.observer && p.observer.id && p.observer.id !== OBSERVER.id){
-      return null;
-    }
+    // Hide if accepted by someone else
+    if(p.status === "accepted" && p.observer?.id && p.observer.id !== OBSERVER.id) return null;
 
-    // Resolve display values
     const agentName = req.agentName || "(Agent name missing)";
     const tz = req.timeZone || "(Time zone missing)";
-    const address = `${p.street || ""}, ${p.city || ""}, ${p.state || ""} ${p.zip || ""}`.trim();
+    const addressFull = [
+      p.street, p.city, p.state, p.zip
+    ].filter(Boolean).join(", ");
+
     const visitType = p.visitType || "(Visit type missing)";
     const otherDesc = p.otherDesc || "";
 
-    // Timer/Start logic when accepted by this observer
-    const acceptedByMe = (p.status === "accepted" && p.observer && p.observer.id === OBSERVER.id);
+    const isOpen = p.status === "open";
+    const acceptedByMe = p.status === "accepted" && p.observer?.id === OBSERVER.id;
+    const inProgressByMe = p.status === "in_progress" && p.observer?.id === OBSERVER.id;
 
-    let timerBlock = "";
-    let startBtnClass = "disabled";
-    let canStart = false;
+    // Countdown + lock
+    let timerHTML = "";
+    let startDisabled = true;
+    let startTs = null;
 
     if(acceptedByMe){
-      const startTs = getStartTimestampFrom(req.timeZone, p.date, p.time);
-      const now = Date.now();
-      canStart = now >= startTs;
+      startTs = getStartTimestamp(req.timeZone, p.date, p.time);
+      startDisabled = Date.now() < startTs;
 
-      timerBlock = `
+      timerHTML = `
         <div class="divider"></div>
         <div class="small"><b>Start Assignment</b></div>
-        <div class="small">Starts at: ${escapeHTML(p.date || "")} ${escapeHTML(p.time || "")} (${escapeHTML(tz)})</div>
-        <div class="small">Countdown: <span id="timer-${index}">...</span></div>
+        <div class="small">Scheduled: ${escapeHTML(p.date)} ${escapeHTML(p.time)} (${escapeHTML(tz)})</div>
+        <div class="small">Countdown: <span id="timer-${i}">...</span></div>
       `;
 
-      startBtnClass = canStart ? "" : "disabled";
-
-      // Start countdown ticking
-      setTimeout(() => startCountdown(index, startTs), 50);
+      setTimeout(()=>startCountdown(i,startTs),100);
     }
 
-    // Buttons logic
-    let buttons = "";
+    // Buttons
+    let actionHTML = "";
 
-    if(p.status === "open"){
-      buttons = `
+    if(isOpen){
+      actionHTML = `
         <div class="divider"></div>
-        <div class="row">
-          <button class="btn success" onclick="acceptProperty(${index})">Accept</button>
-          <button class="btn danger" onclick="declineProperty(${index})">Decline</button>
+        <div class="row" style="justify-content:flex-start;">
+          <button class="btn success" onclick="accept(${i})">Accept</button>
+          <button class="btn danger" onclick="decline(${i})">Decline</button>
         </div>
       `;
     }
 
     if(acceptedByMe){
-      buttons = `
+      actionHTML = `
         <div class="divider"></div>
-        <div class="row">
-          <button class="btn outline ${startBtnClass}" onclick="startAssignment(${index})">Start Assignment</button>
-          <button class="btn danger" onclick="unacceptProperty(${index})">Release (Cancel My Accept)</button>
+        <div class="row" style="justify-content:flex-start;">
+          <button class="btn outline ${startDisabled ? "disabled" : ""}" onclick="startAssignment(${i})">
+            Start Assignment
+          </button>
+          <button class="btn danger" onclick="release(${i})">Release</button>
         </div>
+        <div class="small">Start button unlocks at the scheduled time. When you start, Google Maps opens automatically.</div>
       `;
     }
 
-    if(p.status === "in_progress" && p.observer && p.observer.id === OBSERVER.id){
-      buttons = `
+    if(inProgressByMe){
+      actionHTML = `
         <div class="divider"></div>
         <span class="badge">IN PROGRESS</span>
+        <div class="small">Navigation already launched. (Next: live tracking)</div>
       `;
     }
 
     return `
       <div class="card">
-        <div class="row" style="justify-content:space-between;">
-          <div class="title">Property ${index+1}</div>
+        <div class="row">
+          <div class="title">Property ${i+1}</div>
           <span class="badge">${escapeHTML(p.status.toUpperCase())}</span>
         </div>
 
         <div class="small"><b>Agent:</b> ${escapeHTML(agentName)}</div>
-        <div class="small"><b>Address:</b> ${escapeHTML(address)}</div>
+        <div class="small"><b>Address:</b> ${escapeHTML(addressFull || "(Address missing)")}</div>
         <div class="small"><b>Schedule:</b> ${escapeHTML(p.date || "")} @ ${escapeHTML(p.time || "")} (${escapeHTML(tz)})</div>
 
         <div class="divider"></div>
@@ -172,25 +184,22 @@
 
         ${acceptedByMe ? `
           <div class="divider"></div>
-          <div class="small"><b>Assigned to You:</b> ${escapeHTML(OBSERVER.fullName)}</div>
+          <div class="small"><b>Assigned to you:</b> ${escapeHTML(OBSERVER.fullName)}</div>
           <div class="small"><b>Vehicle:</b> ${escapeHTML(formatVehicle(OBSERVER.vehicle))}</div>
-          <div class="small"><b>Reviews:</b> ${escapeHTML(OBSERVER.rating)} (${OBSERVER.reviewsCount} reviews)</div>
+          <div class="small"><b>Reviews:</b> ${escapeHTML(OBSERVER.rating)} (${OBSERVER.reviewsCount})</div>
         ` : ""}
 
-        ${acceptedByMe ? timerBlock : ""}
-        ${buttons}
+        ${acceptedByMe ? timerHTML : ""}
+        ${actionHTML}
       </div>
     `;
   }
 
-  // --- Actions ---
-  function acceptProperty(index){
+  function accept(i){
     const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req || !req.properties || !req.properties[index]) return;
+    if(!req?.properties?.[i]) return;
 
-    const p = req.properties[index];
-
-    // Only accept if it's open
+    const p = req.properties[i];
     p.status = "accepted";
     p.observer = {
       id: OBSERVER.id,
@@ -201,24 +210,17 @@
       reviewsCount: OBSERVER.reviewsCount,
       photoUrl: OBSERVER.photoUrl
     };
-
-    // ensure declinedBy exists
     p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
-
-    // if at least one accepted, request may be treated as accepted
-    req.status = "accepted";
 
     localStorage.setItem("assignmentRequest", JSON.stringify(req));
     render();
   }
 
-  function declineProperty(index){
+  function decline(i){
     const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req || !req.properties || !req.properties[index]) return;
+    if(!req?.properties?.[i]) return;
 
-    const p = req.properties[index];
-
-    // Keep property open for other observers
+    const p = req.properties[i];
     p.status = "open";
     p.observer = null;
 
@@ -229,40 +231,35 @@
     render();
   }
 
-  // Optional: allow observer to release an accepted property
-  function unacceptProperty(index){
+  function release(i){
     if(!confirm("Release this property so another observer can accept it?")) return;
 
     const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req || !req.properties || !req.properties[index]) return;
+    if(!req?.properties?.[i]) return;
 
-    const p = req.properties[index];
+    const p = req.properties[i];
     p.status = "open";
     p.observer = null;
 
-    // Mark that THIS observer declined after releasing, so it doesn't show again
+    // hide from this observer after release
     p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
     if(!p.declinedBy.includes(OBSERVER.id)) p.declinedBy.push(OBSERVER.id);
-
-    // If no more accepted properties, set req.status back to pending/open
-    const anyAccepted = req.properties.some(x => (x.status || "").toLowerCase() === "accepted");
-    if(!anyAccepted) req.status = "pending";
 
     localStorage.setItem("assignmentRequest", JSON.stringify(req));
     render();
   }
 
-  function startAssignment(index){
+  function startAssignment(i){
     const req = safeParse(localStorage.getItem("assignmentRequest"));
-    if(!req || !req.properties || !req.properties[index]) return;
+    if(!req?.properties?.[i]) return;
 
-    const p = req.properties[index];
-    if(!p.observer || p.observer.id !== OBSERVER.id){
+    const p = req.properties[i];
+    if(p.observer?.id !== OBSERVER.id){
       alert("This property is not assigned to you.");
       return;
     }
 
-    const startTs = getStartTimestampFrom(req.timeZone, p.date, p.time);
+    const startTs = getStartTimestamp(req.timeZone, p.date, p.time);
     if(Date.now() < startTs){
       alert("Start is locked until the scheduled time.");
       return;
@@ -272,20 +269,24 @@
     p.startedAt = new Date().toISOString();
 
     localStorage.setItem("assignmentRequest", JSON.stringify(req));
-    alert("Assignment started.");
+
+    // ✅ GOOGLE MAPS AUTO OPEN (Option 1)
+    const address = [p.street, p.city, p.state, p.zip].filter(Boolean).join(", ");
+    const url = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(address) + "&travelmode=driving";
+    window.open(url, "_blank", "noopener,noreferrer");
+
     render();
   }
 
-  // --- Countdown ---
-  function startCountdown(index, targetTs){
-    const el = document.getElementById(`timer-${index}`);
+  function startCountdown(i, targetTs){
+    const el = document.getElementById(`timer-${i}`);
     if(!el) return;
 
     const tick = () => {
       const diff = targetTs - Date.now();
       if(diff <= 0){
         el.textContent = "Ready ✅";
-        render(); // re-render to unlock the button
+        render(); // unlock Start Assignment
         return;
       }
       const h = Math.floor(diff / 3600000);
@@ -297,47 +298,29 @@
     tick();
   }
 
-  // --- Timezone math (MVP) ---
-  // Converts Agent-selected timezone + date + time to a UTC timestamp for comparison.
-  function getStartTimestampFrom(timeZone, dateStr, timeStr){
-    // Basic offsets for MVP (DST not handled perfectly; backend will enforce later)
+  // MVP timezone conversion (DST imperfect; backend will enforce later)
+  function getStartTimestamp(tz, dateStr, timeStr){
     const offsets = { Eastern:-5, Central:-6, Mountain:-7, Pacific:-8, Alaska:-9, Hawaii:-10 };
-    const off = offsets[timeZone] ?? -5;
+    const off = offsets[tz] ?? -5;
 
-    // Parse "h:mm AM/PM"
     const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
-    if(!dateStr || !m){
-      // If missing data, allow start immediately (fail-safe for testing)
-      return Date.now();
-    }
+    if(!dateStr || !m) return Date.now();
 
-    let hour = parseInt(m[1], 10) % 12;
-    const minute = parseInt(m[2], 10);
+    let hour = parseInt(m[1],10) % 12;
+    const minute = parseInt(m[2],10);
     const ap = m[3].toUpperCase();
     if(ap === "PM") hour += 12;
 
-    // Build a UTC date representing local wall-clock time in that timezone
-    // Example: 2025-12-18 15:30 Eastern -> UTC = 20:30 (offset -5)
     const utc = new Date(`${dateStr}T00:00:00Z`);
     utc.setUTCHours(hour - off, minute, 0, 0);
     return utc.getTime();
   }
 
-  // --- Helpers ---
-  function safeParse(s){
-    try { return JSON.parse(s); } catch { return null; }
-  }
-  function escapeHTML(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
   function formatVehicle(v){
     if(!v) return "—";
-    return [v.make,v.model,v.year,v.color].filter(Boolean).join(" • ") || "—";
+    return [v.make, v.model, v.year, v.color].filter(Boolean).join(" • ") || "—";
   }
 
-  // init
   render();
 </script>
 </body>
