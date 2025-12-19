@@ -1,567 +1,342 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Agent Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f4f4; }
-    .container { max-width: 620px; margin: 0 auto; padding: 16px; }
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f4f4; }
+    .wrap { max-width: 650px; margin: 0 auto; padding: 16px; }
     h1 { margin: 8px 0 14px; }
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    label { display: block; font-weight: 900; margin-top: 12px; font-size: 14px; }
+    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    label { display:block; font-weight:900; margin-top:12px; font-size:14px; }
     input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      box-sizing: border-box;
-      background: #fff;
+      width:100%; padding:12px; margin-top:6px;
+      border-radius:10px; border:1px solid #ccc; font-size:16px; box-sizing:border-box;
     }
     textarea { resize: vertical; }
-    .row2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 560px) { .row2 { grid-template-columns: 1fr 1fr; } }
-
-    .btn {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px;
-      font-size: 18px;
-      font-weight: 900;
-      border: none;
-      border-radius: 12px;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    button {
+      width:100%; margin-top:16px; padding:14px; font-size:18px; font-weight:900;
+      border:none; border-radius:12px; background:#111; color:#fff; cursor:pointer;
     }
-    .btnSecondary {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      font-size: 16px;
-      font-weight: 900;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      background: #fff;
-      cursor: pointer;
-    }
-    .btnDanger {
-      padding: 12px;
-      font-size: 15px;
-      font-weight: 900;
-      border: 1px solid #ffb3b3;
-      border-radius: 12px;
-      background: #ffecec;
-      color: #7a0000;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .muted { color: #666; font-size: 13px; margin-top: 6px; }
-    .divider { height: 1px; background: #eee; margin: 16px 0; }
-
-    .propertyBox {
-      border: 1px solid #eee;
-      border-radius: 14px;
-      padding: 14px;
-      background: #fafafa;
-      margin-top: 12px;
-    }
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 900;
-      background: #eee;
-      margin-bottom: 8px;
-    }
-
-    .successScreen {
-      display: none;
-    }
-    .successBanner {
-      padding: 12px;
-      border-radius: 12px;
-      background: #e7ffe7;
-      border: 1px solid #bff0bf;
-      font-weight: 900;
-      color: #145214;
-      margin-bottom: 12px;
-      line-height: 1.35;
-    }
-    .reqCard {
-      border: 1px solid #eee;
-      border-radius: 14px;
-      padding: 14px;
-      background: #fff;
-      margin-top: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .reqLine { margin-top: 6px; font-size: 14px; color: #222; }
-    .reqLine b { color: #111; }
-    .reqActions { margin-top: 12px; }
-
-    .hidden { display: none !important; }
+    .secondary { background:#fff; color:#111; border:1px solid #ccc; }
+    .danger { background:#b00020; }
+    .hidden { display:none; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background:#eee; }
+    .pillGreen { background:#e7ffe7; border:1px solid #bff0bf; color:#145214; }
+    .pillRed { background:#ffecec; border:1px solid #ffb3b3; color:#7a0000; }
+    .muted { color:#666; font-size:13px; margin-top:6px; }
+    .req { background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); margin-top:12px; }
+    hr { border:none; border-top:1px solid #eee; margin: 16px 0; }
+    a { color:#0b63ff; font-weight:900; text-decoration:none; }
   </style>
 </head>
-
 <body>
-  <div class="container">
+  <div class="wrap">
     <h1>Request an Observer</h1>
 
-    <!-- FORM SCREEN -->
     <div id="formScreen" class="card">
-      <label>1) Agent Name</label>
-      <input id="agentName" placeholder="Your full name" />
+      <label>Agent Name</label>
+      <input id="agentName" />
 
-      <div class="divider"></div>
+      <div id="properties"></div>
 
-      <label>2) Properties (Up to 3)</label>
-      <div class="muted">Add up to 3 properties. Each will be sent as its own request.</div>
-
-      <div id="propertiesWrap"></div>
-
-      <button class="btnSecondary" onclick="addProperty()">+ Add Another Property (Max 3)</button>
-
-      <div class="divider"></div>
-
-      <label>4) US State (for each property)</label>
-      <div class="muted">State is selected inside each property block.</div>
-
-      <label>5) USA Time Zone</label>
-      <select id="timeZone"></select>
-
-      <label>Type of Visit</label>
-      <select id="visitType" onchange="toggleOther()">
-        <option>Property Showing</option>
-        <option>Open House</option>
-        <option>Other</option>
-      </select>
-
-      <div id="otherBox" class="hidden">
-        <label>Description (Other)</label>
-        <textarea id="otherDesc" rows="3" placeholder="Describe the visit..."></textarea>
-      </div>
-
-      <div class="row2">
-        <div>
-          <label>Date</label>
-          <input id="date" type="date" />
-        </div>
-        <div>
-          <label>Time (AM/PM)</label>
-          <select id="timeSelect"></select>
-        </div>
-      </div>
-
-      <label>Duration</label>
-      <select id="duration"></select>
-
-      <button class="btn" onclick="submitRequests()">Request an Observer</button>
-      <div class="muted">After submitting, you’ll see a confirmation screen with cancel buttons.</div>
+      <button class="secondary" onclick="addProperty()">Add Another Property</button>
+      <button onclick="submitRequests()">Request an Observer</button>
     </div>
 
-    <!-- SUCCESS SCREEN -->
-    <div id="successScreen" class="successScreen">
-      <div class="card">
-        <div class="successBanner">
-          ✅ Your request has been sent to the Observer Dashboard.<br/>
-          You will be notified once it is accepted.
+    <div id="successScreen" class="card hidden">
+      <strong>
+        Your request is in the Observer Dashboard.<br>
+        You will be notified once an observer accepts your request.
+      </strong>
+      <button class="secondary" onclick="startNewRequest()">Start New Request</button>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div>
+          <b>My Requests</b>
+          <div class="muted">Accepted requests will show observer profile + contact link.</div>
         </div>
-
-        <div class="muted">
-          Below are the properties you submitted. You can cancel a request before its scheduled date/time.
-        </div>
-
-        <div id="submittedList"></div>
-
-        <button class="btnSecondary" onclick="backToForm()">Submit Another Request</button>
+        <button class="secondary" onclick="renderMyRequests()">Refresh</button>
       </div>
+      <div id="myList"></div>
     </div>
   </div>
 
-  <script>
-    // STORAGE
-    const REQUEST_KEY = "rg_agent_requests_v1";
-    const STATUS_KEY  = "rg_observer_status_v1"; // observer sets accepted/declined (we respect it)
+<script>
+  const REQUEST_KEY = "rg_agent_requests_v1";
+  const STATUS_KEY  = "rg_request_status_v2"; // shared with observer rewrite above
 
-    // DATA LISTS
-    const US_STATES = [
-      "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA",
-      "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK",
-      "OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
-    ];
+  const MAX_PROPS = 3;
 
-    // USA-only simplified timezones (friendly labels)
-    const USA_TZ = [
-      { label: "Eastern (ET)",  value: "America/New_York" },
-      { label: "Central (CT)",  value: "America/Chicago" },
-      { label: "Mountain (MT)", value: "America/Denver" },
-      { label: "Pacific (PT)",  value: "America/Los_Angeles" },
-      { label: "Alaska (AKT)",  value: "America/Anchorage" },
-      { label: "Hawaii (HST)",  value: "Pacific/Honolulu" }
-    ];
+  const STATES = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA",
+    "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK",
+    "OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+  ];
 
-    // UTIL
-    function loadRequests() {
-      return JSON.parse(localStorage.getItem(REQUEST_KEY)) || [];
+  const TIMEZONES = ["Eastern","Central","Mountain","Pacific","Alaska","Hawaii"];
+
+  let propertyCount = 0;
+
+  function loadRequests(){ return JSON.parse(localStorage.getItem(REQUEST_KEY)) || []; }
+  function saveRequests(v){ localStorage.setItem(REQUEST_KEY, JSON.stringify(v)); }
+
+  function loadStatusMap(){ return JSON.parse(localStorage.getItem(STATUS_KEY)) || {}; }
+
+  function esc(s){
+    return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+
+  function buildTimes(){
+    // 6:00 AM to 9:30 PM in 30-min increments
+    let out = "";
+    for (let h = 6; h <= 21; h++) {
+      ["00","30"].forEach(m => {
+        const ampm = h >= 12 ? "PM" : "AM";
+        const hr = h % 12 || 12;
+        out += `<option>${hr}:${m} ${ampm}</option>`;
+      });
     }
-    function saveRequests(list) {
-      localStorage.setItem(REQUEST_KEY, JSON.stringify(list));
-    }
-    function loadStatusMap() {
-      return JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
-    }
-    function esc(s) {
-      return String(s || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+    return out;
+  }
 
-    // TIME: build AM/PM dropdown in 30-min increments
-    function buildTimes() {
-      // 6:00 AM to 9:30 PM (adjust anytime)
-      const startMinutes = 6 * 60;
-      const endMinutes = 21 * 60 + 30;
+  function toggleOther(sel){
+    const box = sel.closest(".propBlock").querySelector(".other");
+    box.classList.toggle("hidden", sel.value !== "Other");
+  }
 
-      const times = [];
-      for (let m = startMinutes; m <= endMinutes; m += 30) {
-        times.push(minutesTo12h(m));
-      }
-      return times;
-    }
+  function propertyBlock(){
+    return `
+      <div class="propBlock">
+        <hr>
+        <label>Property Address</label>
+        <input class="address">
 
-    function minutesTo12h(totalMinutes) {
-      let h24 = Math.floor(totalMinutes / 60);
-      const min = totalMinutes % 60;
-      const ampm = h24 >= 12 ? "PM" : "AM";
-      let h12 = h24 % 12;
-      if (h12 === 0) h12 = 12;
-      const mm = String(min).padStart(2, "0");
-      return `${h12}:${mm} ${ampm}`;
-    }
+        <label>City</label>
+        <input class="city">
 
-    function twelveTo24h(twelve) {
-      // "h:mm AM/PM" -> "HH:MM"
-      const parts = (twelve || "").trim().split(" ");
-      if (parts.length !== 2) return "";
-      const time = parts[0];
-      const ampm = parts[1].toUpperCase();
-      const [hStr, mStr] = time.split(":");
-      let h = parseInt(hStr, 10);
-      const m = parseInt(mStr, 10);
-      if (Number.isNaN(h) || Number.isNaN(m)) return "";
-      if (ampm === "AM") {
-        if (h === 12) h = 0;
-      } else {
-        if (h !== 12) h += 12;
-      }
-      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
-    }
-
-    function buildDurations() {
-      // 30 min increments up to 4 hours (customize if you want longer)
-      const options = [];
-      for (let mins = 30; mins <= 240; mins += 30) {
-        if (mins < 60) options.push({ label: `${mins} minutes`, value: String(mins) });
-        else {
-          const hrs = mins / 60;
-          options.push({ label: `${hrs % 1 === 0 ? hrs : hrs.toFixed(1)} hours`, value: String(mins) });
-        }
-      }
-      return options;
-    }
-
-    function toggleOther() {
-      const v = document.getElementById("visitType").value;
-      document.getElementById("otherBox").className = (v === "Other") ? "" : "hidden";
-    }
-
-    // PROPERTIES (UP TO 3)
-    let propertyCount = 0;
-
-    function propertyTemplate(index) {
-      const idx = index + 1;
-      return `
-        <div class="propertyBox" data-prop-index="${index}">
-          <div class="pill">Property ${idx}</div>
-
-          <label>Property Address</label>
-          <input class="propAddress" placeholder="123 Main St" />
-
-          <label>City</label>
-          <input class="propCity" placeholder="City" />
-
-          <label>US State</label>
-          <select class="propState">
-            ${US_STATES.map(s => `<option value="${s}">${s}</option>`).join("")}
-          </select>
-
-          <div class="muted">You can submit up to 3 properties total.</div>
-        </div>
-      `;
-    }
-
-    function addProperty() {
-      if (propertyCount >= 3) {
-        alert("Max 3 properties.");
-        return;
-      }
-      const wrap = document.getElementById("propertiesWrap");
-      wrap.insertAdjacentHTML("beforeend", propertyTemplate(propertyCount));
-      propertyCount += 1;
-    }
-
-    function getPropertiesFromForm() {
-      const boxes = Array.from(document.querySelectorAll(".propertyBox"));
-      const props = [];
-
-      for (const box of boxes) {
-        const address = (box.querySelector(".propAddress").value || "").trim();
-        const city = (box.querySelector(".propCity").value || "").trim();
-        const state = box.querySelector(".propState").value;
-
-        // Require minimal property info
-        if (!address || !city || !state) continue;
-
-        props.push({ address, city, state });
-      }
-      return props;
-    }
-
-    // SUBMIT
-    function submitRequests() {
-      const agentName = (document.getElementById("agentName").value || "").trim();
-      const timeZone = document.getElementById("timeZone").value;
-      const visitType = document.getElementById("visitType").value;
-      const otherDesc = (document.getElementById("otherDesc").value || "").trim();
-      const date = document.getElementById("date").value;
-      const time12 = document.getElementById("timeSelect").value;
-      const time24 = twelveTo24h(time12);
-      const durationMinutes = parseInt(document.getElementById("duration").value, 10);
-
-      const props = getPropertiesFromForm();
-
-      if (!agentName) {
-        alert("Please enter Agent Name.");
-        return;
-      }
-      if (props.length === 0) {
-        alert("Please enter at least 1 complete property (address, city, state).");
-        return;
-      }
-      if (!date) {
-        alert("Please select a date.");
-        return;
-      }
-      if (!time12 || !time24) {
-        alert("Please select a time.");
-        return;
-      }
-      if (!durationMinutes || durationMinutes < 30) {
-        alert("Please select a duration.");
-        return;
-      }
-      if (visitType === "Other" && !otherDesc) {
-        alert("Please describe the visit in the description box.");
-        return;
-      }
-
-      const existing = loadRequests();
-
-      // create one request per property
-      const created = [];
-      for (let i = 0; i < props.length; i++) {
-        const p = props[i];
-        const id = "req_" + Date.now() + "_" + (i + 1);
-
-        const req = {
-          id,
-          agentName,
-          visitType,
-          description: (visitType === "Other") ? otherDesc : "",
-          propertyNumber: `Property ${i + 1}`,
-          property: { street: p.address, city: p.city, state: p.state },
-          address: `${p.address}, ${p.city}, ${p.state}`, // observer uses this for maps
-          date,
-          time: time24,          // observer countdown uses 24h format safely
-          displayTime: time12,    // nice display
-          timeZone,
-          durationMinutes,
-          status: "pending",
-          createdAt: new Date().toISOString()
-        };
-
-        existing.push(req);
-        created.push(req);
-      }
-
-      saveRequests(existing);
-
-      // show confirmation screen
-      showSuccess(created);
-    }
-
-    function showSuccess(createdRequests) {
-      document.getElementById("formScreen").style.display = "none";
-      document.getElementById("successScreen").style.display = "block";
-
-      const list = document.getElementById("submittedList");
-      list.innerHTML = "";
-
-      createdRequests.forEach(req => {
-        const card = document.createElement("div");
-        card.className = "reqCard";
-
-        card.innerHTML = `
-          <div class="reqLine"><b>${esc(req.propertyNumber)}:</b> ${esc(req.address)}</div>
-          <div class="reqLine"><b>Date:</b> ${esc(req.date)} &nbsp; <b>Time:</b> ${esc(req.displayTime)}</div>
-          <div class="reqLine"><b>Duration:</b> ${formatDuration(req.durationMinutes)}</div>
-          <div class="reqLine"><b>Visit:</b> ${esc(req.visitType)}${req.description ? " — " + esc(req.description) : ""}</div>
-          <div class="reqLine"><b>Time Zone:</b> ${prettyTz(req.timeZone)}</div>
-          <div class="reqActions">
-            <button class="btnDanger" onclick="cancelRequest('${esc(req.id)}')">Cancel This Property Request</button>
+        <div class="row">
+          <div>
+            <label>US State</label>
+            <select class="state">${STATES.map(s=>`<option>${s}</option>`).join("")}</select>
           </div>
-          <div class="muted" id="cancelNote_${esc(req.id)}"></div>
-        `;
+          <div>
+            <label>Zip Code</label>
+            <input class="zip" inputmode="numeric" placeholder="Zip">
+          </div>
+        </div>
 
-        list.appendChild(card);
+        <label>US Time Zone</label>
+        <select class="timezone">${TIMEZONES.map(t=>`<option>${t}</option>`).join("")}</select>
+
+        <label>Type of Visit</label>
+        <select class="visit" onchange="toggleOther(this)">
+          <option>Property Showing</option>
+          <option>Open House</option>
+          <option>Other</option>
+        </select>
+
+        <div class="other hidden">
+          <label>Description</label>
+          <textarea rows="3"></textarea>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Date</label>
+            <input type="date" class="date">
+          </div>
+          <div>
+            <label>Time</label>
+            <select class="time">${buildTimes()}</select>
+          </div>
+        </div>
+
+        <label>Duration</label>
+        <select class="duration">
+          <option>30 minutes</option>
+          <option>1 hour</option>
+          <option>1.5 hours</option>
+          <option>2 hours</option>
+          <option>2.5 hours</option>
+          <option>3 hours</option>
+        </select>
+      </div>
+    `;
+  }
+
+  function addProperty(){
+    const wrap = document.getElementById("properties");
+    if (wrap.children.length >= MAX_PROPS) return;
+    const div = document.createElement("div");
+    div.innerHTML = propertyBlock();
+    wrap.appendChild(div);
+    propertyCount++;
+  }
+
+  function twelveTo24(twelve){
+    const parts = (twelve||"").trim().split(" ");
+    if (parts.length !== 2) return "";
+    const [hStr, mStr] = parts[0].split(":");
+    let h = parseInt(hStr,10);
+    const m = parseInt(mStr,10);
+    if (Number.isNaN(h)||Number.isNaN(m)) return "";
+    const ampm = parts[1].toUpperCase();
+    if (ampm === "AM") { if (h === 12) h = 0; }
+    else { if (h !== 12) h += 12; }
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  }
+
+  function scheduledDate(req){
+    if (!req?.date || !req?.time) return null;
+    const dt = new Date(`${req.date}T${req.time}`);
+    if (Number.isNaN(dt.getTime())) return null;
+    return dt;
+  }
+
+  function effectiveStatus(req, statusMap){
+    const s = statusMap[req.id]?.status;
+    if (s) return s;
+    const dt = scheduledDate(req);
+    if (dt && Date.now() > dt.getTime()) return "expired";
+    return "pending";
+  }
+
+  function submitRequests(){
+    const agent = document.getElementById("agentName").value.trim();
+    if (!agent) return alert("Agent name required.");
+
+    const blocks = document.querySelectorAll("#properties > div .propBlock");
+    if (!blocks.length) return alert("Add at least one property.");
+
+    const reqs = loadRequests();
+    let createdAny = false;
+
+    blocks.forEach((b, i) => {
+      const address = b.querySelector(".address").value.trim();
+      const city = b.querySelector(".city").value.trim();
+      const state = b.querySelector(".state").value;
+      const zip = b.querySelector(".zip").value.trim();
+      const tz = b.querySelector(".timezone").value;
+      const visit = b.querySelector(".visit").value;
+      const desc = (visit === "Other") ? b.querySelector("textarea").value.trim() : "";
+      const date = b.querySelector(".date").value;
+      const time12 = b.querySelector(".time").value;
+      const time24 = twelveTo24(time12);
+      const duration = b.querySelector(".duration").value;
+
+      if (!address || !city || !date || !time24) return;
+
+      reqs.push({
+        id: "req_" + Date.now() + "_" + i,
+        agentName: agent,
+        visitType: visit,
+        description: desc,
+        timeZone: tz,
+        duration: duration,
+        date: date,
+        time: time24,        // for logic
+        displayTime: time12,  // for UI
+        address: `${address}, ${city}, ${state} ${zip}`.trim()
       });
+
+      createdAny = true;
+    });
+
+    if (!createdAny) {
+      alert("Please complete at least one property with date/time.");
+      return;
     }
 
-    function formatDuration(mins) {
-      if (!mins || mins < 60) return `${mins} minutes`;
-      const hrs = mins / 60;
-      return `${hrs % 1 === 0 ? hrs : hrs.toFixed(1)} hours`;
+    saveRequests(reqs);
+
+    document.getElementById("formScreen").classList.add("hidden");
+    document.getElementById("successScreen").classList.remove("hidden");
+    renderMyRequests();
+  }
+
+  function startNewRequest(){
+    document.getElementById("successScreen").classList.add("hidden");
+    document.getElementById("formScreen").classList.remove("hidden");
+
+    document.getElementById("agentName").value = "";
+    const wrap = document.getElementById("properties");
+    wrap.innerHTML = "";
+    propertyCount = 0;
+    addProperty();
+  }
+
+  function cancelRequest(id){
+    const statusMap = loadStatusMap();
+    const st = statusMap[id]?.status;
+    if (st === "accepted") return alert("This request is locked (accepted).");
+
+    const reqs = loadRequests();
+    const req = reqs.find(r => r.id === id);
+    if (!req) return;
+
+    const dt = scheduledDate(req);
+    if (dt && Date.now() > dt.getTime()) return alert("This request is expired.");
+
+    const filtered = reqs.filter(r => r.id !== id);
+    saveRequests(filtered);
+    renderMyRequests();
+  }
+
+  function renderMyRequests(){
+    const list = document.getElementById("myList");
+    const reqs = loadRequests().slice().reverse();
+    const statusMap = loadStatusMap();
+
+    list.innerHTML = "";
+    if (reqs.length === 0) {
+      list.innerHTML = `<div class="muted" style="margin-top:10px;">No requests yet.</div>`;
+      return;
     }
 
-    function prettyTz(iana) {
-      const found = USA_TZ.find(x => x.value === iana);
-      return found ? found.label : iana;
-    }
+    reqs.forEach(req => {
+      const st = effectiveStatus(req, statusMap);
+      let pill = `<span class="pill">PENDING</span>`;
+      if (st === "accepted") pill = `<span class="pill pillGreen">ACCEPTED</span>`;
+      if (st === "declined") pill = `<span class="pill pillRed">DECLINED</span>`;
+      if (st === "expired") pill = `<span class="pill pillRed">EXPIRED</span>`;
 
-    // CANCEL LOGIC (before scheduled datetime only)
-    function cancelRequest(requestId) {
-      const all = loadRequests();
-      const statusMap = loadStatusMap();
+      const obs = statusMap[req.id]?.observer;
+      const obsLine = (st === "accepted" && obs)
+        ? `<div class="muted" style="margin-top:8px;">
+             <b>Observer:</b> ${esc(obs.name)} • <a href="tel:${encodeURIComponent(obs.phone)}">${esc(obs.phone)}</a>
+             ${obs.email ? ` • <a href="mailto:${encodeURIComponent(obs.email)}">${esc(obs.email)}</a>` : ""}
+           </div>`
+        : "";
 
-      const req = all.find(r => r.id === requestId);
-      const noteEl = document.getElementById("cancelNote_" + requestId);
+      const canCancel = (st === "pending");
 
-      if (!req) {
-        if (noteEl) noteEl.textContent = "This request was not found (already removed).";
-        return;
-      }
+      const el = document.createElement("div");
+      el.className = "req";
+      el.innerHTML = `
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <div><b>${esc(req.address || "")}</b></div>
+          <div>${pill}</div>
+        </div>
+        <div class="muted"><b>Visit:</b> ${esc(req.visitType || "")}${req.description ? ` — ${esc(req.description)}` : ""}</div>
+        <div class="muted"><b>Date/Time:</b> ${esc(req.date || "")} ${esc(req.displayTime || req.time || "")}</div>
+        <div class="muted"><b>Duration:</b> ${esc(req.duration || "")}</div>
+        <div class="muted"><b>Time Zone:</b> ${esc(req.timeZone || "")}</div>
+        ${obsLine}
+        ${canCancel ? `<button class="danger" onclick="cancelRequest('${esc(req.id)}')">Cancel Request</button>` : ""}
+      `;
+      list.appendChild(el);
+    });
+  }
 
-      // if observer already accepted, block cancel (safety)
-      const obsStatus = statusMap[requestId];
-      if (obsStatus === "accepted") {
-        if (noteEl) noteEl.textContent = "Cannot cancel — this request was already accepted by an observer.";
-        return;
-      }
-
-      // time check: allow cancel only before schedule
-      const scheduled = new Date(`${req.date}T${req.time}`);
-      const now = new Date();
-
-      if (Number.isNaN(scheduled.getTime())) {
-        if (noteEl) noteEl.textContent = "Cannot cancel — invalid scheduled time.";
-        return;
-      }
-
-      if (now >= scheduled) {
-        if (noteEl) noteEl.textContent = "Cannot cancel — scheduled time has passed or started.";
-        return;
-      }
-
-      const filtered = all.filter(r => r.id !== requestId);
-      saveRequests(filtered);
-
-      if (noteEl) noteEl.textContent = "✅ Canceled. This will no longer show on the Observer Dashboard.";
-    }
-
-    function backToForm() {
-      // reset UI only (does not clear storage)
-      document.getElementById("successScreen").style.display = "none";
-      document.getElementById("formScreen").style.display = "block";
-      document.getElementById("submittedList").innerHTML = "";
-      // optional: keep properties; if you want cleared each time, uncomment:
-      // resetForm();
-    }
-
-    function resetForm() {
-      document.getElementById("agentName").value = "";
-      document.getElementById("visitType").value = "Property Showing";
-      document.getElementById("otherDesc").value = "";
-      document.getElementById("date").value = "";
-      document.getElementById("timeSelect").value = "";
-      document.getElementById("duration").value = "30";
-      toggleOther();
-      document.getElementById("propertiesWrap").innerHTML = "";
-      propertyCount = 0;
-      addProperty();
-    }
-
-    // INIT
-    function init() {
-      // Time zones
-      const tzSel = document.getElementById("timeZone");
-      tzSel.innerHTML = "";
-      USA_TZ.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t.value;
-        opt.textContent = t.label;
-        tzSel.appendChild(opt);
-      });
-
-      // Auto-detect and select if matches USA list
-      try {
-        const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const match = USA_TZ.some(x => x.value === detected);
-        if (match) tzSel.value = detected;
-      } catch {}
-
-      // Time dropdown
-      const timeSel = document.getElementById("timeSelect");
-      timeSel.innerHTML = "";
-      buildTimes().forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        timeSel.appendChild(opt);
-      });
-
-      // Duration dropdown (30 min increments)
-      const durSel = document.getElementById("duration");
-      durSel.innerHTML = "";
-      buildDurations().forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d.value;
-        opt.textContent = d.label;
-        durSel.appendChild(opt);
-      });
-      durSel.value = "30";
-
-      // Properties: start with 1 property visible
-      addProperty();
-
-      toggleOther();
-    }
-
-    init();
-  </script>
+  // init
+  addProperty();
+  renderMyRequests();
+</script>
 </body>
 </html>
