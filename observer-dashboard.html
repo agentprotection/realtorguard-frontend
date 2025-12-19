@@ -1,177 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Observer Dashboard | Realtor Guard</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Observer Dashboard | Realtor Guard</title>
 
-<style>
-:root{
-  --navy:#0B2C4F;
-  --border:#E5E7EB;
-  --success:#16A34A;
-  --danger:#B91C1C;
-  --muted:#6B7280;
-}
-body{margin:0;font-family:Arial,sans-serif;color:var(--navy);}
-.nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;}
-.page{max-width:980px;margin:auto;padding:24px;}
-.card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.btn{padding:12px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
-.success{background:var(--success);color:white;}
-.danger{background:var(--danger);color:white;}
-.outline{background:white;border:1px solid var(--navy);color:var(--navy);}
-.badge{padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;}
-.small{font-size:12px;color:var(--muted);}
-.disabled{opacity:.5;pointer-events:none;}
-</style>
+  <style>
+    :root{
+      --navy:#0B2C4F;
+      --border:#E5E7EB;
+      --success:#16A34A;
+      --danger:#B91C1C;
+      --muted:#6B7280;
+    }
+    body{margin:0;font-family:Arial,sans-serif;color:var(--navy);background:#fff;}
+    .nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:800;}
+    .page{max-width:980px;margin:0 auto;padding:24px;}
+    .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;background:#fff;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .btn{padding:12px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
+    .success{background:var(--success);color:white;}
+    .danger{background:var(--danger);color:white;}
+    .outline{background:white;border:1px solid var(--navy);color:var(--navy);}
+    .disabled{opacity:.55;pointer-events:none;}
+    .badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:#444;}
+    .small{font-size:12px;color:var(--muted);}
+    .title{font-weight:800;font-size:16px;}
+    .divider{height:1px;background:var(--border);margin:12px 0;}
+    .empty{border:1px dashed var(--border);border-radius:14px;padding:18px;text-align:center;color:var(--muted);margin-top:16px;}
+  </style>
 </head>
 
 <body>
+  <div class="nav">🛡️ Realtor Guard — Observer Dashboard</div>
 
-<div class="nav">🛡️ Realtor Guard — Observer Dashboard</div>
+  <div class="page">
+    <div class="row" style="justify-content:space-between;">
+      <h2 style="margin:0;">Available Property Assignments</h2>
+      <button class="btn outline" onclick="refresh()">Refresh</button>
+    </div>
+    <div class="small">Marketplace model: accept what you can, decline what you can’t. Declined properties go back to the pool.</div>
 
-<div class="page">
-  <h2>Available Property Assignments</h2>
-  <div id="content"></div>
-</div>
+    <div id="content"></div>
+  </div>
 
 <script>
-const OBSERVER_ID = "observer-001"; // MVP mock observer
-
-function render(){
-  const c = document.getElementById("content");
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-
-  if(!req){
-    c.innerHTML = `<div class="card">No assignments available.</div>`;
-    return;
-  }
-
-  const properties = req.properties || [];
-  const cards = properties
-    .map((p,i)=>propertyCard(req,p,i))
-    .filter(Boolean)
-    .join("");
-
-  c.innerHTML = cards || `<div class="card">No assignments available.</div>`;
-}
-
-function propertyCard(req,p,i){
-  p.declinedBy = p.declinedBy || [];
-
-  if(p.status === "canceled") return null;
-  if(p.declinedBy.includes(OBSERVER_ID)) return null;
-
-  if(p.status === "accepted" && p.observer?.id !== OBSERVER_ID) return null;
-
-  const startTs = getStartTimestamp(req.timeZone, p.date, p.time);
-  const now = Date.now();
-  const canStart = now >= startTs;
-
-  let timerHTML = "";
-  if(p.status === "accepted" && !canStart){
-    timerHTML = `<div class="small">Starts in: <span id="timer-${i}"></span></div>`;
-    setTimeout(()=>startTimer(i,startTs),100);
-  }
-
-  return `
-  <div class="card">
-    <b>${p.street}, ${p.city}, ${p.state}</b>
-    <div class="small">${p.date} @ ${p.time} (${req.timeZone})</div>
-
-    <div class="row" style="margin-top:10px;">
-      <span class="badge">${p.status.toUpperCase()}</span>
-    </div>
-
-    ${p.status==="open"?`
-      <div class="row" style="margin-top:12px;">
-        <button class="btn success" onclick="accept(${i})">Accept</button>
-        <button class="btn danger" onclick="decline(${i})">Decline</button>
-      </div>
-    `:""}
-
-    ${p.status==="accepted" && p.observer?.id===OBSERVER_ID?`
-      ${timerHTML}
-      <button class="btn outline ${canStart?"":"disabled"}"
-        onclick="startAssignment(${i})">
-        Start Assignment
-      </button>
-    `:""}
-  </div>`;
-}
-
-function accept(i){
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-  const p = req.properties[i];
-
-  p.status = "accepted";
-  p.observer = {
-    id: OBSERVER_ID,
-    name: "Marcus Reed",
-    phone: "5551234567"
+  // MVP observer identity (later this comes from login)
+  const OBSERVER = {
+    id: "observer-001",
+    fullName: "Marcus Reed",
+    phone: "5551234567",
+    vehicle: { make:"Honda", model:"Accord", year:"2022", color:"White" },
+    rating: "4.8 ★",
+    reviewsCount: 87,
+    photoUrl: ""
   };
 
-  localStorage.setItem("assignmentRequest",JSON.stringify(req));
-  render();
-}
+  // --- Render ---
+  function refresh(){ render(); }
 
-function decline(i){
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-  const p = req.properties[i];
+  function render(){
+    const c = document.getElementById("content");
+    const req = safeParse(localStorage.getItem("assignmentRequest"));
 
-  p.status = "open";
-  p.declinedBy = p.declinedBy || [];
-  p.declinedBy.push(OBSERVER_ID);
-
-  localStorage.setItem("assignmentRequest",JSON.stringify(req));
-  render();
-}
-
-function startAssignment(i){
-  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-  const p = req.properties[i];
-
-  p.status = "in_progress";
-  localStorage.setItem("assignmentRequest",JSON.stringify(req));
-  alert("Assignment started.");
-  render();
-}
-
-function startTimer(i,target){
-  const el = document.getElementById(`timer-${i}`);
-  if(!el) return;
-
-  const tick = ()=>{
-    const diff = target - Date.now();
-    if(diff<=0){
-      el.textContent = "Ready";
-      render();
+    if(!req || !req.properties || !Array.isArray(req.properties) || req.properties.length === 0){
+      c.innerHTML = `<div class="empty">No assignments available.</div>`;
       return;
     }
-    const h = Math.floor(diff/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    el.textContent = `${h}h ${m}m ${s}s`;
-    requestAnimationFrame(tick);
-  };
-  tick();
-}
 
-function getStartTimestamp(tz,date,time){
-  const map = {
-    Eastern:-5, Central:-6, Mountain:-7,
-    Pacific:-8, Alaska:-9, Hawaii:-10
-  };
-  const [hour,min,ampm] = time.match(/(\d+):(\d+)\s(AM|PM)/).slice(1);
-  let h = parseInt(hour,10)%12 + (ampm==="PM"?12:0);
-  const utc = new Date(`${date}T${String(h).padStart(2,"0")}:${min}:00Z`);
-  utc.setHours(utc.getHours() - map[tz]);
-  return utc.getTime();
-}
+    // Build list of cards observer is allowed to see
+    const cards = req.properties
+      .map((p, i) => buildCard(req, p, i))
+      .filter(Boolean)
+      .join("");
 
-render();
+    c.innerHTML = cards || `<div class="empty">No assignments available.</div>`;
+  }
+
+  function buildCard(req, p, index){
+    // Normalize missing fields safely
+    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+    p.status = (p.status || "open").toLowerCase();
+
+    // Hide canceled
+    if(p.status === "canceled") return null;
+
+    // Hide if this observer previously declined
+    if(p.declinedBy.includes(OBSERVER.id)) return null;
+
+    // Hide if accepted by another observer
+    if(p.status === "accepted" && p.observer && p.observer.id && p.observer.id !== OBSERVER.id){
+      return null;
+    }
+
+    // Resolve display values
+    const agentName = req.agentName || "(Agent name missing)";
+    const tz = req.timeZone || "(Time zone missing)";
+    const address = `${p.street || ""}, ${p.city || ""}, ${p.state || ""} ${p.zip || ""}`.trim();
+    const visitType = p.visitType || "(Visit type missing)";
+    const otherDesc = p.otherDesc || "";
+
+    // Timer/Start logic when accepted by this observer
+    const acceptedByMe = (p.status === "accepted" && p.observer && p.observer.id === OBSERVER.id);
+
+    let timerBlock = "";
+    let startBtnClass = "disabled";
+    let canStart = false;
+
+    if(acceptedByMe){
+      const startTs = getStartTimestampFrom(req.timeZone, p.date, p.time);
+      const now = Date.now();
+      canStart = now >= startTs;
+
+      timerBlock = `
+        <div class="divider"></div>
+        <div class="small"><b>Start Assignment</b></div>
+        <div class="small">Starts at: ${escapeHTML(p.date || "")} ${escapeHTML(p.time || "")} (${escapeHTML(tz)})</div>
+        <div class="small">Countdown: <span id="timer-${index}">...</span></div>
+      `;
+
+      startBtnClass = canStart ? "" : "disabled";
+
+      // Start countdown ticking
+      setTimeout(() => startCountdown(index, startTs), 50);
+    }
+
+    // Buttons logic
+    let buttons = "";
+
+    if(p.status === "open"){
+      buttons = `
+        <div class="divider"></div>
+        <div class="row">
+          <button class="btn success" onclick="acceptProperty(${index})">Accept</button>
+          <button class="btn danger" onclick="declineProperty(${index})">Decline</button>
+        </div>
+      `;
+    }
+
+    if(acceptedByMe){
+      buttons = `
+        <div class="divider"></div>
+        <div class="row">
+          <button class="btn outline ${startBtnClass}" onclick="startAssignment(${index})">Start Assignment</button>
+          <button class="btn danger" onclick="unacceptProperty(${index})">Release (Cancel My Accept)</button>
+        </div>
+      `;
+    }
+
+    if(p.status === "in_progress" && p.observer && p.observer.id === OBSERVER.id){
+      buttons = `
+        <div class="divider"></div>
+        <span class="badge">IN PROGRESS</span>
+      `;
+    }
+
+    return `
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <div class="title">Property ${index+1}</div>
+          <span class="badge">${escapeHTML(p.status.toUpperCase())}</span>
+        </div>
+
+        <div class="small"><b>Agent:</b> ${escapeHTML(agentName)}</div>
+        <div class="small"><b>Address:</b> ${escapeHTML(address)}</div>
+        <div class="small"><b>Schedule:</b> ${escapeHTML(p.date || "")} @ ${escapeHTML(p.time || "")} (${escapeHTML(tz)})</div>
+
+        <div class="divider"></div>
+        <div class="small"><b>Visit Type:</b> ${escapeHTML(visitType)}</div>
+        ${visitType === "Other" && otherDesc ? `<div class="small"><b>Other Details:</b> ${escapeHTML(otherDesc)}</div>` : ""}
+
+        ${acceptedByMe ? `
+          <div class="divider"></div>
+          <div class="small"><b>Assigned to You:</b> ${escapeHTML(OBSERVER.fullName)}</div>
+          <div class="small"><b>Vehicle:</b> ${escapeHTML(formatVehicle(OBSERVER.vehicle))}</div>
+          <div class="small"><b>Reviews:</b> ${escapeHTML(OBSERVER.rating)} (${OBSERVER.reviewsCount} reviews)</div>
+        ` : ""}
+
+        ${acceptedByMe ? timerBlock : ""}
+        ${buttons}
+      </div>
+    `;
+  }
+
+  // --- Actions ---
+  function acceptProperty(index){
+    const req = safeParse(localStorage.getItem("assignmentRequest"));
+    if(!req || !req.properties || !req.properties[index]) return;
+
+    const p = req.properties[index];
+
+    // Only accept if it's open
+    p.status = "accepted";
+    p.observer = {
+      id: OBSERVER.id,
+      fullName: OBSERVER.fullName,
+      phone: OBSERVER.phone,
+      vehicle: OBSERVER.vehicle,
+      rating: OBSERVER.rating,
+      reviewsCount: OBSERVER.reviewsCount,
+      photoUrl: OBSERVER.photoUrl
+    };
+
+    // ensure declinedBy exists
+    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+
+    // if at least one accepted, request may be treated as accepted
+    req.status = "accepted";
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    render();
+  }
+
+  function declineProperty(index){
+    const req = safeParse(localStorage.getItem("assignmentRequest"));
+    if(!req || !req.properties || !req.properties[index]) return;
+
+    const p = req.properties[index];
+
+    // Keep property open for other observers
+    p.status = "open";
+    p.observer = null;
+
+    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+    if(!p.declinedBy.includes(OBSERVER.id)) p.declinedBy.push(OBSERVER.id);
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    render();
+  }
+
+  // Optional: allow observer to release an accepted property
+  function unacceptProperty(index){
+    if(!confirm("Release this property so another observer can accept it?")) return;
+
+    const req = safeParse(localStorage.getItem("assignmentRequest"));
+    if(!req || !req.properties || !req.properties[index]) return;
+
+    const p = req.properties[index];
+    p.status = "open";
+    p.observer = null;
+
+    // Mark that THIS observer declined after releasing, so it doesn't show again
+    p.declinedBy = Array.isArray(p.declinedBy) ? p.declinedBy : [];
+    if(!p.declinedBy.includes(OBSERVER.id)) p.declinedBy.push(OBSERVER.id);
+
+    // If no more accepted properties, set req.status back to pending/open
+    const anyAccepted = req.properties.some(x => (x.status || "").toLowerCase() === "accepted");
+    if(!anyAccepted) req.status = "pending";
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    render();
+  }
+
+  function startAssignment(index){
+    const req = safeParse(localStorage.getItem("assignmentRequest"));
+    if(!req || !req.properties || !req.properties[index]) return;
+
+    const p = req.properties[index];
+    if(!p.observer || p.observer.id !== OBSERVER.id){
+      alert("This property is not assigned to you.");
+      return;
+    }
+
+    const startTs = getStartTimestampFrom(req.timeZone, p.date, p.time);
+    if(Date.now() < startTs){
+      alert("Start is locked until the scheduled time.");
+      return;
+    }
+
+    p.status = "in_progress";
+    p.startedAt = new Date().toISOString();
+
+    localStorage.setItem("assignmentRequest", JSON.stringify(req));
+    alert("Assignment started.");
+    render();
+  }
+
+  // --- Countdown ---
+  function startCountdown(index, targetTs){
+    const el = document.getElementById(`timer-${index}`);
+    if(!el) return;
+
+    const tick = () => {
+      const diff = targetTs - Date.now();
+      if(diff <= 0){
+        el.textContent = "Ready ✅";
+        render(); // re-render to unlock the button
+        return;
+      }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      el.textContent = `${h}h ${m}m ${s}s`;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  }
+
+  // --- Timezone math (MVP) ---
+  // Converts Agent-selected timezone + date + time to a UTC timestamp for comparison.
+  function getStartTimestampFrom(timeZone, dateStr, timeStr){
+    // Basic offsets for MVP (DST not handled perfectly; backend will enforce later)
+    const offsets = { Eastern:-5, Central:-6, Mountain:-7, Pacific:-8, Alaska:-9, Hawaii:-10 };
+    const off = offsets[timeZone] ?? -5;
+
+    // Parse "h:mm AM/PM"
+    const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+    if(!dateStr || !m){
+      // If missing data, allow start immediately (fail-safe for testing)
+      return Date.now();
+    }
+
+    let hour = parseInt(m[1], 10) % 12;
+    const minute = parseInt(m[2], 10);
+    const ap = m[3].toUpperCase();
+    if(ap === "PM") hour += 12;
+
+    // Build a UTC date representing local wall-clock time in that timezone
+    // Example: 2025-12-18 15:30 Eastern -> UTC = 20:30 (offset -5)
+    const utc = new Date(`${dateStr}T00:00:00Z`);
+    utc.setUTCHours(hour - off, minute, 0, 0);
+    return utc.getTime();
+  }
+
+  // --- Helpers ---
+  function safeParse(s){
+    try { return JSON.parse(s); } catch { return null; }
+  }
+  function escapeHTML(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+  function formatVehicle(v){
+    if(!v) return "—";
+    return [v.make,v.model,v.year,v.color].filter(Boolean).join(" • ") || "—";
+  }
+
+  // init
+  render();
 </script>
 </body>
 </html>
