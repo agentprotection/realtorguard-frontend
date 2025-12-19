@@ -1,98 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Dashboard | Realtor Guard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Dashboard | Realtor Guard</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: #ffffff;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .page {
-      width: 100%;
-      max-width: 480px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .logo {
-      width: 120px;
-      margin: 20px auto;
-      display: block;
-    }
-
-    h1 {
-      color: #0b2c4f;
-      margin-bottom: 10px;
-    }
-
-    p {
-      color: #444;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .card h3 {
-      margin-top: 0;
-      color: #0b2c4f;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 8px;
-      background: #0b2c4f;
-      color: #ffffff;
-      font-size: 16px;
-    }
-
-    .btn.secondary {
-      background: #ffffff;
-      color: #0b2c4f;
-      border: 2px solid #0b2c4f;
-    }
-  </style>
+<style>
+:root{
+  --navy:#0B2C4F;
+  --border:#E5E7EB;
+  --danger:#B91C1C;
+  --muted:#6B7280;
+}
+body{margin:0;font-family:Arial,sans-serif;color:var(--navy);}
+.nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;}
+.page{max-width:980px;margin:auto;padding:24px;}
+.card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:760px){.grid{grid-template-columns:1fr;}}
+label{font-size:13px;margin-top:10px;display:block;}
+input,select,textarea{
+  width:100%;padding:10px;margin-top:6px;
+  border-radius:10px;border:1px solid var(--border);
+}
+textarea{min-height:80px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.btn{
+  padding:12px 14px;border:none;border-radius:10px;
+  font-size:15px;cursor:pointer;
+}
+.primary{background:var(--navy);color:white;width:100%;}
+.outline{background:white;border:1px solid var(--navy);color:var(--navy);}
+.danger{background:var(--danger);color:white;}
+.badge{padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;}
+.small{font-size:12px;color:var(--muted);}
+</style>
 </head>
 
 <body>
-  <div class="page">
-    <img src="images/logo.png" alt="Realtor Guard Logo" class="logo" />
 
-    <h1>Agent Dashboard</h1>
-    <p>Manage your showings and request an observer</p>
+<div class="nav">🛡️ Realtor Guard — Agent Dashboard</div>
 
+<div class="page">
+  <h2>Request an Observer</h2>
+  <div id="content"></div>
+  <div class="small">MVP note: Agent & Observer must be tested in the same browser (localStorage).</div>
+</div>
+
+<script>
+const MAX_PROPERTIES = 3;
+
+const STATES = [
+"AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS",
+"KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY",
+"NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV",
+"WI","WY"
+];
+
+let propertyCount = 1;
+
+function render(){
+  const c = document.getElementById("content");
+  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+
+  if(!req){
+    c.innerHTML = formHTML();
+    renderProperties();
+    return;
+  }
+
+  c.innerHTML = `
     <div class="card">
-      <h3>Upcoming Showing</h3>
-      <p><strong>Address:</strong> 123 Main St, Miami, FL</p>
-      <p><strong>Date:</strong> Today at 4:00 PM</p>
-
-      <!-- WIRED TO NAVIGATION -->
-      <a href="navigation.html" class="btn">Navigate to Property</a>
+      <b>Status:</b> Properties posted
+      <span class="badge">OPEN</span>
+      <div class="small">
+        Each property is now visible to observers.  
+        Observers may accept or decline individually.
+      </div>
+      <button class="btn danger" style="margin-top:12px;" onclick="reset()">Cancel Request</button>
     </div>
+  `;
+}
 
-    <a href="choose-role.html" class="btn secondary">Log Out</a>
-  </div>
+function formHTML(){
+return `
+<div class="card">
+  <label>Agent Full Name</label>
+  <input id="agentName" placeholder="Enter full name"/>
+
+  <label>US Time Zone</label>
+  <select id="timeZone">
+    <option value="">Select time zone</option>
+    <option>Eastern</option>
+    <option>Central</option>
+    <option>Mountain</option>
+    <option>Pacific</option>
+    <option>Alaska</option>
+    <option>Hawaii</option>
+  </select>
+
+  <div id="properties"></div>
+
+  <button class="btn outline" onclick="addProperty()">+ Add Property</button>
+  <button class="btn primary" onclick="submit()">Submit Request</button>
+
+  <div class="small">Up to 3 properties per request.</div>
+</div>`;
+}
+
+function propertyBlock(i){
+return `
+<div class="card">
+<b>Property ${i+1}</b>
+
+<label>Street Address</label><input id="street_${i}">
+<label>City</label><input id="city_${i}">
+<label>State</label>
+<select id="state_${i}">
+  <option value="">Select state</option>
+  ${STATES.map(s=>`<option>${s}</option>`).join("")}
+</select>
+<label>Zip Code</label><input id="zip_${i}">
+
+<label>Date</label><input type="date" id="date_${i}">
+
+<label>Time (AM / PM)</label>
+<div class="row">
+  <select id="hour_${i}">
+    ${Array.from({length:12},(_,h)=>`<option>${h+1}</option>`).join("")}
+  </select>
+  <select id="min_${i}">
+    <option>00</option><option>15</option><option>30</option><option>45</option>
+  </select>
+  <select id="ampm_${i}">
+    <option>AM</option><option>PM</option>
+  </select>
+</div>
+
+<label>Visit Type</label>
+<select id="visit_${i}">
+  <option>Showing</option>
+  <option>Open House</option>
+  <option>Other</option>
+</select>
+
+${i>0 ? `<button class="btn danger" onclick="removeProperty()">Delete Property</button>` : ""}
+</div>`;
+}
+
+function renderProperties(){
+  const p = document.getElementById("properties");
+  p.innerHTML = "";
+  for(let i=0;i<propertyCount;i++) p.innerHTML += propertyBlock(i);
+}
+
+function addProperty(){
+  if(propertyCount >= MAX_PROPERTIES){
+    alert("Maximum 3 properties allowed.");
+    return;
+  }
+  propertyCount++;
+  renderProperties();
+}
+
+function removeProperty(){
+  propertyCount--;
+  renderProperties();
+}
+
+function submit(){
+  const properties = [];
+  for(let i=0;i<propertyCount;i++){
+    properties.push({
+      id: "prop_" + i + "_" + Date.now(),
+      street: document.getElementById(`street_${i}`).value,
+      city: document.getElementById(`city_${i}`).value,
+      state: document.getElementById(`state_${i}`).value,
+      zip: document.getElementById(`zip_${i}`).value,
+      date: document.getElementById(`date_${i}`).value,
+      time: `${document.getElementById(`hour_${i}`).value}:${document.getElementById(`min_${i}`).value} ${document.getElementById(`ampm_${i}`).value}`,
+      visitType: document.getElementById(`visit_${i}`).value,
+      status: "open",          // 🔑 REQUIRED FOR OBSERVER LIST
+      observer: null,
+      declinedBy: []
+    });
+  }
+
+  localStorage.setItem("assignmentRequest", JSON.stringify({
+    agentName: document.getElementById("agentName").value,
+    timeZone: document.getElementById("timeZone").value,
+    properties
+  }));
+
+  render();
+}
+
+function reset(){
+  if(!confirm("Cancel the entire request?")) return;
+  localStorage.removeItem("assignmentRequest");
+  render();
+}
+
+render();
+</script>
 </body>
 </html>
+
+ 
