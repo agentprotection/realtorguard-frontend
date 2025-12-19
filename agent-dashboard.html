@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -7,38 +7,44 @@
 
   <style>
     body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f4f4; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
     .topbar {
       background:#fff; border-radius:14px; padding:14px 16px;
       box-shadow:0 2px 8px rgba(0,0,0,0.08);
       display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
     }
     .brand { font-weight:900; font-size:18px; }
-    .links a { text-decoration:none; font-weight:800; margin-left:10px; color:#111; }
+    .links a { text-decoration:none; font-weight:900; margin-left:10px; color:#111; }
     .grid { display:grid; grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
-    @media (min-width: 860px) { .grid { grid-template-columns: 1.2fr 0.8fr; } }
-
+    @media (min-width: 980px) { .grid { grid-template-columns: 1.05fr 0.95fr; } }
     .card {
       background:#fff; border-radius:14px; padding:16px;
       box-shadow:0 2px 8px rgba(0,0,0,0.08);
     }
     h2 { margin: 0 0 10px 0; }
-    label { display:block; font-weight:800; margin-top:10px; font-size:13px; }
+    .muted { color:#666; font-size:13px; margin-top:4px; }
+    label { display:block; font-weight:900; margin-top:12px; font-size:13px; }
     input, select {
       width:100%; padding:12px; border-radius:10px; border:1px solid #ccc;
-      margin-top:6px; font-size:16px; box-sizing:border-box;
-      background:#fff;
+      margin-top:6px; font-size:16px; box-sizing:border-box; background:#fff;
     }
+    .row2 { display:grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 680px) { .row2 { grid-template-columns: 1fr 1fr; } }
     .btn {
       width:100%; margin-top:14px; padding:14px; border:none; border-radius:12px;
-      font-size:17px; font-weight:900; cursor:pointer;
-      background:#111; color:#fff;
+      font-size:17px; font-weight:900; cursor:pointer; background:#111; color:#fff;
+    }
+    .btnSecondary {
+      width:100%; margin-top:10px; padding:12px; border:1px solid #ccc; border-radius:12px;
+      font-size:15px; font-weight:900; cursor:pointer; background:#fff; color:#111;
+    }
+    .danger {
+      border:1px solid #ffb3b3; background:#ffecec; color:#7a0000;
     }
     .success {
       display:none; margin-top:12px; padding:12px; border-radius:12px;
-      background:#e7ffe7; border:1px solid #bff0bf; color:#145214; font-weight:800;
+      background:#e7ffe7; border:1px solid #bff0bf; color:#145214; font-weight:900;
     }
-    .muted { color:#666; font-size:13px; }
     .listItem {
       border:1px solid #eee; border-radius:12px; padding:12px; margin-top:10px;
       background:#fafafa;
@@ -47,9 +53,8 @@
       display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900;
       background:#eee; margin-top:8px;
     }
-    .row { margin-top:6px; font-size:14px; }
-    .row b { color:#111; }
-    .smallLinks a { color:#0066ff; font-weight:800; text-decoration:none; }
+    .smallLinks a { color:#0066ff; font-weight:900; text-decoration:none; }
+    .splitLine { height:1px; background:#eee; margin:14px 0; }
   </style>
 </head>
 
@@ -57,22 +62,70 @@
   <div class="wrap">
 
     <div class="topbar">
-      <div class="brand">Realtor Guard — Agent Dashboard</div>
+      <div class="brand">Realtor Guard — Agent Dashboard (V2)</div>
       <div class="links">
-        <a href="agent-request.html">Agent Request Page</a>
         <a href="observer-dashboard.html">Observer Dashboard</a>
+        <a href="agent-request.html">Agent Request Page</a>
       </div>
     </div>
 
     <div class="grid">
 
-      <!-- LEFT: Request Form -->
+      <!-- LEFT: Profile + Saved Properties -->
       <div class="card">
-        <h2>Request an Observer</h2>
-        <div class="muted">Submit a request and it will appear on the Observer Dashboard.</div>
+        <h2>Agent Profile</h2>
+        <div class="muted">Save up to 3 properties. Then select one when submitting a request.</div>
 
         <label>Agent Name</label>
         <input id="agentName" placeholder="Your full name" />
+
+        <div class="splitLine"></div>
+
+        <h2>Saved Properties</h2>
+        <div class="muted">Pick a slot (Property 1–3), enter details, then click “Save Property”.</div>
+
+        <label>Property Slot</label>
+        <select id="propertySlot">
+          <option value="0">Property 1</option>
+          <option value="1">Property 2</option>
+          <option value="2">Property 3</option>
+        </select>
+
+        <label>Street Address</label>
+        <input id="propStreet" placeholder="123 Main St" />
+
+        <div class="row2">
+          <div>
+            <label>City</label>
+            <input id="propCity" placeholder="City" />
+          </div>
+          <div>
+            <label>State</label>
+            <select id="propState"></select>
+          </div>
+        </div>
+
+        <button class="btnSecondary" onclick="saveProperty()">Save Property</button>
+        <button class="btnSecondary" onclick="loadPropertyIntoForm()">Load Slot Into Form</button>
+
+        <div id="propSavedMsg" class="success">✅ Property saved!</div>
+
+        <div class="splitLine"></div>
+
+        <h2>Saved Property Summary</h2>
+        <div id="propSummary" class="muted"></div>
+
+        <button class="btnSecondary danger" onclick="clearAllData()">Clear All Data (Testing)</button>
+        <div class="muted">Clears saved properties + submitted requests + statuses on this device only.</div>
+      </div>
+
+      <!-- RIGHT: Submit Request -->
+      <div class="card">
+        <h2>Request an Observer</h2>
+        <div class="muted">Select a saved property, choose visit details, then submit.</div>
+
+        <label>Select Property</label>
+        <select id="requestPropertySelect"></select>
 
         <label>Type of Visit</label>
         <select id="visitType">
@@ -82,29 +135,34 @@
           <option>Other</option>
         </select>
 
-        <label>Property Address</label>
-        <input id="address" placeholder="123 Main St, City, State" />
+        <label>Time Zone</label>
+        <select id="timeZone"></select>
+        <div class="muted">Auto-detected and selected for you. You can change it.</div>
 
-        <label>Date</label>
-        <input id="date" type="date" />
-
-        <label>Time</label>
-        <input id="time" type="time" />
+        <div class="row2">
+          <div>
+            <label>Date</label>
+            <input id="date" type="date" />
+          </div>
+          <div>
+            <label>Time</label>
+            <input id="time" type="time" />
+          </div>
+        </div>
 
         <button class="btn" onclick="submitRequest()">Submit Request</button>
 
         <div id="success" class="success">
           ✅ Request submitted!<br/>
           <span class="smallLinks">
-            Open <a href="observer-dashboard.html">Observer Dashboard</a> to confirm it shows up.
+            Open <a href="observer-dashboard.html">Observer Dashboard</a> to see it.
           </span>
         </div>
-      </div>
 
-      <!-- RIGHT: My Submitted Requests -->
-      <div class="card">
+        <div class="splitLine"></div>
+
         <h2>My Submitted Requests</h2>
-        <div class="muted">This list is saved in your browser (GitHub Pages safe). It should match what the observer sees.</div>
+        <div class="muted">Newest first. This matches what Observer Dashboard reads.</div>
         <div id="myList"></div>
       </div>
 
@@ -112,76 +170,26 @@
   </div>
 
   <script>
-    // ✅ SINGLE SOURCE OF TRUTH
+    // Storage keys
     const REQUEST_KEY = "rg_agent_requests_v1";
+    const PROPS_KEY   = "rg_agent_properties_v1";
+    const STATUS_KEY  = "rg_observer_status_v1"; // observer uses this
 
-    function loadRequests() {
-      return JSON.parse(localStorage.getItem(REQUEST_KEY)) || [];
-    }
+    const US_STATES = [
+      "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA",
+      "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK",
+      "OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+    ];
 
-    function saveRequests(list) {
-      localStorage.setItem(REQUEST_KEY, JSON.stringify(list));
-    }
-
-    function renderMyList() {
-      const listEl = document.getElementById("myList");
-      const requests = loadRequests().slice().reverse(); // newest first
-      listEl.innerHTML = "";
-
-      if (requests.length === 0) {
-        listEl.innerHTML = '<div class="muted" style="margin-top:10px;">No requests submitted yet.</div>';
-        return;
-      }
-
-      requests.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "listItem";
-        div.innerHTML = `
-          <div class="row"><b>Agent:</b> ${escapeHtml(r.agentName)}</div>
-          <div class="row"><b>Visit:</b> ${escapeHtml(r.visitType)}</div>
-          <div class="row"><b>Address:</b> ${escapeHtml(r.address)}</div>
-          <div class="row"><b>Date:</b> ${escapeHtml(r.date)}</div>
-          <div class="row"><b>Time:</b> ${escapeHtml(r.time)}</div>
-          <div class="pill">ID: ${escapeHtml(r.id)}</div>
-        `;
-        listEl.appendChild(div);
-      });
-    }
-
-    function submitRequest() {
-      const agentName = document.getElementById("agentName").value.trim();
-      const visitType = document.getElementById("visitType").value;
-      const address = document.getElementById("address").value.trim();
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
-
-      if (!agentName || !address || !date || !time) {
-        alert("Please fill in ALL fields: name, address, date, time.");
-        return;
-      }
-
-      const requests = loadRequests();
-
-      const newRequest = {
-        id: "req_" + Date.now(),
-        agentName,
-        visitType,
-        address,
-        date,
-        time,
-        createdAt: new Date().toISOString()
-      };
-
-      requests.push(newRequest);
-      saveRequests(requests);
-
-      document.getElementById("success").style.display = "block";
-
-      // optional: clear a couple fields
-      document.getElementById("address").value = "";
-
-      renderMyList();
-    }
+    const TIME_ZONES = [
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Phoenix",
+      "America/Los_Angeles",
+      "America/Anchorage",
+      "Pacific/Honolulu"
+    ];
 
     function escapeHtml(str) {
       return String(str || "")
@@ -192,8 +200,208 @@
         .replaceAll("'", "&#039;");
     }
 
-    // Initial render
-    renderMyList();
+    function loadRequests() {
+      return JSON.parse(localStorage.getItem(REQUEST_KEY)) || [];
+    }
+    function saveRequests(list) {
+      localStorage.setItem(REQUEST_KEY, JSON.stringify(list));
+    }
+
+    function loadProps() {
+      // 3 slots always exist
+      const existing = JSON.parse(localStorage.getItem(PROPS_KEY));
+      if (Array.isArray(existing) && existing.length === 3) return existing;
+      return [
+        { street:"", city:"", state:"FL" },
+        { street:"", city:"", state:"FL" },
+        { street:"", city:"", state:"FL" }
+      ];
+    }
+    function saveProps(props) {
+      localStorage.setItem(PROPS_KEY, JSON.stringify(props));
+    }
+
+    function populateStates() {
+      const stateSel = document.getElementById("propState");
+      stateSel.innerHTML = "";
+      US_STATES.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s; opt.textContent = s;
+        stateSel.appendChild(opt);
+      });
+      stateSel.value = "FL";
+    }
+
+    function populateTimeZones() {
+      const tzSel = document.getElementById("timeZone");
+      tzSel.innerHTML = "";
+      TIME_ZONES.forEach(tz => {
+        const opt = document.createElement("option");
+        opt.value = tz; opt.textContent = tz;
+        tzSel.appendChild(opt);
+      });
+
+      // auto-detect
+      let detected = "America/New_York";
+      try {
+        const dtz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (dtz && (TIME_ZONES.includes(dtz))) detected = dtz;
+      } catch {}
+      tzSel.value = detected;
+    }
+
+    function renderPropertySummary() {
+      const props = loadProps();
+      const el = document.getElementById("propSummary");
+      el.innerHTML = "";
+
+      props.forEach((p, i) => {
+        const has = (p.street || p.city || p.state);
+        const div = document.createElement("div");
+        div.className = "listItem";
+        div.innerHTML = `
+          <div><b>Property ${i+1}:</b> ${has ? "" : "<span class='muted'>Not saved yet</span>"}</div>
+          <div class="muted">${escapeHtml(p.street)}${p.street ? ", " : ""}${escapeHtml(p.city)}${p.city ? ", " : ""}${escapeHtml(p.state)}</div>
+        `;
+        el.appendChild(div);
+      });
+    }
+
+    function renderPropertySelect() {
+      const props = loadProps();
+      const sel = document.getElementById("requestPropertySelect");
+      sel.innerHTML = "";
+
+      props.forEach((p, i) => {
+        const label = (p.street || p.city || p.state)
+          ? `Property ${i+1}: ${p.street || ""}${p.street ? ", " : ""}${p.city || ""}${p.city ? ", " : ""}${p.state || ""}`.trim()
+          : `Property ${i+1}: (not saved yet)`;
+
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
+    }
+
+    function loadPropertyIntoForm() {
+      const slot = Number(document.getElementById("propertySlot").value);
+      const props = loadProps();
+      const p = props[slot] || {street:"", city:"", state:"FL"};
+
+      document.getElementById("propStreet").value = p.street || "";
+      document.getElementById("propCity").value   = p.city || "";
+      document.getElementById("propState").value  = p.state || "FL";
+    }
+
+    function saveProperty() {
+      const slot = Number(document.getElementById("propertySlot").value);
+      const street = document.getElementById("propStreet").value.trim();
+      const city   = document.getElementById("propCity").value.trim();
+      const state  = document.getElementById("propState").value;
+
+      const props = loadProps();
+      props[slot] = { street, city, state };
+      saveProps(props);
+
+      const msg = document.getElementById("propSavedMsg");
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 1800);
+
+      renderPropertySummary();
+      renderPropertySelect();
+    }
+
+    function renderMyList() {
+      const listEl = document.getElementById("myList");
+      const reqs = loadRequests().slice().reverse();
+      listEl.innerHTML = "";
+
+      if (reqs.length === 0) {
+        listEl.innerHTML = '<div class="muted" style="margin-top:10px;">No requests submitted yet.</div>';
+        return;
+      }
+
+      reqs.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "listItem";
+        div.innerHTML = `
+          <div><b>Agent:</b> ${escapeHtml(r.agentName)}</div>
+          <div class="muted"><b>Visit:</b> ${escapeHtml(r.visitType)} • <b>TZ:</b> ${escapeHtml(r.timeZone)}</div>
+          <div class="muted"><b>Property:</b> ${escapeHtml(r.property.street)}${r.property.street ? ", " : ""}${escapeHtml(r.property.city)}${r.property.city ? ", " : ""}${escapeHtml(r.property.state)}</div>
+          <div class="muted"><b>Date:</b> ${escapeHtml(r.date)} • <b>Time:</b> ${escapeHtml(r.time)}</div>
+          <div class="pill">ID: ${escapeHtml(r.id)}</div>
+        `;
+        listEl.appendChild(div);
+      });
+    }
+
+    function submitRequest() {
+      const agentName = document.getElementById("agentName").value.trim();
+      const visitType = document.getElementById("visitType").value;
+      const timeZone  = document.getElementById("timeZone").value;
+      const date      = document.getElementById("date").value;
+      const time      = document.getElementById("time").value;
+
+      const propIndex = Number(document.getElementById("requestPropertySelect").value);
+      const props = loadProps();
+      const chosen = props[propIndex];
+
+      if (!agentName) {
+        alert("Please enter your Agent Name.");
+        return;
+      }
+      if (!chosen || !(chosen.street && chosen.city && chosen.state)) {
+        alert("Please save the selected property (street, city, state) before submitting a request.");
+        return;
+      }
+      if (!date || !time) {
+        alert("Please choose date and time.");
+        return;
+      }
+
+      const reqs = loadRequests();
+      const newReq = {
+        id: "req_" + Date.now(),
+        agentName,
+        visitType,
+        property: { ...chosen }, // street/city/state
+        address: `${chosen.street}, ${chosen.city}, ${chosen.state}`, // observer uses this for maps
+        date,
+        time,
+        timeZone,
+        createdAt: new Date().toISOString()
+      };
+
+      reqs.push(newReq);
+      saveRequests(reqs);
+
+      const success = document.getElementById("success");
+      success.style.display = "block";
+      setTimeout(() => success.style.display = "none", 2500);
+
+      renderMyList();
+    }
+
+    function clearAllData() {
+      if (!confirm("Clear all saved properties, requests, and observer statuses on this device?")) return;
+      localStorage.removeItem(PROPS_KEY);
+      localStorage.removeItem(REQUEST_KEY);
+      localStorage.removeItem(STATUS_KEY);
+      init();
+      alert("Cleared. Now submit a fresh request.");
+    }
+
+    function init() {
+      populateStates();
+      populateTimeZones();
+      renderPropertySummary();
+      renderPropertySelect();
+      loadPropertyIntoForm();
+      renderMyList();
+    }
+
+    init();
   </script>
 </body>
 </html>
