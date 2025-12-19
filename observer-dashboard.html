@@ -1,169 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Observer Dashboard | Realtor Guard</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Observer Dashboard | Realtor Guard</title>
 
-  <style>
-    :root{ --navy:#0B2C4F; --white:#FFFFFF; --border:#E5E7EB; --success:#16A34A; }
-    body{ margin:0; font-family:Arial,sans-serif; background:var(--white); color:var(--navy); }
-
-    .nav{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 18px; border-bottom:1px solid var(--border); background:var(--white);
-    }
-    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; }
-    .brand img{ width:28px; height:28px; object-fit:contain; }
-    .actions button{
-      background:var(--navy); color:var(--white); border:none; padding:8px 12px;
-      border-radius:10px; font-size:14px; cursor:pointer;
-    }
-
-    .page{ max-width:900px; margin:0 auto; padding:24px; }
-    h1{ text-align:center; margin:10px 0 6px; }
-    .muted{ text-align:center; color:#666; margin:0 0 18px; }
-
-    .card{
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:16px;
-      background:#fff;
-      margin-top:14px;
-    }
-    .label{ font-size:13px; color:#555; margin-top:10px; }
-    .value{ font-weight:800; margin-top:2px; }
-
-    .btn{
-      width:100%;
-      margin-top:14px;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      font-size:16px;
-      cursor:pointer;
-      background:var(--success);
-      color:var(--white);
-    }
-
-    .empty{
-      border:1px dashed var(--border);
-      border-radius:14px;
-      padding:18px;
-      text-align:center;
-      color:#666;
-      margin-top:14px;
-    }
-
-    .pill{
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      font-size:12px;
-      color:#555;
-      margin-left:8px;
-    }
-  </style>
+<style>
+:root{
+  --navy:#0B2C4F;
+  --border:#E5E7EB;
+  --success:#16A34A;
+  --danger:#B91C1C;
+  --muted:#6B7280;
+}
+body{margin:0;font-family:Arial,sans-serif;color:var(--navy);}
+.nav{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;}
+.page{max-width:980px;margin:auto;padding:24px;}
+.card{border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.btn{padding:12px 14px;border:none;border-radius:10px;font-size:15px;cursor:pointer;}
+.success{background:var(--success);color:white;}
+.danger{background:var(--danger);color:white;}
+.outline{background:white;border:1px solid var(--navy);color:var(--navy);}
+.badge{padding:4px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;}
+.small{font-size:12px;color:var(--muted);}
+.disabled{opacity:.5;pointer-events:none;}
+</style>
 </head>
 
 <body>
-  <div class="nav">
-    <div class="brand" onclick="goHome()">
-      <img src="logo.png" alt="Realtor Guard" onerror="this.style.display='none'">
-      <span>Realtor Guard</span>
-    </div>
-    <div class="actions">
-      <button onclick="logout()">Logout</button>
-    </div>
-  </div>
 
-  <div class="page">
-    <h1>Observer Dashboard</h1>
-    <p class="muted">Available requests</p>
-    <div id="content"></div>
-  </div>
+<div class="nav">🛡️ Realtor Guard — Observer Dashboard</div>
+
+<div class="page">
+  <h2>Available Property Assignments</h2>
+  <div id="content"></div>
+</div>
 
 <script>
-  function goHome(){ window.location.href="choose-role.html"; }
-  function logout(){ localStorage.clear(); window.location.href="index.html"; }
+const OBSERVER_ID = "observer-001"; // MVP mock observer
 
-  function render(){
-    const c = document.getElementById("content");
-    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+function render(){
+  const c = document.getElementById("content");
+  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
 
-    if(!req || req.status !== "pending"){
-      c.innerHTML = `<div class="empty">No assignments available.</div>`;
+  if(!req){
+    c.innerHTML = `<div class="card">No assignments available.</div>`;
+    return;
+  }
+
+  const properties = req.properties || [];
+  const cards = properties
+    .map((p,i)=>propertyCard(req,p,i))
+    .filter(Boolean)
+    .join("");
+
+  c.innerHTML = cards || `<div class="card">No assignments available.</div>`;
+}
+
+function propertyCard(req,p,i){
+  p.declinedBy = p.declinedBy || [];
+
+  if(p.status === "canceled") return null;
+  if(p.declinedBy.includes(OBSERVER_ID)) return null;
+
+  if(p.status === "accepted" && p.observer?.id !== OBSERVER_ID) return null;
+
+  const startTs = getStartTimestamp(req.timeZone, p.date, p.time);
+  const now = Date.now();
+  const canStart = now >= startTs;
+
+  let timerHTML = "";
+  if(p.status === "accepted" && !canStart){
+    timerHTML = `<div class="small">Starts in: <span id="timer-${i}"></span></div>`;
+    setTimeout(()=>startTimer(i,startTs),100);
+  }
+
+  return `
+  <div class="card">
+    <b>${p.street}, ${p.city}, ${p.state}</b>
+    <div class="small">${p.date} @ ${p.time} (${req.timeZone})</div>
+
+    <div class="row" style="margin-top:10px;">
+      <span class="badge">${p.status.toUpperCase()}</span>
+    </div>
+
+    ${p.status==="open"?`
+      <div class="row" style="margin-top:12px;">
+        <button class="btn success" onclick="accept(${i})">Accept</button>
+        <button class="btn danger" onclick="decline(${i})">Decline</button>
+      </div>
+    `:""}
+
+    ${p.status==="accepted" && p.observer?.id===OBSERVER_ID?`
+      ${timerHTML}
+      <button class="btn outline ${canStart?"":"disabled"}"
+        onclick="startAssignment(${i})">
+        Start Assignment
+      </button>
+    `:""}
+  </div>`;
+}
+
+function accept(i){
+  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+  const p = req.properties[i];
+
+  p.status = "accepted";
+  p.observer = {
+    id: OBSERVER_ID,
+    name: "Marcus Reed",
+    phone: "5551234567"
+  };
+
+  localStorage.setItem("assignmentRequest",JSON.stringify(req));
+  render();
+}
+
+function decline(i){
+  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+  const p = req.properties[i];
+
+  p.status = "open";
+  p.declinedBy = p.declinedBy || [];
+  p.declinedBy.push(OBSERVER_ID);
+
+  localStorage.setItem("assignmentRequest",JSON.stringify(req));
+  render();
+}
+
+function startAssignment(i){
+  const req = JSON.parse(localStorage.getItem("assignmentRequest"));
+  const p = req.properties[i];
+
+  p.status = "in_progress";
+  localStorage.setItem("assignmentRequest",JSON.stringify(req));
+  alert("Assignment started.");
+  render();
+}
+
+function startTimer(i,target){
+  const el = document.getElementById(`timer-${i}`);
+  if(!el) return;
+
+  const tick = ()=>{
+    const diff = target - Date.now();
+    if(diff<=0){
+      el.textContent = "Ready";
+      render();
       return;
     }
+    const h = Math.floor(diff/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    el.textContent = `${h}h ${m}m ${s}s`;
+    requestAnimationFrame(tick);
+  };
+  tick();
+}
 
-    const props = Array.isArray(req.properties) ? req.properties : [];
-    const cards = props.map((p, i) => `
-      <div class="card">
-        <div class="value">Property ${i+1} <span class="pill">${p.visitType || "Visit"}</span></div>
+function getStartTimestamp(tz,date,time){
+  const map = {
+    Eastern:-5, Central:-6, Mountain:-7,
+    Pacific:-8, Alaska:-9, Hawaii:-10
+  };
+  const [hour,min,ampm] = time.match(/(\d+):(\d+)\s(AM|PM)/).slice(1);
+  let h = parseInt(hour,10)%12 + (ampm==="PM"?12:0);
+  const utc = new Date(`${date}T${String(h).padStart(2,"0")}:${min}:00Z`);
+  utc.setHours(utc.getHours() - map[tz]);
+  return utc.getTime();
+}
 
-        <div class="label">Address</div>
-        <div class="value">
-          ${escapeHTML(p.street || "-")}<br/>
-          ${escapeHTML(p.city || "-")}, ${escapeHTML(p.state || "-")} ${escapeHTML(p.zip || "-")}
-        </div>
-
-        <div class="label">Date & Time (${escapeHTML(req.timeZone || "Time Zone")})</div>
-        <div class="value">${escapeHTML(p.date || "-")} @ ${escapeHTML(p.time || "-")}</div>
-
-        ${p.visitType === "Other" && p.otherDesc ? `
-          <div class="label">Other Details</div>
-          <div class="value">${escapeHTML(p.otherDesc)}</div>
-        ` : ``}
-      </div>
-    `).join("");
-
-    c.innerHTML = `
-      <div class="card">
-        <div class="label">Agent</div>
-        <div class="value">${escapeHTML(req.agentName || "-")}</div>
-
-        <div class="label">Properties</div>
-        <div class="value">${props.length}</div>
-
-        <button class="btn" onclick="accept()">Accept Request</button>
-      </div>
-
-      ${cards}
-    `;
-  }
-
-  function accept(){
-    const req = JSON.parse(localStorage.getItem("assignmentRequest"));
-
-    // Mock observer profile (backend-ready shape)
-    req.observer = {
-      fullName: "Marcus Reed",
-      phone: "5551234567",
-      photoUrl: "", // add later
-      vehicle: { make:"Honda", model:"Accord", year:"2022", color:"White" },
-      rating: "4.8 ★",
-      reviewsCount: 87
-    };
-
-    req.status = "accepted";
-    req.observerAcceptedAt = new Date().toISOString();
-
-    localStorage.setItem("assignmentRequest", JSON.stringify(req));
-    localStorage.setItem("role","observer");
-    localStorage.setItem("activePropertyIndex","0");
-
-    // go to navigation (if you want)
-    window.location.href = "navigation.html";
-  }
-
-  function escapeHTML(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  render();
+render();
 </script>
 </body>
 </html>
