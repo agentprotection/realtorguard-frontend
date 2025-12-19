@@ -4,176 +4,301 @@
   <meta charset="UTF-8" />
   <title>Observer Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 16px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h1 {
-      margin-bottom: 14px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .row {
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .status {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    .pending { background: #eee; }
-    .accepted { background: #d4f8d4; }
-    .declined { background: #ffdede; }
-
-    .countdown {
-      font-size: 18px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .accept { background: #111; color: #fff; }
-    .decline { background: #b00020; color: #fff; }
-    .start { background: #0066ff; color: #fff; }
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f4f4; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    h1 { margin: 8px 0 14px; }
+    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .row { display:grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 900px){ .row { grid-template-columns: 1fr 1fr; } }
+    label { display:block; font-weight:900; margin-top:10px; font-size:13px; }
+    input { width:100%; padding:12px; border-radius:10px; border:1px solid #ccc; margin-top:6px; font-size:16px; box-sizing:border-box; }
+    button { padding:12px 14px; border:none; border-radius:12px; font-weight:900; cursor:pointer; }
+    .btn { background:#111; color:#fff; width:100%; }
+    .btn2 { background:#fff; color:#111; border:1px solid #ccc; width:100%; }
+    .danger { background:#b00020; color:#fff; width:100%; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background:#eee; }
+    .pillGreen { background:#e7ffe7; border:1px solid #bff0bf; color:#145214; }
+    .pillRed { background:#ffecec; border:1px solid #ffb3b3; color:#7a0000; }
+    .muted { color:#666; font-size:13px; margin-top:6px; }
+    .req { background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); margin-top:12px; }
+    .grid2 { display:grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+    @media (min-width: 680px){ .grid2 { grid-template-columns: 1fr 1fr; } }
+    .line { margin-top:6px; font-size:14px; }
+    a { color:#0b63ff; font-weight:900; text-decoration:none; }
   </style>
 </head>
-
 <body>
-  <div class="container">
+  <div class="wrap">
     <h1>Observer Dashboard</h1>
-    <div id="list"></div>
+
+    <div class="card">
+      <div class="muted">Your profile is attached when you accept a request.</div>
+
+      <div class="row">
+        <div>
+          <label>Observer Name</label>
+          <input id="obsName" placeholder="Your name" />
+        </div>
+        <div>
+          <label>Observer Phone</label>
+          <input id="obsPhone" placeholder="Phone number" />
+        </div>
+      </div>
+
+      <label>Observer Email (optional)</label>
+      <input id="obsEmail" placeholder="Email" />
+
+      <div class="grid2">
+        <button class="btn2" onclick="saveProfile()">Save Profile</button>
+        <button class="btn2" onclick="clearObserverData()">Clear Observer Data</button>
+      </div>
+
+      <div id="profileMsg" class="muted"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div>
+          <b>Incoming Requests</b>
+          <div class="muted">Countdown starts only after you accept.</div>
+        </div>
+        <button class="btn2" onclick="render()">Refresh</button>
+      </div>
+      <div id="list"></div>
+    </div>
   </div>
 
   <script>
-    const REQUESTS_KEY = "rg_agent_requests_v1";
-    const STATUS_KEY = "rg_observer_status_v1";
+    const REQUEST_KEY = "rg_agent_requests_v1";
+    const STATUS_KEY  = "rg_request_status_v2";       // per-request status + acceptance payload
+    const OBS_KEY     = "rg_observer_profile_v1";     // observer profile
 
-    const requests =
-      JSON.parse(localStorage.getItem(REQUESTS_KEY)) || [];
-    const statusMap =
-      JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+    function loadRequests(){ return JSON.parse(localStorage.getItem(REQUEST_KEY)) || []; }
+    function saveRequests(v){ localStorage.setItem(REQUEST_KEY, JSON.stringify(v)); }
 
-    function saveStatus() {
-      localStorage.setItem(STATUS_KEY, JSON.stringify(statusMap));
+    function loadStatusMap(){ return JSON.parse(localStorage.getItem(STATUS_KEY)) || {}; }
+    function saveStatusMap(m){ localStorage.setItem(STATUS_KEY, JSON.stringify(m)); }
+
+    function loadObserver(){ return JSON.parse(localStorage.getItem(OBS_KEY)) || null; }
+    function saveObserver(p){ localStorage.setItem(OBS_KEY, JSON.stringify(p)); }
+
+    function esc(s){
+      return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
-    function countdown(date, time) {
-      const target = new Date(`${date}T${time}`);
-      const diff = target - new Date();
-      if (diff <= 0) return "00:00:00";
-
-      const h = String(Math.floor(diff / 3600000)).padStart(2,"0");
-      const m = String(Math.floor((diff % 3600000)/60000)).padStart(2,"0");
-      const s = String(Math.floor((diff % 60000)/1000)).padStart(2,"0");
-      return `${h}:${m}:${s}`;
+    function scheduledDate(req){
+      // supports req.date + req.time (24h) OR displayTime (12h) stored elsewhere
+      const date = req?.date || "";
+      const time = req?.time || ""; // prefer "HH:MM"
+      if (!date || !time) return null;
+      const dt = new Date(`${date}T${time}`);
+      if (Number.isNaN(dt.getTime())) return null;
+      return dt;
     }
 
-    function maps(addr) {
-      window.open(
-        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`,
-        "_blank"
-      );
+    function isExpired(req){
+      const dt = scheduledDate(req);
+      if (!dt) return false;
+      return Date.now() > dt.getTime();
     }
 
-    function render() {
+    function getEffectiveStatus(req, statusMap){
+      const s = statusMap[req.id];
+      if (s?.status) return s.status;
+      if (isExpired(req)) return "expired";
+      return "pending";
+    }
+
+    function saveProfile(){
+      const name = document.getElementById("obsName").value.trim();
+      const phone = document.getElementById("obsPhone").value.trim();
+      const email = document.getElementById("obsEmail").value.trim();
+
+      if (!name || !phone) {
+        document.getElementById("profileMsg").textContent = "Name and phone are required.";
+        return;
+      }
+      saveObserver({ name, phone, email });
+      document.getElementById("profileMsg").textContent = "✅ Profile saved.";
+    }
+
+    function fillProfile(){
+      const p = loadObserver();
+      if (!p) return;
+      document.getElementById("obsName").value = p.name || "";
+      document.getElementById("obsPhone").value = p.phone || "";
+      document.getElementById("obsEmail").value = p.email || "";
+      document.getElementById("profileMsg").textContent = "Profile loaded.";
+    }
+
+    function clearObserverData(){
+      localStorage.removeItem(OBS_KEY);
+      document.getElementById("obsName").value = "";
+      document.getElementById("obsPhone").value = "";
+      document.getElementById("obsEmail").value = "";
+      document.getElementById("profileMsg").textContent = "Observer profile cleared.";
+    }
+
+    function acceptRequest(id){
+      const reqs = loadRequests();
+      const req = reqs.find(r => r.id === id);
+      if (!req) return alert("Request not found.");
+
+      if (isExpired(req)) return alert("This request is expired and cannot be accepted.");
+
+      const obs = loadObserver();
+      if (!obs || !obs.name || !obs.phone) {
+        alert("Please save your observer profile (name + phone) before accepting.");
+        return;
+      }
+
+      const statusMap = loadStatusMap();
+      const current = statusMap[id]?.status;
+
+      if (current === "accepted") return;
+
+      statusMap[id] = {
+        status: "accepted",
+        acceptedAt: new Date().toISOString(),
+        observer: obs
+      };
+      saveStatusMap(statusMap);
+      render();
+    }
+
+    function declineRequest(id){
+      const statusMap = loadStatusMap();
+      const current = statusMap[id]?.status;
+      if (current === "accepted") {
+        alert("This request is locked (already accepted).");
+        return;
+      }
+      statusMap[id] = { status: "declined", declinedAt: new Date().toISOString() };
+      saveStatusMap(statusMap);
+      render();
+    }
+
+    function formatCountdown(ms){
+      if (ms <= 0) return "00:00:00";
+      const s = Math.floor(ms/1000);
+      const hh = String(Math.floor(s/3600)).padStart(2,"0");
+      const mm = String(Math.floor((s%3600)/60)).padStart(2,"0");
+      const ss = String(s%60).padStart(2,"0");
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    let timer = null;
+
+    function render(){
       const list = document.getElementById("list");
+      const reqs = loadRequests().slice().reverse();
+      const statusMap = loadStatusMap();
+
+      // stop old timer
+      if (timer) clearInterval(timer);
+
+      // build UI
       list.innerHTML = "";
 
-      requests.forEach(r => {
-        const status = statusMap[r.id] || "pending";
+      // filter: show pending + accepted (hide declined by default), show expired as expired
+      const visible = reqs.filter(r => {
+        const st = getEffectiveStatus(r, statusMap);
+        return (st === "pending" || st === "accepted" || st === "expired");
+      });
 
-        const card = document.createElement("div");
-        card.className = "card";
+      if (visible.length === 0) {
+        list.innerHTML = `<div class="muted" style="margin-top:10px;">No incoming requests.</div>`;
+        return;
+      }
 
-        card.innerHTML = `
-          <div class="row"><b>Agent:</b> ${r.agentName}</div>
-          <div class="row"><b>Visit:</b> ${r.visitType}</div>
-          <div class="row"><b>Address:</b> ${r.address}</div>
-          <div class="row"><b>Date:</b> ${r.date}</div>
-          <div class="row"><b>Time:</b> ${r.time}</div>
-          <span class="status ${status}">${status.toUpperCase()}</span>
-          <div class="countdown" id="cd-${r.id}"></div>
+      visible.forEach(req => {
+        const st = getEffectiveStatus(req, statusMap);
+        const dt = scheduledDate(req);
+        const address = req.address || "";
+        const agentName = req.agentName || "";
+        const visitType = req.visitType || "";
+        const desc = req.description || "";
+        const duration = req.duration || req.durationMinutes || "";
+        const tz = req.timeZone || "";
+
+        let pill = `<span class="pill">PENDING</span>`;
+        if (st === "accepted") pill = `<span class="pill pillGreen">ACCEPTED</span>`;
+        if (st === "expired") pill = `<span class="pill pillRed">EXPIRED</span>`;
+
+        const mapUrl = address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : "#";
+
+        const acceptedPayload = statusMap[req.id]?.observer;
+        const observerLine = (st === "accepted" && acceptedPayload)
+          ? `<div class="line"><b>Observer:</b> ${esc(acceptedPayload.name)} • <a href="tel:${encodeURIComponent(acceptedPayload.phone)}">${esc(acceptedPayload.phone)}</a>${acceptedPayload.email ? ` • <a href="mailto:${encodeURIComponent(acceptedPayload.email)}">${esc(acceptedPayload.email)}</a>` : ""}</div>`
+          : "";
+
+        const countdownBox = (st === "accepted" && dt)
+          ? `<div class="line"><b>Countdown:</b> <span data-countdown="${req.id}">--:--:--</span></div>`
+          : "";
+
+        const actions = (() => {
+          if (st === "pending") {
+            return `
+              <div class="grid2">
+                <button class="btn" onclick="acceptRequest('${esc(req.id)}')">Accept</button>
+                <button class="danger" onclick="declineRequest('${esc(req.id)}')">Decline</button>
+              </div>
+            `;
+          }
+          if (st === "accepted") {
+            return `
+              <div class="grid2">
+                <button class="btn" onclick="window.open('${mapUrl}','_blank')">Start Assignment (Google Maps)</button>
+                <button class="btn2" onclick="render()">Refresh</button>
+              </div>
+            `;
+          }
+          return `<div class="muted">This request can no longer be accepted.</div>`;
+        })();
+
+        const el = document.createElement("div");
+        el.className = "req";
+        el.innerHTML = `
+          <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div><b>${esc(address)}</b></div>
+            <div>${pill}</div>
+          </div>
+
+          <div class="line"><b>Agent:</b> ${esc(agentName)}</div>
+          <div class="line"><b>Visit:</b> ${esc(visitType)}${desc ? ` — ${esc(desc)}` : ""}</div>
+          <div class="line"><b>Date/Time:</b> ${esc(req.date || "")} ${esc(req.time || req.displayTime || "")}</div>
+          ${duration ? `<div class="line"><b>Duration:</b> ${esc(String(duration))}</div>` : ""}
+          ${tz ? `<div class="line"><b>Time Zone:</b> ${esc(String(tz))}</div>` : ""}
+
+          ${observerLine}
+          ${countdownBox}
+          <div style="margin-top:10px;">${actions}</div>
         `;
-
-        const actions = document.createElement("div");
-        actions.className = "actions";
-
-        if (status === "pending") {
-          actions.innerHTML = `
-            <button class="accept">Accept</button>
-            <button class="decline">Decline</button>
-          `;
-          actions.children[0].onclick = () => {
-            statusMap[r.id] = "accepted";
-            saveStatus(); render();
-          };
-          actions.children[1].onclick = () => {
-            statusMap[r.id] = "declined";
-            saveStatus(); render();
-          };
-        }
-
-        if (status === "accepted") {
-          const btn = document.createElement("button");
-          btn.className = "start";
-          btn.innerText = "Start Assignment (Maps)";
-          btn.onclick = () => maps(r.address);
-          actions.appendChild(btn);
-        }
-
-        card.appendChild(actions);
-        list.appendChild(card);
+        list.appendChild(el);
       });
+
+      // countdown loop only for accepted items
+      timer = setInterval(() => {
+        const now = Date.now();
+        const statusMap2 = loadStatusMap();
+        document.querySelectorAll("[data-countdown]").forEach(span => {
+          const id = span.getAttribute("data-countdown");
+          const req = (loadRequests() || []).find(r => r.id === id);
+          if (!req) return;
+          const st = statusMap2[id]?.status;
+          if (st !== "accepted") return;
+          const dt = scheduledDate(req);
+          if (!dt) return;
+          const ms = dt.getTime() - now;
+          span.textContent = formatCountdown(ms);
+        });
+      }, 1000);
     }
 
-    function tick() {
-      requests.forEach(r => {
-        const el = document.getElementById(`cd-${r.id}`);
-        if (el) el.innerText = "Countdown: " + countdown(r.date, r.time);
-      });
-    }
-
+    fillProfile();
     render();
-    tick();
-    setInterval(tick, 1000);
   </script>
 </body>
 </html>
