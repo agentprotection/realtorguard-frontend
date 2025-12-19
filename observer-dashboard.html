@@ -1,394 +1,233 @@
-import React, { useEffect, useMemo, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Observer Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-/**
- * Observer Dashboard (Clean Rewrite)
- * - Shows incoming requests
- * - Per-request status: pending | accepted | declined
- * - Accept/Decline actions
- * - Countdown timer to scheduled date/time
- * - Start Assignment opens Google Maps after accepted
- *
- * IMPORTANT:
- * - This version works even if your backend doesn't yet store status.
- * - It persists status locally in localStorage so refresh won't wipe it.
- * - Later, we can wire status to backend (still no patching—full rewrite when ready).
- */
-
-const STORAGE_KEY = "rg_observer_request_status_v1";
-
-function safeJsonParse(str, fallback) {
-  try {
-    const v = JSON.parse(str);
-    return v ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function buildScheduleDateTime(request) {
-  // Supports a few common field names without breaking.
-  // Preferred: request.date (YYYY-MM-DD) + request.time (HH:mm)
-  // Alternate: request.visitDate, request.visitTime, request.scheduledDate, request.scheduledTime
-  const date =
-    request?.date ||
-    request?.visitDate ||
-    request?.scheduledDate ||
-    request?.appointmentDate ||
-    "";
-  const time =
-    request?.time ||
-    request?.visitTime ||
-    request?.scheduledTime ||
-    request?.appointmentTime ||
-    "";
-
-  if (!date || !time) return null;
-
-  // Create local Date object: "YYYY-MM-DDTHH:mm"
-  const dt = new Date(`${date}T${time}`);
-  if (Number.isNaN(dt.getTime())) return null;
-  return dt;
-}
-
-function formatCountdown(ms) {
-  if (ms <= 0) return "00:00:00";
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const hh = String(hours).padStart(2, "0");
-  const mm = String(minutes).padStart(2, "0");
-  const ss = String(seconds).padStart(2, "0");
-  return `${hh}:${mm}:${ss}`;
-}
-
-function openGoogleMaps(address) {
-  const query = encodeURIComponent(address || "");
-  const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-
-export default function ObserverDashboard() {
-  const [requests, setRequests] = useState([]);
-  const [statusMap, setStatusMap] = useState({});
-  const [nowTick, setNowTick] = useState(Date.now());
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  // Load persisted statuses (so refresh keeps Accept/Decline)
-  useEffect(() => {
-    const saved = safeJsonParse(localStorage.getItem(STORAGE_KEY), {});
-    setStatusMap(saved);
-  }, []);
-
-  // Persist statuses on change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(statusMap || {}));
-  }, [statusMap]);
-
-  // Countdown tick (1s)
-  useEffect(() => {
-    const id = setInterval(() => setNowTick(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  // Fetch requests for observer
-  useEffect(() => {
-    // ✅ CHANGE THIS ENDPOINT if your backend uses a different route
-    // Common options: /api/requests, /api/assignments, /api/observer/requests
-    const ENDPOINT = "/api/requests";
-
-    async function load() {
-      setLoading(true);
-      setErrorMsg("");
-      try {
-        const res = await fetch(ENDPOINT, { credentials: "include" });
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
-        const data = await res.json();
-
-        // Accepts either { requests: [...] } OR just [...]
-        const list = Array.isArray(data) ? data : data?.requests || [];
-        setRequests(list);
-      } catch (err) {
-        setErrorMsg(err?.message || "Failed to load requests");
-      } finally {
-        setLoading(false);
-      }
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
     }
 
-    load();
-  }, []);
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 16px;
+    }
 
-  // Normalize requests to always have a stable ID
-  const normalized = useMemo(() => {
-    return (requests || []).map((r, idx) => {
-      // Try common ID fields; fallback to index-based key (not ideal but safe)
-      const id = r?._id || r?.id || r?.requestId || r?.uuid || `idx-${idx}`;
-      return { ...r, __rid: String(id) };
-    });
-  }, [requests]);
+    h1 {
+      margin-bottom: 8px;
+    }
 
-  function getStatus(rid) {
-    return statusMap?.[rid] || "pending";
-  }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
 
-  function setStatus(rid, nextStatus) {
-    setStatusMap((prev) => ({
-      ...(prev || {}),
-      [rid]: nextStatus,
-    }));
-  }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
 
-  async function handleAccept(req) {
-    const rid = req.__rid;
-    setStatus(rid, "accepted");
+    .label {
+      font-weight: bold;
+    }
 
-    // OPTIONAL: If your backend supports status updates, wire it here later.
-    // For now, we keep it local so UI works immediately.
-  }
+    .status {
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
 
-  async function handleDecline(req) {
-    const rid = req.__rid;
-    setStatus(rid, "declined");
+    .pending { background: #eee; }
+    .accepted { background: #d4f8d4; color: #145214; }
+    .declined { background: #ffdede; color: #7a0000; }
 
-    // OPTIONAL: backend wire later
-  }
+    .countdown {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
 
-  function handleStartAssignment(req) {
-    const address =
-      req?.propertyAddress ||
-      req?.address ||
-      req?.location ||
-      req?.propertyLocation ||
-      "";
-    openGoogleMaps(address);
-  }
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
 
-  return (
-    <div style={styles.page}>
-      <div style={styles.headerRow}>
-        <h2 style={styles.title}>Observer Dashboard</h2>
-        <div style={styles.badge}>
-          Requests: <b>{normalized.length}</b>
-        </div>
-      </div>
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-      {loading && <div style={styles.info}>Loading requests…</div>}
-      {errorMsg && <div style={styles.error}>Error: {errorMsg}</div>}
+    .accept {
+      background: #111;
+      color: #fff;
+    }
 
-      {!loading && !errorMsg && normalized.length === 0 && (
-        <div style={styles.info}>No requests yet.</div>
-      )}
+    .decline {
+      background: #b00020;
+      color: #fff;
+    }
 
-      <div style={styles.grid}>
-        {normalized.map((req) => {
-          const rid = req.__rid;
-          const status = getStatus(rid);
+    .start {
+      background: #0066ff;
+      color: #fff;
+    }
 
-          const agentName = req?.agentName || req?.name || "Unknown Agent";
-          const visitType = req?.visitType || req?.typeOfVisit || "Showing";
-          const date =
-            req?.date || req?.visitDate || req?.scheduledDate || "—";
-          const time =
-            req?.time || req?.visitTime || req?.scheduledTime || "—";
-          const address =
-            req?.propertyAddress ||
-            req?.address ||
-            req?.location ||
-            req?.propertyLocation ||
-            "—";
+    .note {
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
 
-          const scheduled = buildScheduleDateTime(req);
-          const msLeft = scheduled ? scheduled.getTime() - nowTick : null;
-          const countdown = msLeft == null ? "—" : formatCountdown(msLeft);
+<body>
+  <div class="container">
+    <h1>Observer Dashboard</h1>
+    <div id="requests"></div>
+  </div>
 
-          return (
-            <div key={rid} style={styles.card}>
-              <div style={styles.cardTop}>
-                <div>
-                  <div style={styles.cardTitle}>{address}</div>
-                  <div style={styles.meta}>
-                    <span><b>Agent:</b> {agentName}</span>
-                    <span style={styles.dot}>•</span>
-                    <span><b>Visit:</b> {visitType}</span>
-                  </div>
-                  <div style={styles.meta}>
-                    <span><b>Date:</b> {date}</span>
-                    <span style={styles.dot}>•</span>
-                    <span><b>Time:</b> {time}</span>
-                  </div>
-                </div>
+  <script>
+    const STORAGE_KEY = "rg_observer_status_v1";
 
-                <div style={styles.statusPill(status)}>
-                  {status.toUpperCase()}
-                </div>
-              </div>
+    // TEMP MOCK DATA
+    // Later this will be replaced with backend fetch
+    const requests = [
+      {
+        id: "1",
+        agentName: "John Agent",
+        visitType: "Property Showing",
+        address: "123 Main St, Miami FL",
+        date: "2025-12-21",
+        time: "14:30"
+      }
+    ];
 
-              <div style={styles.countdownRow}>
-                <div style={styles.countdownLabel}>Countdown</div>
-                <div style={styles.countdownValue}>{countdown}</div>
-              </div>
+    const statusMap = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
-              {/* ACTIONS */}
-              {status === "pending" && (
-                <div style={styles.actions}>
-                  <button
-                    style={styles.btnPrimary}
-                    onClick={() => handleAccept(req)}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    style={styles.btnDanger}
-                    onClick={() => handleDecline(req)}
-                  >
-                    Decline
-                  </button>
-                </div>
-              )}
+    function saveStatus() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(statusMap));
+    }
 
-              {status === "accepted" && (
-                <div style={styles.actions}>
-                  <button
-                    style={styles.btnPrimary}
-                    onClick={() => handleStartAssignment(req)}
-                  >
-                    Start Assignment (Open Maps)
-                  </button>
-                </div>
-              )}
+    function getCountdown(date, time) {
+      const target = new Date(`${date}T${time}`);
+      const now = new Date();
+      const diff = target - now;
 
-              {status === "declined" && (
-                <div style={styles.infoSmall}>
-                  You declined this request.
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+      if (diff <= 0) return "00:00:00";
 
-/** Simple mobile-safe styling (no external CSS needed) */
-const styles = {
-  page: {
-    padding: 16,
-    maxWidth: 980,
-    margin: "0 auto",
-    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
-  },
-  headerRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    flexWrap: "wrap",
-    marginBottom: 12,
-  },
-  title: { margin: 0, fontSize: 22 },
-  badge: {
-    padding: "6px 10px",
-    borderRadius: 999,
-    border: "1px solid #ddd",
-    fontSize: 14,
-    background: "#fafafa",
-  },
-  info: {
-    padding: 12,
-    borderRadius: 12,
-    background: "#f6f6f6",
-    marginTop: 10,
-  },
-  error: {
-    padding: 12,
-    borderRadius: 12,
-    background: "#ffe8e8",
-    marginTop: 10,
-    border: "1px solid #ffb3b3",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: 12,
-    marginTop: 12,
-  },
-  card: {
-    border: "1px solid #e5e5e5",
-    borderRadius: 16,
-    padding: 14,
-    background: "#fff",
-    boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
-  },
-  cardTop: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  cardTitle: { fontWeight: 800, fontSize: 16, marginBottom: 6 },
-  meta: { fontSize: 13, color: "#444", display: "flex", flexWrap: "wrap" },
-  dot: { margin: "0 6px", opacity: 0.6 },
-  statusPill: (status) => ({
-    padding: "6px 10px",
-    borderRadius: 999,
-    fontSize: 12,
-    fontWeight: 800,
-    border: "1px solid #ddd",
-    background:
-      status === "accepted"
-        ? "#eaffea"
-        : status === "declined"
-        ? "#ffecec"
-        : "#f3f3f3",
-  }),
-  countdownRow: {
-    display: "flex",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    marginTop: 12,
-    paddingTop: 10,
-    borderTop: "1px dashed #e6e6e6",
-  },
-  countdownLabel: { fontSize: 12, color: "#666", fontWeight: 700 },
-  countdownValue: { fontSize: 18, fontWeight: 900 },
-  actions: {
-    display: "flex",
-    gap: 10,
-    marginTop: 12,
-    flexWrap: "wrap",
-  },
-  btnPrimary: {
-    flex: 1,
-    minWidth: 140,
-    border: "none",
-    borderRadius: 12,
-    padding: "12px 14px",
-    fontWeight: 800,
-    cursor: "pointer",
-    background: "#111",
-    color: "#fff",
-  },
-  btnDanger: {
-    flex: 1,
-    minWidth: 140,
-    border: "none",
-    borderRadius: 12,
-    padding: "12px 14px",
-    fontWeight: 800,
-    cursor: "pointer",
-    background: "#b00020",
-    color: "#fff",
-  },
-  infoSmall: {
-    marginTop: 12,
-    fontSize: 13,
-    color: "#555",
-    background: "#fafafa",
-    padding: 10,
-    borderRadius: 12,
-    border: "1px solid #eee",
-  },
-};
+      const h = String(Math.floor(diff / 3600000)).padStart(2, "0");
+      const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+      const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+
+      return `${h}:${m}:${s}`;
+    }
+
+    function openMaps(address) {
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+        "_blank"
+      );
+    }
+
+    function render() {
+      const container = document.getElementById("requests");
+      container.innerHTML = "";
+
+      requests.forEach(req => {
+        const status = statusMap[req.id] || "pending";
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="row"><span class="label">Agent:</span> ${req.agentName}</div>
+          <div class="row"><span class="label">Visit:</span> ${req.visitType}</div>
+          <div class="row"><span class="label">Address:</span> ${req.address}</div>
+          <div class="row"><span class="label">Date:</span> ${req.date}</div>
+          <div class="row"><span class="label">Time:</span> ${req.time}</div>
+
+          <div class="row">
+            <span class="status ${status}">${status.toUpperCase()}</span>
+          </div>
+
+          <div class="countdown" id="cd-${req.id}"></div>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        if (status === "pending") {
+          const acceptBtn = document.createElement("button");
+          acceptBtn.className = "accept";
+          acceptBtn.innerText = "Accept";
+          acceptBtn.onclick = () => {
+            statusMap[req.id] = "accepted";
+            saveStatus();
+            render();
+          };
+
+          const declineBtn = document.createElement("button");
+          declineBtn.className = "decline";
+          declineBtn.innerText = "Decline";
+          declineBtn.onclick = () => {
+            statusMap[req.id] = "declined";
+            saveStatus();
+            render();
+          };
+
+          actions.appendChild(acceptBtn);
+          actions.appendChild(declineBtn);
+        }
+
+        if (status === "accepted") {
+          const startBtn = document.createElement("button");
+          startBtn.className = "start";
+          startBtn.innerText = "Start Assignment (Maps)";
+          startBtn.onclick = () => openMaps(req.address);
+          actions.appendChild(startBtn);
+        }
+
+        if (status === "declined") {
+          const note = document.createElement("div");
+          note.className = "note";
+          note.innerText = "You declined this request.";
+          actions.appendChild(note);
+        }
+
+        card.appendChild(actions);
+        container.appendChild(card);
+      });
+    }
+
+    function updateCountdowns() {
+      requests.forEach(req => {
+        const el = document.getElementById(`cd-${req.id}`);
+        if (el) el.innerText = "Countdown: " + getCountdown(req.date, req.time);
+      });
+    }
+
+    render();
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+  </script>
+</body>
+</html>
