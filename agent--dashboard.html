@@ -1,216 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Agent Dashboard | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f4f4; }
-    .wrap { max-width: 650px; margin: 0 auto; padding: 16px; }
-    h1 { margin: 8px 0 14px; }
-    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    label { display:block; font-weight:900; margin-top:12px; font-size:14px; }
-    input, select, textarea {
-      width:100%; padding:12px; margin-top:6px;
-      border-radius:10px; border:1px solid #ccc; font-size:16px; box-sizing:border-box;
-    }
-    textarea { resize: vertical; }
-    .row { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    button {
-      width:100%; margin-top:16px; padding:14px; font-size:18px; font-weight:900;
-      border:none; border-radius:12px; background:#111; color:#fff; cursor:pointer;
-    }
-    .secondary { background:#fff; color:#111; border:1px solid #ccc; }
-    .danger { background:#b00020; }
-    .hidden { display:none; }
-    .pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background:#eee; }
-    .pillGreen { background:#e7ffe7; border:1px solid #bff0bf; color:#145214; }
-    .pillRed { background:#ffecec; border:1px solid #ffb3b3; color:#7a0000; }
-    .muted { color:#666; font-size:13px; margin-top:6px; }
-    .req { background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); margin-top:12px; }
-    hr { border:none; border-top:1px solid #eee; margin: 16px 0; }
-    a { color:#0b63ff; font-weight:900; text-decoration:none; }
-  </style>
+<meta charset="UTF-8">
+<title>Agent Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.wrap{max-width:650px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-top:14px}
+button{width:100%;padding:14px;margin-top:14px;border:none;border-radius:12px;font-weight:900;background:#111;color:#fff}
+.secondary{background:#fff;color:#111;border:1px solid #ccc}
+.pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eee}
+.green{background:#e7ffe7;color:#145214}
+</style>
 </head>
-
 <body>
+
 <div class="wrap">
-  <h1>Request an Observer</h1>
+<h2>Request an Observer</h2>
 
-  <!-- FORM (UNCHANGED) -->
-  <div id="formScreen" class="card">
-    <label>Agent Name</label>
-    <input id="agentName" />
+<div class="card" id="form">
+<input id="agentName" placeholder="Agent Name">
+<div id="props"></div>
+<button class="secondary" onclick="addProp()">Add Property</button>
+<button onclick="submit()">Request Observer</button>
+</div>
 
-    <div id="properties"></div>
+<div class="card" id="success" style="display:none">
+<b>Your request is in the Observer Dashboard.</b>
+<button class="secondary" onclick="reset()">Start New Request</button>
+</div>
 
-    <button class="secondary" onclick="addProperty()">Add Another Property</button>
-    <button onclick="submitRequests()">Request an Observer</button>
-  </div>
-
-  <!-- SUCCESS -->
-  <div id="successScreen" class="card hidden">
-    <strong>
-      Your request is in the Observer Dashboard.<br>
-      You will be notified once an observer accepts your request.
-    </strong>
-    <button class="secondary" onclick="startNewRequest()">Start New Request</button>
-  </div>
-
-  <!-- MY REQUESTS -->
-  <div class="card" style="margin-top:14px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-      <div><b>My Requests</b></div>
-      <button class="secondary" onclick="renderMyRequests(true)">Refresh</button>
-    </div>
-    <div id="myList"></div>
-  </div>
+<div class="card">
+<b>My Requests</b>
+<button class="secondary" onclick="hardRefresh()">Refresh</button>
+<div id="list"></div>
+</div>
 </div>
 
 <script>
-/* ---------- STORAGE KEYS ---------- */
-const REQUEST_KEY = "rg_agent_requests_v1";
-const STATUS_KEY  = "rg_request_status_v2";
+const REQ="rg_agent_requests_v1";
+const STATUS="rg_request_status_v3";
 
-/* ---------- HELPERS ---------- */
-const loadRequests = () => JSON.parse(localStorage.getItem(REQUEST_KEY)) || [];
-const loadStatus   = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const loadReq=()=>JSON.parse(localStorage.getItem(REQ))||[];
+const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS))||{};
 
-const esc = s => String(s||"")
-  .replaceAll("&","&amp;").replaceAll("<","&lt;")
-  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function hardRefresh(){location.reload();}
 
-/* ---------- STATUS LOGIC ---------- */
-function getStatus(req, statusMap) {
-  if (statusMap[req.id]?.status) return statusMap[req.id].status;
-
-  if (req.date && req.time) {
-    const dt = new Date(`${req.date}T${req.time}`);
-    if (!isNaN(dt) && Date.now() > dt.getTime()) return "expired";
-  }
-  return "pending";
+function addProp(){
+const d=document.createElement("div");
+d.innerHTML=`
+<input placeholder="Property Address">
+<input type="date">
+<input type="time">
+`;
+props.appendChild(d);
 }
 
-/* ---------- RENDER (FIXED) ---------- */
-function renderMyRequests(force=false) {
-  const list = document.getElementById("myList");
-
-  // ALWAYS reload from storage
-  const requests = loadRequests().slice().reverse();
-  const statusMap = loadStatus();
-
-  list.innerHTML = "";
-
-  if (!requests.length) {
-    list.innerHTML = `<div class="muted" style="margin-top:10px;">No requests yet.</div>`;
-    return;
-  }
-
-  requests.forEach(req => {
-    const st = getStatus(req, statusMap);
-
-    let pill = `<span class="pill">PENDING</span>`;
-    if (st === "accepted") pill = `<span class="pill pillGreen">ACCEPTED</span>`;
-    if (st === "declined") pill = `<span class="pill pillRed">DECLINED</span>`;
-    if (st === "expired") pill = `<span class="pill pillRed">EXPIRED</span>`;
-
-    const obs = statusMap[req.id]?.observer;
-
-    const el = document.createElement("div");
-    el.className = "req";
-    el.innerHTML = `
-      <div style="display:flex; justify-content:space-between; gap:10px;">
-        <div><b>${esc(req.address || "")}</b></div>
-        <div>${pill}</div>
-      </div>
-
-      <div class="muted"><b>Visit:</b> ${esc(req.visitType || "")}</div>
-      <div class="muted"><b>Date/Time:</b> ${esc(req.date || "")} ${esc(req.displayTime || "")}</div>
-      <div class="muted"><b>Duration:</b> ${esc(req.duration || "")}</div>
-
-      ${
-        st === "accepted" && obs
-          ? `<div class="muted" style="margin-top:8px;">
-               <b>Observer:</b> ${esc(obs.name)} • 
-               <a href="tel:${esc(obs.phone)}">${esc(obs.phone)}</a>
-             </div>`
-          : ""
-      }
-    `;
-    list.appendChild(el);
-  });
+function submit(){
+const agent=agentName.value.trim();
+if(!agent)return alert("Agent name required");
+const reqs=loadReq();
+document.querySelectorAll("#props div").forEach((b,i)=>{
+const [addr,date,time]=b.querySelectorAll("input");
+if(addr.value&&date.value&&time.value){
+reqs.push({
+id:"req_"+Date.now()+"_"+i,
+agentName:agent,
+address:addr.value,
+date:date.value,
+time:time.value
+});
+}});
+localStorage.setItem(REQ,JSON.stringify(reqs));
+form.style.display="none";
+success.style.display="block";
+render();
 }
 
-/* ---------- FORM LOGIC (UNCHANGED) ---------- */
-let propertyCount = 0;
-const MAX_PROPS = 3;
-
-function addProperty() {
-  if (propertyCount >= MAX_PROPS) return;
-  const div = document.createElement("div");
-  div.innerHTML = `
-    <hr>
-    <label>Property Address</label><input class="address">
-    <label>City</label><input class="city">
-    <label>Date</label><input type="date" class="date">
-    <label>Time</label><input type="time" class="time">
-    <label>Duration</label>
-    <select class="duration">
-      <option>30 minutes</option>
-      <option>1 hour</option>
-      <option>1.5 hours</option>
-      <option>2 hours</option>
-    </select>
-  `;
-  document.getElementById("properties").appendChild(div);
-  propertyCount++;
+function reset(){
+agentName.value="";
+props.innerHTML="";
+form.style.display="block";
+success.style.display="none";
 }
 
-function submitRequests() {
-  const agent = document.getElementById("agentName").value.trim();
-  if (!agent) return alert("Agent name required");
-
-  const reqs = loadRequests();
-  document.querySelectorAll("#properties > div").forEach((b,i) => {
-    const address = b.querySelector(".address").value;
-    const city = b.querySelector(".city").value;
-    const date = b.querySelector(".date").value;
-    const time = b.querySelector(".time").value;
-    const duration = b.querySelector(".duration").value;
-
-    if (address && city && date && time) {
-      reqs.push({
-        id: "req_" + Date.now() + "_" + i,
-        agentName: agent,
-        address: `${address}, ${city}`,
-        date,
-        time,
-        displayTime: time,
-        duration
-      });
-    }
-  });
-
-  localStorage.setItem(REQUEST_KEY, JSON.stringify(reqs));
-
-  document.getElementById("formScreen").classList.add("hidden");
-  document.getElementById("successScreen").classList.remove("hidden");
-  renderMyRequests(true);
+function render(){
+list.innerHTML="";
+const reqs=loadReq().reverse();
+const stat=loadStatus();
+reqs.forEach(r=>{
+const st=stat[r.id]?.status||"pending";
+list.innerHTML+=`
+<div class="card">
+<b>${r.address}</b>
+<div class="pill ${st==="accepted"?"green":""}">${st.toUpperCase()}</div>
+</div>`;
+});
 }
 
-function startNewRequest() {
-  document.getElementById("successScreen").classList.add("hidden");
-  document.getElementById("formScreen").classList.remove("hidden");
-  document.getElementById("agentName").value = "";
-  document.getElementById("properties").innerHTML = "";
-  propertyCount = 0;
-  addProperty();
-}
-
-/* INIT */
-addProperty();
-renderMyRequests(true);
+addProp();
+render();
 </script>
 </body>
 </html>
