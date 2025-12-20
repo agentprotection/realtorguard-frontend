@@ -2,303 +2,156 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Dashboard | Realtor Guard</title>
+  <title>Observer Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f4f4f4; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
-    h1 { margin: 8px 0 14px; }
-    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    .row { display:grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 900px){ .row { grid-template-columns: 1fr 1fr; } }
-    label { display:block; font-weight:900; margin-top:10px; font-size:13px; }
-    input { width:100%; padding:12px; border-radius:10px; border:1px solid #ccc; margin-top:6px; font-size:16px; box-sizing:border-box; }
-    button { padding:12px 14px; border:none; border-radius:12px; font-weight:900; cursor:pointer; }
+    .wrap { max-width:900px; margin:auto; padding:16px; }
+    h1 { margin-bottom:10px; }
+    .card { background:#fff; border-radius:14px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); margin-top:14px; }
+    label { display:block; font-weight:900; margin-top:12px; }
+    input { width:100%; padding:12px; margin-top:6px; border-radius:10px; border:1px solid #ccc; font-size:16px; }
+    button { padding:12px; border:none; border-radius:12px; font-weight:900; cursor:pointer; }
     .btn { background:#111; color:#fff; width:100%; }
-    .btn2 { background:#fff; color:#111; border:1px solid #ccc; width:100%; }
-    .danger { background:#b00020; color:#fff; width:100%; }
-    .pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background:#eee; }
-    .pillGreen { background:#e7ffe7; border:1px solid #bff0bf; color:#145214; }
-    .pillRed { background:#ffecec; border:1px solid #ffb3b3; color:#7a0000; }
-    .muted { color:#666; font-size:13px; margin-top:6px; }
-    .req { background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); margin-top:12px; }
-    .grid2 { display:grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-    @media (min-width: 680px){ .grid2 { grid-template-columns: 1fr 1fr; } }
-    .line { margin-top:6px; font-size:14px; }
-    a { color:#0b63ff; font-weight:900; text-decoration:none; }
+    .btn2 { background:#fff; border:1px solid #ccc; width:100%; }
+    .disabled { opacity:.5; pointer-events:none; }
+    .pill { padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background:#eee; }
+    .green { background:#e7ffe7; color:#145214; }
+    .red { background:#ffecec; color:#7a0000; }
+    img { max-width:80px; border-radius:50%; margin-top:8px; }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Observer Dashboard</h1>
+<div class="wrap">
+  <h1>Observer Dashboard</h1>
 
-    <div class="card">
-      <div class="muted">Your profile is attached when you accept a request.</div>
+  <!-- OBSERVER PROFILE -->
+  <div class="card">
+    <label>Name</label>
+    <input id="obsName">
 
-      <div class="row">
-        <div>
-          <label>Observer Name</label>
-          <input id="obsName" placeholder="Your name" />
-        </div>
-        <div>
-          <label>Observer Phone</label>
-          <input id="obsPhone" placeholder="Phone number" />
-        </div>
-      </div>
+    <label>Phone</label>
+    <input id="obsPhone">
 
-      <label>Observer Email (optional)</label>
-      <input id="obsEmail" placeholder="Email" />
+    <label>Upload Photo</label>
+    <input type="file" accept="image/*" onchange="loadPhoto(event)">
+    <img id="photoPreview">
 
-      <div class="grid2">
-        <button class="btn2" onclick="saveProfile()">Save Profile</button>
-        <button class="btn2" onclick="clearObserverData()">Clear Observer Data</button>
-      </div>
-
-      <div id="profileMsg" class="muted"></div>
-    </div>
-
-    <div class="card" style="margin-top:14px;">
-      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-        <div>
-          <b>Incoming Requests</b>
-          <div class="muted">Countdown starts only after you accept.</div>
-        </div>
-        <button class="btn2" onclick="render()">Refresh</button>
-      </div>
-      <div id="list"></div>
-    </div>
+    <button class="btn2" onclick="saveProfile()">Save Profile</button>
   </div>
 
-  <script>
-    const REQUEST_KEY = "rg_agent_requests_v1";
-    const STATUS_KEY  = "rg_request_status_v2";       // per-request status + acceptance payload
-    const OBS_KEY     = "rg_observer_profile_v1";     // observer profile
+  <!-- REQUEST LIST -->
+  <div class="card">
+    <h3>Incoming Requests</h3>
+    <div id="list"></div>
+  </div>
+</div>
 
-    function loadRequests(){ return JSON.parse(localStorage.getItem(REQUEST_KEY)) || []; }
-    function saveRequests(v){ localStorage.setItem(REQUEST_KEY, JSON.stringify(v)); }
+<script>
+const REQ_KEY = "rg_agent_requests_v1";
+const STATUS_KEY = "rg_request_status_v3";
+const OBS_KEY = "rg_observer_profile_v2";
 
-    function loadStatusMap(){ return JSON.parse(localStorage.getItem(STATUS_KEY)) || {}; }
-    function saveStatusMap(m){ localStorage.setItem(STATUS_KEY, JSON.stringify(m)); }
+const loadReqs = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
+const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const saveStatus = s => localStorage.setItem(STATUS_KEY, JSON.stringify(s));
 
-    function loadObserver(){ return JSON.parse(localStorage.getItem(OBS_KEY)) || null; }
-    function saveObserver(p){ localStorage.setItem(OBS_KEY, JSON.stringify(p)); }
+function saveProfile(){
+  const profile = {
+    name: obsName.value.trim(),
+    phone: obsPhone.value.trim(),
+    photo: photoPreview.src || ""
+  };
+  if (!profile.name || !profile.phone) {
+    alert("Name and phone required");
+    return;
+  }
+  localStorage.setItem(OBS_KEY, JSON.stringify(profile));
+  alert("Profile saved");
+}
 
-    function esc(s){
-      return String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function loadPhoto(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => photoPreview.src = reader.result;
+  reader.readAsDataURL(file);
+}
+
+function scheduledAt(req){
+  return req.date && req.time ? new Date(`${req.date}T${req.time}`) : null;
+}
+
+function getState(req, status){
+  if (status?.status === "accepted") {
+    if (Date.now() >= scheduledAt(req)) return "active";
+    return "accepted";
+  }
+  if (scheduledAt(req) && Date.now() > scheduledAt(req)) return "expired";
+  return "pending";
+}
+
+function accept(id){
+  const profile = JSON.parse(localStorage.getItem(OBS_KEY));
+  if (!profile) return alert("Save profile first");
+
+  const map = loadStatus();
+  map[id] = {
+    status: "accepted",
+    acceptedAt: Date.now(),
+    observer: profile
+  };
+  saveStatus(map);
+  render();
+}
+
+function render(){
+  const list = document.getElementById("list");
+  const reqs = loadReqs();
+  const statusMap = loadStatus();
+  list.innerHTML = "";
+
+  reqs.forEach(req => {
+    const state = getState(req, statusMap[req.id]);
+    const sched = scheduledAt(req);
+
+    let pill = `<span class="pill">${state.toUpperCase()}</span>`;
+    if (state === "active") pill = `<span class="pill green">ACTIVE</span>`;
+    if (state === "expired") pill = `<span class="pill red">EXPIRED</span>`;
+
+    let countdown = "";
+    if (state === "accepted") {
+      const diff = sched - Date.now();
+      const s = Math.max(0, Math.floor(diff/1000));
+      countdown = `<div>Countdown: ${String(Math.floor(s/3600)).padStart(2,"0")}:${String(Math.floor((s%3600)/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}</div>`;
     }
 
-    function scheduledDate(req){
-      // supports req.date + req.time (24h) OR displayTime (12h) stored elsewhere
-      const date = req?.date || "";
-      const time = req?.time || ""; // prefer "HH:MM"
-      if (!date || !time) return null;
-      const dt = new Date(`${date}T${time}`);
-      if (Number.isNaN(dt.getTime())) return null;
-      return dt;
-    }
+    list.innerHTML += `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between;">
+          <b>${req.address}</b>
+          ${pill}
+        </div>
+        <div>${req.date} ${req.displayTime || req.time}</div>
+        ${countdown}
+        ${
+          state === "pending"
+            ? `<button class="btn" onclick="accept('${req.id}')">Accept</button>`
+            : ""
+        }
+        <button class="btn ${state !== "active" ? "disabled" : ""}"
+          onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(req.address)}')">
+          Start Assignment
+        </button>
+      </div>
+    `;
+  });
+}
 
-    function isExpired(req){
-      const dt = scheduledDate(req);
-      if (!dt) return false;
-      return Date.now() > dt.getTime();
-    }
-
-    function getEffectiveStatus(req, statusMap){
-      const s = statusMap[req.id];
-      if (s?.status) return s.status;
-      if (isExpired(req)) return "expired";
-      return "pending";
-    }
-
-    function saveProfile(){
-      const name = document.getElementById("obsName").value.trim();
-      const phone = document.getElementById("obsPhone").value.trim();
-      const email = document.getElementById("obsEmail").value.trim();
-
-      if (!name || !phone) {
-        document.getElementById("profileMsg").textContent = "Name and phone are required.";
-        return;
-      }
-      saveObserver({ name, phone, email });
-      document.getElementById("profileMsg").textContent = "✅ Profile saved.";
-    }
-
-    function fillProfile(){
-      const p = loadObserver();
-      if (!p) return;
-      document.getElementById("obsName").value = p.name || "";
-      document.getElementById("obsPhone").value = p.phone || "";
-      document.getElementById("obsEmail").value = p.email || "";
-      document.getElementById("profileMsg").textContent = "Profile loaded.";
-    }
-
-    function clearObserverData(){
-      localStorage.removeItem(OBS_KEY);
-      document.getElementById("obsName").value = "";
-      document.getElementById("obsPhone").value = "";
-      document.getElementById("obsEmail").value = "";
-      document.getElementById("profileMsg").textContent = "Observer profile cleared.";
-    }
-
-    function acceptRequest(id){
-      const reqs = loadRequests();
-      const req = reqs.find(r => r.id === id);
-      if (!req) return alert("Request not found.");
-
-      if (isExpired(req)) return alert("This request is expired and cannot be accepted.");
-
-      const obs = loadObserver();
-      if (!obs || !obs.name || !obs.phone) {
-        alert("Please save your observer profile (name + phone) before accepting.");
-        return;
-      }
-
-      const statusMap = loadStatusMap();
-      const current = statusMap[id]?.status;
-
-      if (current === "accepted") return;
-
-      statusMap[id] = {
-        status: "accepted",
-        acceptedAt: new Date().toISOString(),
-        observer: obs
-      };
-      saveStatusMap(statusMap);
-      render();
-    }
-
-    function declineRequest(id){
-      const statusMap = loadStatusMap();
-      const current = statusMap[id]?.status;
-      if (current === "accepted") {
-        alert("This request is locked (already accepted).");
-        return;
-      }
-      statusMap[id] = { status: "declined", declinedAt: new Date().toISOString() };
-      saveStatusMap(statusMap);
-      render();
-    }
-
-    function formatCountdown(ms){
-      if (ms <= 0) return "00:00:00";
-      const s = Math.floor(ms/1000);
-      const hh = String(Math.floor(s/3600)).padStart(2,"0");
-      const mm = String(Math.floor((s%3600)/60)).padStart(2,"0");
-      const ss = String(s%60).padStart(2,"0");
-      return `${hh}:${mm}:${ss}`;
-    }
-
-    let timer = null;
-
-    function render(){
-      const list = document.getElementById("list");
-      const reqs = loadRequests().slice().reverse();
-      const statusMap = loadStatusMap();
-
-      // stop old timer
-      if (timer) clearInterval(timer);
-
-      // build UI
-      list.innerHTML = "";
-
-      // filter: show pending + accepted (hide declined by default), show expired as expired
-      const visible = reqs.filter(r => {
-        const st = getEffectiveStatus(r, statusMap);
-        return (st === "pending" || st === "accepted" || st === "expired");
-      });
-
-      if (visible.length === 0) {
-        list.innerHTML = `<div class="muted" style="margin-top:10px;">No incoming requests.</div>`;
-        return;
-      }
-
-      visible.forEach(req => {
-        const st = getEffectiveStatus(req, statusMap);
-        const dt = scheduledDate(req);
-        const address = req.address || "";
-        const agentName = req.agentName || "";
-        const visitType = req.visitType || "";
-        const desc = req.description || "";
-        const duration = req.duration || req.durationMinutes || "";
-        const tz = req.timeZone || "";
-
-        let pill = `<span class="pill">PENDING</span>`;
-        if (st === "accepted") pill = `<span class="pill pillGreen">ACCEPTED</span>`;
-        if (st === "expired") pill = `<span class="pill pillRed">EXPIRED</span>`;
-
-        const mapUrl = address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : "#";
-
-        const acceptedPayload = statusMap[req.id]?.observer;
-        const observerLine = (st === "accepted" && acceptedPayload)
-          ? `<div class="line"><b>Observer:</b> ${esc(acceptedPayload.name)} • <a href="tel:${encodeURIComponent(acceptedPayload.phone)}">${esc(acceptedPayload.phone)}</a>${acceptedPayload.email ? ` • <a href="mailto:${encodeURIComponent(acceptedPayload.email)}">${esc(acceptedPayload.email)}</a>` : ""}</div>`
-          : "";
-
-        const countdownBox = (st === "accepted" && dt)
-          ? `<div class="line"><b>Countdown:</b> <span data-countdown="${req.id}">--:--:--</span></div>`
-          : "";
-
-        const actions = (() => {
-          if (st === "pending") {
-            return `
-              <div class="grid2">
-                <button class="btn" onclick="acceptRequest('${esc(req.id)}')">Accept</button>
-                <button class="danger" onclick="declineRequest('${esc(req.id)}')">Decline</button>
-              </div>
-            `;
-          }
-          if (st === "accepted") {
-            return `
-              <div class="grid2">
-                <button class="btn" onclick="window.open('${mapUrl}','_blank')">Start Assignment (Google Maps)</button>
-                <button class="btn2" onclick="render()">Refresh</button>
-              </div>
-            `;
-          }
-          return `<div class="muted">This request can no longer be accepted.</div>`;
-        })();
-
-        const el = document.createElement("div");
-        el.className = "req";
-        el.innerHTML = `
-          <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-            <div><b>${esc(address)}</b></div>
-            <div>${pill}</div>
-          </div>
-
-          <div class="line"><b>Agent:</b> ${esc(agentName)}</div>
-          <div class="line"><b>Visit:</b> ${esc(visitType)}${desc ? ` — ${esc(desc)}` : ""}</div>
-          <div class="line"><b>Date/Time:</b> ${esc(req.date || "")} ${esc(req.time || req.displayTime || "")}</div>
-          ${duration ? `<div class="line"><b>Duration:</b> ${esc(String(duration))}</div>` : ""}
-          ${tz ? `<div class="line"><b>Time Zone:</b> ${esc(String(tz))}</div>` : ""}
-
-          ${observerLine}
-          ${countdownBox}
-          <div style="margin-top:10px;">${actions}</div>
-        `;
-        list.appendChild(el);
-      });
-
-      // countdown loop only for accepted items
-      timer = setInterval(() => {
-        const now = Date.now();
-        const statusMap2 = loadStatusMap();
-        document.querySelectorAll("[data-countdown]").forEach(span => {
-          const id = span.getAttribute("data-countdown");
-          const req = (loadRequests() || []).find(r => r.id === id);
-          if (!req) return;
-          const st = statusMap2[id]?.status;
-          if (st !== "accepted") return;
-          const dt = scheduledDate(req);
-          if (!dt) return;
-          const ms = dt.getTime() - now;
-          span.textContent = formatCountdown(ms);
-        });
-      }, 1000);
-    }
-
-    fillProfile();
-    render();
-  </script>
+setInterval(render, 1000);
+render();
+</script>
 </body>
 </html>
