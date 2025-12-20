@@ -42,7 +42,7 @@ margin-top:10px;border:1px solid #ccc}
 </div>
 
 <script>
-/* ===== STORAGE ===== */
+/* ===== STORAGE KEYS ===== */
 const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 const OBS_KEY = "rg_observer_profile_v2";
@@ -68,6 +68,22 @@ function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
 }
 
+/* ===== CLEAN EXPIRED (AUTO) ===== */
+function purgeExpired(){
+  const now = Date.now();
+  const reqs = loadReq();
+  const status = loadStatus();
+
+  const valid = reqs.filter(r=>{
+    const sched = scheduledAt(r);
+    if(!sched) return false;
+    if(status[r.id]?.status === "accepted") return true;
+    return sched.getTime() > now;
+  });
+
+  localStorage.setItem(REQ_KEY, JSON.stringify(valid));
+}
+
 /* ===== PHOTO ===== */
 photoInput.onchange = () => {
   const file = photoInput.files[0];
@@ -85,7 +101,7 @@ photoInput.onchange = () => {
 /* ===== SAVE PROFILE ===== */
 saveBtn.onclick = () => {
   if(!nameEl.value.trim() || !phoneEl.value.trim() || !photoReady){
-    alert("Upload photo and save profile first");
+    alert("Upload photo and wait for it to load");
     return;
   }
 
@@ -119,6 +135,8 @@ function accept(id){
 /* ===== RENDER ===== */
 function render(){
   listEl.innerHTML = "";
+  purgeExpired();
+
   const reqs = loadReq();
   const status = loadStatus();
   const now = Date.now();
@@ -127,38 +145,26 @@ function render(){
     const sched = scheduledAt(r);
     if(!sched) return;
 
-    const stat = status[r.id];
     let state = "pending";
-
-    if(stat?.status === "accepted"){
+    if(status[r.id]?.status === "accepted"){
       state = now >= sched ? "active" : "accepted";
-    } else if(now > sched){
-      return; // expired requests are ignored completely
     }
 
     const card = document.createElement("div");
     card.className = "card";
 
-    const addr = document.createElement("b");
-    addr.innerText = r.address;
-
-    const time = document.createElement("div");
-    time.innerText = `${r.date} ${r.time}`;
-
-    const statusLine = document.createElement("div");
-    statusLine.innerText = state.toUpperCase();
-
-    card.appendChild(addr);
-    card.appendChild(time);
-    card.appendChild(statusLine);
+    card.innerHTML = `
+      <b>${r.address}</b>
+      <div>${r.date} ${r.time}</div>
+      <div>${state.toUpperCase()}</div>
+    `;
 
     if(state === "accepted"){
-      const diff = Math.max(0, sched - now);
+      const diff = Math.max(0, sched-now);
       const s = Math.floor(diff/1000);
       const h = String(Math.floor(s/3600)).padStart(2,"0");
       const m = String(Math.floor((s%3600)/60)).padStart(2,"0");
       const sec = String(s%60).padStart(2,"0");
-
       const cd = document.createElement("div");
       cd.innerText = `${h}:${m}:${sec}`;
       card.appendChild(cd);
@@ -167,22 +173,23 @@ function render(){
     if(state === "pending"){
       const b = document.createElement("button");
       b.innerText = "Accept";
-      b.onclick = () => accept(r.id);
+      b.onclick = ()=>accept(r.id);
       card.appendChild(b);
     }
 
     const start = document.createElement("button");
     start.innerText = "Start Assignment";
     if(state !== "active") start.classList.add("disabled");
-    start.onclick = () =>
-      window.open(`https://maps.google.com?q=${encodeURIComponent(r.address)}`);
+    start.onclick = ()=>window.open(
+      `https://maps.google.com?q=${encodeURIComponent(r.address)}`
+    );
 
     card.appendChild(start);
     listEl.appendChild(card);
   });
 }
 
-setInterval(render, 1000);
+setInterval(render,1000);
 render();
 </script>
 </body>
