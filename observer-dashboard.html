@@ -1,58 +1,95 @@
-/* ========= STORAGE KEYS (LOCKED) ========= */
-const REQ = "rg_agent_requests_v1";
-const STATUS = "rg_request_status_v3";
-const OBS = "rg_observer_profile_v2";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Observer Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-/* ========= STATE ========= */
-let photoReady = false;
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input,button{width:100%;padding:14px;margin-top:10px;border-radius:12px;font-size:16px}
+button{border:none;font-weight:900;background:#111;color:#fff}
+button.secondary{background:#fff;color:#111;border:1px solid #ccc}
+button.disabled{opacity:.5;pointer-events:none}
+img{width:90px;height:90px;border-radius:50%;object-fit:cover;margin-top:10px;border:1px solid #ccc}
+</style>
+</head>
 
-/* ========= LOADERS ========= */
-const loadReq = () => JSON.parse(localStorage.getItem(REQ)) || [];
-const loadStatus = () => JSON.parse(localStorage.getItem(STATUS)) || {};
-const saveStatus = s => localStorage.setItem(STATUS, JSON.stringify(s));
+<body>
+<div class="wrap">
 
-/* ========= DATE ========= */
-function scheduledAt(req) {
-  if (!req.date || !req.time) return null;
-  return new Date(`${req.date}T${req.time}`);
+<h2>Observer Dashboard</h2>
+
+<div class="card">
+  <input id="obsName" placeholder="Name">
+  <input id="obsPhone" placeholder="Phone">
+  <input type="file" accept="image/*" onchange="loadPhoto(event)">
+  <img id="obsPhoto">
+  <button class="secondary" onclick="saveProfile()">Save Profile</button>
+</div>
+
+<div class="card">
+  <div id="requestList"></div>
+</div>
+
+</div>
+
+<script>
+/* ===== STORAGE ===== */
+const REQ_KEY = "rg_agent_requests_v1";
+const STATUS_KEY = "rg_request_status_v3";
+const OBS_KEY = "rg_observer_profile_v2";
+
+/* ===== STATE ===== */
+let photoLoaded = false;
+
+/* ===== HELPERS ===== */
+const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
+const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const saveStatus = s => localStorage.setItem(STATUS_KEY, JSON.stringify(s));
+
+function scheduledAt(r){
+  if(!r.date || !r.time) return null;
+  return new Date(`${r.date}T${r.time}`);
 }
 
-/* ========= PHOTO ========= */
-function photoLoad(e) {
+/* ===== PHOTO ===== */
+function loadPhoto(e){
   const file = e.target.files[0];
-  if (!file) return;
+  if(!file) return;
 
-  photoReady = false;
-
+  photoLoaded = false;
   const reader = new FileReader();
   reader.onload = () => {
-    photo.src = reader.result;
-    photoReady = true;
+    obsPhoto.src = reader.result;
+    photoLoaded = true;
   };
   reader.readAsDataURL(file);
 }
 
-/* ========= PROFILE ========= */
-function saveProfile() {
-  if (!name.value || !phone.value || !photoReady) {
-    alert("Please upload a photo and wait for it to finish loading.");
+/* ===== PROFILE ===== */
+function saveProfile(){
+  if(!obsName.value || !obsPhone.value || !photoLoaded){
+    alert("Upload photo and save profile first");
     return;
   }
 
-  localStorage.setItem(OBS, JSON.stringify({
-    name: name.value.trim(),
-    phone: phone.value.trim(),
-    photo: photo.src
+  localStorage.setItem(OBS_KEY, JSON.stringify({
+    name: obsName.value.trim(),
+    phone: obsPhone.value.trim(),
+    photo: obsPhoto.src
   }));
 
   alert("Profile saved");
 }
 
-/* ========= ACCEPT ========= */
-function accept(id) {
-  const profile = JSON.parse(localStorage.getItem(OBS));
-  if (!profile) {
-    alert("Please save your profile first.");
+/* ===== ACCEPT ===== */
+function acceptRequest(id){
+  const profile = JSON.parse(localStorage.getItem(OBS_KEY));
+  if(!profile){
+    alert("Save profile first");
     return;
   }
 
@@ -62,54 +99,67 @@ function accept(id) {
     acceptedAt: Date.now(),
     observer: profile
   };
-
   saveStatus(map);
   render();
 }
 
-/* ========= RENDER ========= */
-function render() {
-  list.innerHTML = "";
+/* ===== RENDER ===== */
+function render(){
+  requestList.innerHTML = "";
   const reqs = loadReq();
   const statusMap = loadStatus();
 
-  reqs.forEach(req => {
-    const sched = scheduledAt(req);
-    const stat = statusMap[req.id];
+  reqs.forEach(r=>{
+    const sched = scheduledAt(r);
+    const stat = statusMap[r.id];
     let state = "pending";
 
-    if (stat?.status === "accepted") {
+    if(stat?.status==="accepted"){
       state = Date.now() >= sched ? "active" : "accepted";
-    } else if (sched && Date.now() > sched) {
+    } else if(sched && Date.now()>sched){
       state = "expired";
     }
 
-    let countdown = "";
-    if (state === "accepted" && sched) {
-      const diff = sched - Date.now();
-      const s = Math.max(0, Math.floor(diff / 1000));
-      const h = String(Math.floor(s / 3600)).padStart(2, "0");
-      const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-      const sec = String(s % 60).padStart(2, "0");
-      countdown = `<div>Countdown: ${h}:${m}:${sec}</div>`;
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <b>${r.address||""}</b>
+      <div>${r.date||""} ${r.time||""}</div>
+      <div>${state.toUpperCase()}</div>
+    `;
+
+    if(state==="accepted"){
+      const diff = Math.max(0, sched-Date.now());
+      const s = Math.floor(diff/1000);
+      const h = String(Math.floor(s/3600)).padStart(2,"0");
+      const m = String(Math.floor((s%3600)/60)).padStart(2,"0");
+      const sec = String(s%60).padStart(2,"0");
+
+      const cd = document.createElement("div");
+      cd.innerText = `${h}:${m}:${sec}`;
+      card.appendChild(cd);
     }
 
-    list.innerHTML += `
-      <div class="card">
-        <b>${req.address || ""}</b>
-        <div>${req.date} ${req.displayTime || req.time}</div>
-        <div>${state.toUpperCase()}</div>
-        ${countdown}
-        ${state === "pending" ? `<button onclick="accept('${req.id}')">Accept</button>` : ""}
-        <button class="${state === "active" ? "" : "disabled"}"
-          onclick="window.open('https://maps.google.com?q=${encodeURIComponent(req.address)}')">
-          Start Assignment
-        </button>
-      </div>
-    `;
+    if(state==="pending"){
+      const b=document.createElement("button");
+      b.innerText="Accept";
+      b.onclick=()=>acceptRequest(r.id);
+      card.appendChild(b);
+    }
+
+    const start=document.createElement("button");
+    start.innerText="Start Assignment";
+    if(state!=="active") start.classList.add("disabled");
+    start.onclick=()=>window.open(`https://maps.google.com?q=${encodeURIComponent(r.address||"")}`);
+    card.appendChild(start);
+
+    requestList.appendChild(card);
   });
 }
 
-/* ========= LIVE ========= */
-setInterval(render, 1000);
+setInterval(render,1000);
 render();
+</script>
+</body>
+</html>
