@@ -25,9 +25,9 @@ img{width:90px;height:90px;border-radius:50%;object-fit:cover;margin-top:10px;bo
 <div class="card">
   <input id="obsName" placeholder="Name">
   <input id="obsPhone" placeholder="Phone">
-  <input type="file" accept="image/*" onchange="loadPhoto(event)">
+  <input id="photoInput" type="file" accept="image/*">
   <img id="obsPhoto">
-  <button class="secondary" onclick="saveProfile()">Save Profile</button>
+  <button class="secondary" id="saveProfileBtn">Save Profile</button>
 </div>
 
 <div class="card">
@@ -42,6 +42,14 @@ const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 const OBS_KEY = "rg_observer_profile_v2";
 
+/* ===== ELEMENTS (EXPLICIT – MOBILE SAFE) ===== */
+const nameEl = document.getElementById("obsName");
+const phoneEl = document.getElementById("obsPhone");
+const photoInput = document.getElementById("photoInput");
+const photoImg = document.getElementById("obsPhoto");
+const saveBtn = document.getElementById("saveProfileBtn");
+const listEl = document.getElementById("requestList");
+
 /* ===== STATE ===== */
 let photoLoaded = false;
 
@@ -55,37 +63,37 @@ function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
 }
 
-/* ===== PHOTO ===== */
-function loadPhoto(e){
-  const file = e.target.files[0];
-  if(!file) return;
+/* ===== PHOTO HANDLING ===== */
+photoInput.addEventListener("change", () => {
+  const file = photoInput.files[0];
+  if (!file) return;
 
   photoLoaded = false;
   const reader = new FileReader();
   reader.onload = () => {
-    obsPhoto.src = reader.result;
+    photoImg.src = reader.result;
     photoLoaded = true;
   };
   reader.readAsDataURL(file);
-}
+});
 
-/* ===== PROFILE ===== */
-function saveProfile(){
-  if(!obsName.value || !obsPhone.value || !photoLoaded){
-    alert("Upload photo and save profile first");
+/* ===== SAVE PROFILE ===== */
+saveBtn.addEventListener("click", () => {
+  if (!nameEl.value.trim() || !phoneEl.value.trim() || !photoLoaded) {
+    alert("Please upload a photo and wait for it to load.");
     return;
   }
 
   localStorage.setItem(OBS_KEY, JSON.stringify({
-    name: obsName.value.trim(),
-    phone: obsPhone.value.trim(),
-    photo: obsPhoto.src
+    name: nameEl.value.trim(),
+    phone: phoneEl.value.trim(),
+    photo: photoImg.src
   }));
 
   alert("Profile saved");
-}
+});
 
-/* ===== ACCEPT ===== */
+/* ===== ACCEPT REQUEST ===== */
 function acceptRequest(id){
   const profile = JSON.parse(localStorage.getItem(OBS_KEY));
   if(!profile){
@@ -105,7 +113,7 @@ function acceptRequest(id){
 
 /* ===== RENDER ===== */
 function render(){
-  requestList.innerHTML = "";
+  listEl.innerHTML = "";
   const reqs = loadReq();
   const statusMap = loadStatus();
 
@@ -123,11 +131,18 @@ function render(){
     const card = document.createElement("div");
     card.className = "card";
 
-    card.innerHTML = `
-      <b>${r.address||""}</b>
-      <div>${r.date||""} ${r.time||""}</div>
-      <div>${state.toUpperCase()}</div>
-    `;
+    const title = document.createElement("b");
+    title.innerText = r.address || "";
+
+    const time = document.createElement("div");
+    time.innerText = `${r.date||""} ${r.time||""}`;
+
+    const status = document.createElement("div");
+    status.innerText = state.toUpperCase();
+
+    card.appendChild(title);
+    card.appendChild(time);
+    card.appendChild(status);
 
     if(state==="accepted"){
       const diff = Math.max(0, sched-Date.now());
@@ -154,7 +169,7 @@ function render(){
     start.onclick=()=>window.open(`https://maps.google.com?q=${encodeURIComponent(r.address||"")}`);
     card.appendChild(start);
 
-    requestList.appendChild(card);
+    listEl.appendChild(card);
   });
 }
 
