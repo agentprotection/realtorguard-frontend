@@ -1,285 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Agent Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body{margin:0;font-family:Arial;background:#f4f4f4}
-  .wrap{max-width:900px;margin:auto;padding:16px}
-  .card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-  input,select,button,textarea{
-    width:100%;padding:14px;margin-top:10px;border-radius:12px;font-size:16px;box-sizing:border-box
-  }
-  button{border:none;font-weight:900;background:#111;color:#fff}
-  .secondary{background:#fff;color:#111;border:1px solid #ccc}
-  .status{margin-top:8px;font-weight:900}
-  .pending{color:#6b7280}
-  .accepted{color:#2563eb}
-  .inroute{color:#16a34a}
-  .expired{color:#dc2626}
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
+box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input,select,button,textarea{
+  width:100%;padding:14px;margin-top:10px;
+  border-radius:12px;font-size:16px;box-sizing:border-box
+}
+button{border:none;font-weight:900;background:#111;color:#fff}
+.secondary{background:#fff;color:#111;border:1px solid #ccc}
+.status{margin-top:8px;font-weight:900}
+.pending{color:#6b7280}
+.accepted{color:#2563eb}
+.inroute{color:#16a34a}
+.expired{color:#dc2626}
+.note{font-size:13px;color:#6b7280;margin-top:8px}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <h2>Agent Dashboard</h2>
+<h2>Agent Dashboard</h2>
 
-  <!-- FORM -->
-  <div class="card">
-    <input id="agentName" placeholder="Agent Name" />
+<!-- FORM -->
+<div class="card">
+  <input id="agentName" placeholder="Agent Name">
 
-    <!-- PROPERTIES -->
-    <div id="properties"></div>
+  <input id="address" placeholder="Property Address">
+  <input id="city" placeholder="City">
 
-    <!-- US TIME ZONES ONLY -->
-    <select id="timezone">
-      <option value="">Time Zone</option>
-      <option>Eastern</option>
-      <option>Central</option>
-      <option>Mountain</option>
-      <option>Pacific</option>
-    </select>
+  <select id="state">
+    <option value="">State</option>
+    <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+    <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+    <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+    <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+    <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+    <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+    <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+    <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+    <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+    <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+    <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+    <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+    <option>WI</option><option>WY</option>
+  </select>
 
-    <!-- VISIT TYPE -->
-    <select id="visitType" onchange="toggleOther()">
-      <option value="">Visit Type</option>
-      <option>Open House</option>
-      <option>Showing</option>
-      <option>Other</option>
-    </select>
+  <input id="zip" placeholder="ZIP Code">
 
-    <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
+  <select id="timezone">
+    <option value="">Time Zone</option>
+    <option>Eastern</option>
+    <option>Central</option>
+    <option>Mountain</option>
+    <option>Pacific</option>
+  </select>
 
-    <!-- DATE / TIME (placeholder attribute included; some phones hide it for native pickers) -->
-    <input id="date" type="date" placeholder="Date" aria-label="Date" />
-    <input id="time" type="time" placeholder="Time" aria-label="Time" />
+  <select id="visitType">
+    <option value="">Visit Type</option>
+    <option>Open House</option>
+    <option>Showing</option>
+    <option>Other</option>
+  </select>
 
-    <!-- DURATION -->
-    <select id="duration">
-      <option value="">Duration</option>
-      <option>30 minutes</option>
-      <option>60 minutes</option>
-      <option>90 minutes</option>
-      <option>120 minutes</option>
-      <option>150 minutes</option>
-      <option>180 minutes</option>
-      <option>210 minutes</option>
-      <option>240 minutes</option>
-    </select>
+  <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
 
-    <!-- BUTTON ORDER -->
-    <button class="secondary" onclick="addProperty()">Add Property</button>
-    <button class="secondary" onclick="refreshForm()">Refresh</button>
-    <button onclick="submitRequest()">Request Observer</button>
-  </div>
+  <!-- TEXT inputs so placeholders ALWAYS show -->
+  <input id="date" placeholder="Date (YYYY-MM-DD)">
+  <input id="time" placeholder="Time (HH:MM AM/PM)">
 
-  <!-- LIST CONTROLS -->
-  <div class="card">
-    <button class="secondary" onclick="deleteExpired()">Delete Expired Requests</button>
-    <button class="secondary" onclick="render()">Refresh</button>
-  </div>
+  <select id="duration">
+    <option value="">Duration</option>
+    <option value="30">30 minutes</option>
+    <option value="60">60 minutes</option>
+    <option value="90">90 minutes</option>
+    <option value="120">120 minutes</option>
+    <option value="150">150 minutes</option>
+    <option value="180">180 minutes</option>
+    <option value="210">210 minutes</option>
+    <option value="240">240 minutes</option>
+  </select>
 
-  <!-- REQUEST LIST -->
-  <div class="card">
-    <div id="list"></div>
-  </div>
+  <button id="btnRequest">Request Observer</button>
+  <button id="btnFormRefresh" class="secondary">Refresh</button>
+
+  <div class="note" id="msg"></div>
+</div>
+
+<!-- LIST CONTROLS -->
+<div class="card">
+  <button id="btnDeleteExpired" class="secondary">Delete Expired Requests</button>
+  <button id="btnListRefresh" class="secondary">Refresh List</button>
+</div>
+
+<!-- REQUEST LIST -->
+<div class="card">
+  <div id="list"></div>
+</div>
 </div>
 
 <script>
-/* ===== STORAGE ===== */
-const REQ_KEY = "rg_agent_requests_v1";
-const STATUS_KEY = "rg_request_status_v3";
+const REQ_KEY="rg_agent_requests_v1";
+const STATUS_KEY="rg_request_status_v3";
+const $=id=>document.getElementById(id);
 
-const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
-const saveReq = (r) => localStorage.setItem(REQ_KEY, JSON.stringify(r));
-const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
-const saveStatus = (s) => localStorage.setItem(STATUS_KEY, JSON.stringify(s));
+const loadReq=()=>JSON.parse(localStorage.getItem(REQ_KEY))||[];
+const saveReq=r=>localStorage.setItem(REQ_KEY,JSON.stringify(r));
+const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS_KEY))||{};
+const saveStatus=s=>localStorage.setItem(STATUS_KEY,JSON.stringify(s));
 
-/* ===== DOM ===== */
-const propertiesDiv = document.getElementById("properties");
-const list = document.getElementById("list");
-const otherDesc = document.getElementById("otherDesc");
+function showMsg(t){$("msg").textContent=t||""}
 
-/* ===== PROPERTY BLOCKS ===== */
-let propCount = 0;
-
-function statesOptions(){
-  const states = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
-  return states.map(s => `<option>${s}</option>`).join("");
+function to24h(t){
+  const m=t.trim().toUpperCase().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+  if(!m) return null;
+  let h=parseInt(m[1]); const mm=m[2];
+  if(m[3]==="PM"&&h!==12)h+=12;
+  if(m[3]==="AM"&&h===12)h=0;
+  return String(h).padStart(2,"0")+":"+mm;
 }
 
-function createPropertyBlock(){
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <input class="propAddress" placeholder="Property Address" />
-    <input class="propCity" placeholder="City" />
-    <select class="propState">
-      <option value="">State</option>
-      ${statesOptions()}
-    </select>
-    <input class="propZip" placeholder="ZIP Code" />
-  `;
-  return d;
-}
+function scheduledAt(r){return new Date(`${r.date}T${r.time24}`)}
 
-function addProperty(){
-  if(propCount >= 3) return;
-  propCount++;
-  propertiesDiv.appendChild(createPropertyBlock());
-}
+function submit(){
+  showMsg("");
+  const data={
+    agentName:$("agentName").value.trim(),
+    address:$("address").value.trim(),
+    city:$("city").value.trim(),
+    state:$("state").value,
+    zip:$("zip").value.trim(),
+    timezone:$("timezone").value,
+    visitType:$("visitType").value,
+    otherDesc:$("otherDesc").value.trim(),
+    date:$("date").value.trim(),
+    time:$("time").value.trim(),
+    duration:$("duration").value
+  };
 
-/* Start with Property 1 */
-addProperty();
-
-/* ===== VISIT TYPE ===== */
-function toggleOther(){
-  const v = document.getElementById("visitType").value;
-  otherDesc.style.display = (v === "Other") ? "block" : "none";
-  if(v !== "Other") otherDesc.value = "";
-}
-
-/* ===== FORM REFRESH (clears form back to 1 property) ===== */
-function refreshForm(){
-  document.getElementById("agentName").value = "";
-  document.getElementById("timezone").value = "";
-  document.getElementById("visitType").value = "";
-  otherDesc.value = "";
-  otherDesc.style.display = "none";
-  document.getElementById("date").value = "";
-  document.getElementById("time").value = "";
-  document.getElementById("duration").value = "";
-
-  propertiesDiv.innerHTML = "";
-  propCount = 0;
-  addProperty();
-}
-
-/* ===== SUBMIT REQUEST ===== */
-function submitRequest(){
-  const agentName = document.getElementById("agentName").value.trim();
-  const timezone = document.getElementById("timezone").value;
-  const visitType = document.getElementById("visitType").value;
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-  const duration = document.getElementById("duration").value;
-  const other = otherDesc.value.trim();
-
-  const addrs = [...document.querySelectorAll(".propAddress")].map(x=>x.value.trim());
-  const cities = [...document.querySelectorAll(".propCity")].map(x=>x.value.trim());
-  const states = [...document.querySelectorAll(".propState")].map(x=>x.value);
-  const zips = [...document.querySelectorAll(".propZip")].map(x=>x.value.trim());
-
-  // Required: agentName, property1 full, timezone, visitType, date, time, duration
-  if(!agentName || !addrs[0] || !cities[0] || !states[0] || !zips[0] || !timezone || !visitType || !date || !time || !duration){
-    alert("Complete required fields");
-    return;
-  }
-  if(visitType === "Other" && !other){
-    alert("Complete required fields");
-    return;
+  if(Object.values(data).some(v=>!v)&&!(data.visitType!=="Other"&&data.otherDesc==="")){
+    showMsg("Complete required fields"); return;
   }
 
-  // Build properties (only filled blocks, but each filled block must be complete)
-  const properties = [];
-  for(let i=0;i<addrs.length;i++){
-    const any = addrs[i] || cities[i] || states[i] || zips[i];
-    if(!any) continue;
+  const time24=to24h(data.time);
+  if(!time24){showMsg("Time format HH:MM AM/PM");return;}
 
-    if(!addrs[i] || !cities[i] || !states[i] || !zips[i]){
-      alert("Complete required fields");
-      return;
-    }
-
-    properties.push({ address:addrs[i], city:cities[i], state:states[i], zip:zips[i] });
-  }
-
-  const reqs = loadReq();
-  const id = Date.now().toString();
-
+  const reqs=loadReq();
   reqs.push({
-    id,
-    agentName,
-    properties,
-    timezone,
-    visitType,
-    otherDesc: (visitType === "Other" ? other : ""),
-    date,
-    time,
-    duration
+    id:Date.now().toString(),
+    ...data,
+    time24
   });
-
   saveReq(reqs);
   render();
+  showMsg("Saved");
 }
 
-/* ===== STATUS ===== */
-function resolveStatus(r){
-  const s = loadStatus()[r.id];
-  const now = Date.now();
-  const sched = new Date(`${r.date}T${r.time}`).getTime();
-
-  if(s?.status === "in_route") return {t:"In Route", c:"inroute"};
-  if(s?.status === "accepted") return {t:"Accepted", c:"accepted"};
-  if(now > sched) return {t:"Expired", c:"expired"};
-  return {t:"Pending", c:"pending"};
+function refreshForm(){
+  document.querySelectorAll("input,select,textarea").forEach(e=>e.value="");
+  $("otherDesc").style.display="none";
+  showMsg("");
 }
 
-/* ===== CANCEL / DELETE ===== */
-function cancelRequest(id){
-  saveReq(loadReq().filter(r=>r.id !== id));
-  const st = loadStatus();
-  st[id] = { status:"canceled_by_agent", time:Date.now() };
-  saveStatus(st);
-  render();
+function resolve(r){
+  const s=loadStatus()[r.id];
+  const now=Date.now();
+  const sched=scheduledAt(r).getTime();
+  if(s?.status==="in_route")return{t:"In Route",c:"inroute"};
+  if(s?.status==="accepted")return{t:"Accepted",c:"accepted"};
+  if(now>sched)return{t:"Expired",c:"expired"};
+  return{t:"Pending",c:"pending"};
 }
 
-function deleteRequest(id){
-  saveReq(loadReq().filter(r=>r.id !== id));
-  const st = loadStatus();
-  delete st[id];
-  saveStatus(st);
-  render();
+function cancel(id){
+  saveReq(loadReq().filter(r=>r.id!==id));
+  const st=loadStatus(); st[id]={status:"canceled_by_agent",time:Date.now()};
+  saveStatus(st); render();
+}
+
+function del(id){
+  saveReq(loadReq().filter(r=>r.id!==id));
+  const st=loadStatus(); delete st[id];
+  saveStatus(st); render();
 }
 
 function deleteExpired(){
-  const now = Date.now();
-  const st = loadStatus();
-  const filtered = loadReq().filter(r=>{
-    if(st[r.id]?.status === "accepted") return true;
-    if(st[r.id]?.status === "in_route") return true;
-    return new Date(`${r.date}T${r.time}`).getTime() > now;
-  });
-  saveReq(filtered);
+  const now=Date.now();
+  const st=loadStatus();
+  saveReq(loadReq().filter(r=>{
+    if(st[r.id]?.status==="accepted")return true;
+    if(st[r.id]?.status==="in_route")return true;
+    return scheduledAt(r).getTime()>now;
+  }));
   render();
 }
 
-/* ===== RENDER LIST ===== */
 function render(){
-  list.innerHTML = "";
+  $("list").innerHTML="";
   loadReq().forEach(r=>{
-    const s = resolveStatus(r);
-    const p = r.properties?.[0];
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <b>${p ? `${p.address}, ${p.city}, ${p.state} ${p.zip}` : ""}</b>
+    const s=resolve(r);
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <b>${r.address}, ${r.city}, ${r.state} ${r.zip}</b>
       <div>${r.date} ${r.time}</div>
       <div class="status ${s.c}">${s.t}</div>
-      ${s.t === "Expired"
-        ? `<button class="secondary" onclick="deleteRequest('${r.id}')">Delete</button>`
-        : `<button class="secondary" onclick="cancelRequest('${r.id}')">Cancel</button>`
-      }
+      ${s.t==="Expired"
+        ? `<button class="secondary" data-del="${r.id}">Delete</button>`
+        : `<button class="secondary" data-cancel="${r.id}">Cancel</button>`}
     `;
-    list.appendChild(card);
+    $("list").appendChild(d);
   });
+
+  document.querySelectorAll("[data-cancel]").forEach(b=>b.onclick=()=>cancel(b.dataset.cancel));
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del));
 }
 
-setInterval(render, 1000);
-render();
+document.addEventListener("DOMContentLoaded",()=>{
+  $("visitType").onchange=()=>{$("otherDesc").style.display=$("visitType").value==="Other"?"block":"none"};
+  $("btnRequest").onclick=submit;
+  $("btnFormRefresh").onclick=refreshForm;
+  $("btnDeleteExpired").onclick=deleteExpired;
+  $("btnListRefresh").onclick=render;
+  render();
+});
 </script>
 </body>
 </html>
