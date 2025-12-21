@@ -1,195 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Agent Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Agent Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-body{margin:0;font-family:Arial;background:#f4f4f4}
-.wrap{max-width:900px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
-box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select,button,textarea{
-  width:100%;padding:14px;margin-top:10px;
-  border-radius:12px;font-size:16px;box-sizing:border-box
-}
-button{border:none;font-weight:900;background:#111;color:#fff}
-.secondary{background:#fff;color:#111;border:1px solid #ccc}
-.status{margin-top:8px;font-weight:900}
-.pending{color:#6b7280}
-.accepted{color:#2563eb}
-.inroute{color:#16a34a}
-.expired{color:#dc2626}
-.note{font-size:13px;color:#6b7280;margin-top:8px}
-</style>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f3f3;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-wrap img {
+      width: 160px;
+      max-width: 80%;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .card input,
+    .card select,
+    .card button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+
+    .card button {
+      background: #000;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .actions button {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #ccc;
+      color: #000;
+    }
+
+    .request {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .expired {
+      color: #b00000;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
-<div class="wrap">
-<h2>Agent Dashboard</h2>
+  <div class="app">
 
-<!-- FORM -->
-<div class="card">
-  <input id="agentName" placeholder="Agent Name">
+    <!-- LOGO -->
+    <div class="logo-wrap">
+      <img src="logo.png" alt="Realtor Guard Logo">
+    </div>
 
-  <input id="address" placeholder="Property Address">
-  <input id="city" placeholder="City">
+    <!-- FORM -->
+    <div class="card">
+      <input id="address" placeholder="Property Address">
 
-  <select id="state">
-    <option value="">State</option>
-    <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
-    <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
-    <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
-    <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
-    <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
-    <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
-    <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
-    <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
-    <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
-    <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
-    <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
-    <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
-    <option>WI</option><option>WY</option>
-  </select>
+      <select id="state"></select>
 
-  <input id="zip" placeholder="ZIP Code">
+      <select id="timezone">
+        <option value="ET">ET</option>
+        <option value="CT">CT</option>
+        <option value="MT">MT</option>
+        <option value="PT">PT</option>
+      </select>
 
-  <select id="timezone">
-    <option value="">Time Zone</option>
-    <option>Eastern</option>
-    <option>Central</option>
-    <option>Mountain</option>
-    <option>Pacific</option>
-  </select>
+      <input type="date" id="date">
+      <select id="time"></select>
 
-  <select id="visitType">
-    <option value="">Visit Type</option>
-    <option>Open House</option>
-    <option>Showing</option>
-    <option>Other</option>
-  </select>
+      <button onclick="addRequest()">Submit</button>
+    </div>
 
-  <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
+    <!-- ACTION BUTTONS -->
+    <div class="card actions">
+      <button onclick="render()">Refresh</button>
+      <button onclick="clearExpired()">Delete Expired</button>
+    </div>
 
-  <!-- DATE CALENDAR -->
-  <input id="date" type="date">
+    <!-- REQUEST LIST -->
+    <div id="list"></div>
 
-  <!-- TIME DROPDOWN (30 MIN, NON-MILITARY) -->
-  <select id="time">
-    <option value="">Time</option>
-  </select>
-
-  <select id="duration">
-    <option value="">Duration</option>
-    <option>30 minutes</option>
-    <option>60 minutes</option>
-    <option>90 minutes</option>
-    <option>120 minutes</option>
-    <option>150 minutes</option>
-    <option>180 minutes</option>
-    <option>210 minutes</option>
-    <option>240 minutes</option>
-  </select>
-
-  <button id="btnRequest">Request Observer</button>
-  <button id="btnRefresh" class="secondary">Refresh</button>
-
-  <div class="note" id="msg"></div>
-</div>
-
-<!-- REQUEST LIST -->
-<div class="card">
-  <div id="list"></div>
-</div>
-</div>
+  </div>
 
 <script>
-const REQ_KEY="rg_agent_requests_v1";
-const $=id=>document.getElementById(id);
+const STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+];
 
-const loadReq=()=>JSON.parse(localStorage.getItem(REQ_KEY))||[];
-const saveReq=r=>localStorage.setItem(REQ_KEY,JSON.stringify(r));
+state.innerHTML = STATES.map(s => `<option>${s}</option>`).join("");
 
-/* build time dropdown */
-(function buildTimes(){
-  const t=$("time");
-  const times=[];
-  for(let h=8;h<=20;h++){
-    for(let m=0;m<60;m+=30){
-      let hh=h%12||12;
-      let ap=h<12?"AM":"PM";
-      let mm=m===0?"00":"30";
-      times.push(`${hh}:${mm} ${ap}`);
-    }
-  }
-  times.forEach(x=>{
-    const o=document.createElement("option");
-    o.textContent=o.value=x;
-    t.appendChild(o);
-  });
-})();
-
-/* visit type */
-$("visitType").addEventListener("change",()=>{
-  $("otherDesc").style.display=$("visitType").value==="Other"?"block":"none";
-});
-
-/* submit */
-$("btnRequest").addEventListener("click",()=>{
-  $("msg").textContent="";
-  const data={
-    agentName:$("agentName").value.trim(),
-    address:$("address").value.trim(),
-    city:$("city").value.trim(),
-    state:$("state").value,
-    zip:$("zip").value.trim(),
-    timezone:$("timezone").value,
-    visitType:$("visitType").value,
-    other:$("otherDesc").value.trim(),
-    date:$("date").value,
-    time:$("time").value,
-    duration:$("duration").value
-  };
-
-  if(!data.agentName||!data.address||!data.city||!data.state||!data.zip||
-     !data.timezone||!data.visitType||!data.date||!data.time||!data.duration){
-    $("msg").textContent="Complete required fields";
-    return;
-  }
-  if(data.visitType==="Other"&&!data.other){
-    $("msg").textContent="Complete required fields";
-    return;
-  }
-
-  const reqs=loadReq();
-  reqs.push({id:Date.now().toString(),...data});
-  saveReq(reqs);
-  render();
-  $("msg").textContent="Request sent";
-});
-
-/* refresh form */
-$("btnRefresh").addEventListener("click",()=>{
-  document.querySelectorAll("input,select,textarea").forEach(e=>e.value="");
-  $("otherDesc").style.display="none";
-  $("msg").textContent="";
-});
-
-/* render list */
-function render(){
-  $("list").innerHTML="";
-  loadReq().forEach(r=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.innerHTML=`
-      <b>${r.address}, ${r.city}, ${r.state} ${r.zip}</b>
-      <div>${r.date} ${r.time}</div>
-      <div class="status pending">Pending</div>
-    `;
-    $("list").appendChild(d);
+for (let h = 8; h <= 18; h++) {
+  ["00","30"].forEach(m => {
+    const ap = h >= 12 ? "PM" : "AM";
+    const dh = h > 12 ? h - 12 : h;
+    time.innerHTML += `<option>${dh}:${m} ${ap}</option>`;
   });
 }
+
+function getRequests() {
+  return JSON.parse(localStorage.getItem("requests")) || [];
+}
+
+function saveRequests(r) {
+  localStorage.setItem("requests", JSON.stringify(r));
+}
+
+function addRequest() {
+  const r = getRequests();
+  r.push({
+    a: address.value,
+    s: state.value,
+    z: timezone.value,
+    d: date.value,
+    t: time.value
+  });
+  saveRequests(r);
+  render();
+}
+
+function render() {
+  const r = getRequests();
+  list.innerHTML = "";
+
+  if (!r.length) return;
+
+  r.forEach(x => {
+    const expired = new Date(`${x.d} ${x.t}`) < new Date();
+    list.innerHTML += `
+      <div class="card request ${expired ? "expired" : ""}">
+        ${x.a}<br>
+        ${x.s} · ${x.d} · ${x.t} · ${x.z}
+        ${expired ? "<div>EXPIRED</div>" : ""}
+      </div>
+    `;
+  });
+}
+
+function clearExpired() {
+  const r = getRequests().filter(x =>
+    new Date(`${x.d} ${x.t}`) >= new Date()
+  );
+  saveRequests(r);
+  render();
+}
+
 render();
 </script>
 </body>
