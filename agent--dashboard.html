@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,56 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-    }
-
-    .wrap {
-      max-width: 900px;
-      margin: auto;
-      padding: 16px;
-    }
-
-    h2 {
-      margin-bottom: 16px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      border-radius: 8px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .primary {
-      background: #111;
-      color: #fff;
-    }
-
-    .secondary {
-      background: #fff;
-      color: #111;
-      border: 1px solid #ccc;
-    }
-
-    .status {
-      font-weight: bold;
-      margin-top: 6px;
-    }
-
+    body { font-family: Arial; background: #f4f4f4; margin: 0; }
+    .wrap { max-width: 900px; margin: auto; padding: 16px; }
+    .card { background: #fff; padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    input, select, button { width: 100%; padding: 12px; margin-top: 8px; }
+    button { font-weight: bold; cursor: pointer; }
+    .primary { background: #111; color: #fff; }
+    .secondary { background: #fff; border: 1px solid #ccc; }
     .pending { color: #b78100; }
     .accepted { color: #2e7d32; }
     .cancelled { color: #555; }
@@ -64,99 +21,102 @@
 </head>
 
 <body>
-  <div class="wrap">
-    <h2>Agent Dashboard</h2>
+<div class="wrap">
+  <h2>Agent Dashboard</h2>
 
-    <button class="primary" onclick="goToRequest()">
-      Request Observer
-    </button>
-
-    <div id="requestList"></div>
+  <!-- REQUEST FORM -->
+  <div class="card">
+    <h3>Request Observer</h3>
+    <input id="address" placeholder="Property Address" />
+    <input type="date" id="date" />
+    <select id="time"></select>
+    <button class="primary" onclick="submitRequest()">Submit Request</button>
   </div>
 
-<script>
-/* ============================
-   FULL AGENT DASHBOARD LOGIC
-============================= */
+  <h3>Your Requests</h3>
+  <div id="requestList"></div>
+</div>
 
-function goToRequest() {
-  window.location.href = "agent-request.html";
+<script>
+function load() {
+  const t = document.getElementById("time");
+  t.innerHTML = "";
+  for (let h = 8; h <= 18; h++) {
+    ["00","30"].forEach(m => {
+      const ampm = h >= 12 ? "PM" : "AM";
+      const dh = h > 12 ? h - 12 : h;
+      t.innerHTML += `<option>${dh}:${m} ${ampm}</option>`;
+    });
+  }
 }
 
-function loadRequests() {
+function getReqs() {
   return JSON.parse(localStorage.getItem("requests")) || [];
 }
 
-function saveRequests(reqs) {
-  localStorage.setItem("requests", JSON.stringify(reqs));
+function saveReqs(r) {
+  localStorage.setItem("requests", JSON.stringify(r));
 }
 
-function isExpired(req) {
-  const now = new Date();
-  const reqTime = new Date(`${req.date} ${req.time}`);
-  return reqTime < now;
+function submitRequest() {
+  const reqs = getReqs();
+  reqs.push({
+    address: address.value,
+    date: date.value,
+    time: time.value,
+    status: "pending"
+  });
+  saveReqs(reqs);
+  render();
 }
 
-function renderDashboard() {
+function cancel(i) {
+  const r = getReqs();
+  r[i].status = "cancelled";
+  saveReqs(r);
+  render();
+}
+
+function del(i) {
+  const r = getReqs();
+  r.splice(i,1);
+  saveReqs(r);
+  render();
+}
+
+function render() {
   const list = document.getElementById("requestList");
-  const requests = loadRequests();
+  const r = getReqs();
   list.innerHTML = "";
 
-  if (requests.length === 0) {
-    list.innerHTML = "<p>No requests yet.</p>";
+  if (!r.length) {
+    list.innerHTML = "<p>No requests</p>";
     return;
   }
 
-  requests.forEach((req, i) => {
-    if (req.status === "pending" && isExpired(req)) {
-      req.status = "expired";
-      saveRequests(requests);
-    }
+  r.forEach((x,i) => {
+    const expired = new Date(`${x.date} ${x.time}`) < new Date();
+    if (x.status === "pending" && expired) x.status = "expired";
 
-    const card = document.createElement("div");
-    card.className = "card";
+    list.innerHTML += `
+      <div class="card">
+        <strong>${x.address}</strong><br>
+        ${x.date} ${x.time}<br>
+        <span class="${x.status}">${x.status.toUpperCase()}</span>
 
-    card.innerHTML = `
-      <p><strong>${req.address}</strong></p>
-      <p>${req.date} at ${req.time}</p>
-      <p class="status ${req.status}">
-        ${req.status.toUpperCase()}
-      </p>
+        ${x.status === "pending"
+          ? `<button class="secondary" onclick="cancel(${i})">Cancel</button>`
+          : ""}
 
-      ${
-        req.status === "pending"
-          ? `<button class="secondary" onclick="cancelRequest(${i})">
-               Cancel Request
-             </button>`
-          : ""
-      }
-
-      <button class="secondary" onclick="deleteRequest(${i})">
-        Delete Request
-      </button>
-    `;
-
-    list.appendChild(card);
+        <button class="secondary" onclick="del(${i})">Delete</button>
+      </div>`;
   });
+
+  saveReqs(r);
 }
 
-function cancelRequest(index) {
-  const reqs = loadRequests();
-  reqs[index].status = "cancelled";
-  saveRequests(reqs);
-  renderDashboard();
-}
-
-function deleteRequest(index) {
-  const reqs = loadRequests();
-  reqs.splice(index, 1);
-  saveRequests(reqs);
-  renderDashboard();
-}
-
-window.addEventListener("storage", renderDashboard);
-document.addEventListener("DOMContentLoaded", renderDashboard);
+load();
+render();
 </script>
 </body>
 </html>
-  
