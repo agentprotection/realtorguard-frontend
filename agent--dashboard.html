@@ -4,102 +4,175 @@
 <meta charset="UTF-8">
 <title>Agent Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{margin:0;font-family:Arial;background:#f4f4f4}
-.wrap{max-width:650px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-top:14px}
-button{width:100%;padding:14px;margin-top:14px;border:none;border-radius:12px;font-weight:900;background:#111;color:#fff}
-.secondary{background:#fff;color:#111;border:1px solid #ccc}
-.pill{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eee}
-.green{background:#e7ffe7;color:#145214}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f4f4;
+}
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  margin-top:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+input,select,button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:12px;
+  font-size:16px;
+}
+button{
+  border:none;
+  font-weight:900;
+  background:#111;
+  color:#fff;
+}
+.status{
+  margin-top:8px;
+  font-weight:900;
+}
+.accepted{
+  color:#2563eb; /* blue */
+}
+.inroute{
+  color:#16a34a; /* green */
+}
+.pending{
+  color:#6b7280; /* grey */
+}
+.expired{
+  color:#dc2626; /* red */
+}
 </style>
 </head>
+
 <body>
-
 <div class="wrap">
-<h2>Request an Observer</h2>
+<h2>Agent Dashboard</h2>
 
-<div class="card" id="form">
-<input id="agentName" placeholder="Agent Name">
-<div id="props"></div>
-<button class="secondary" onclick="addProp()">Add Property</button>
-<button onclick="submit()">Request Observer</button>
-</div>
-
-<div class="card" id="success" style="display:none">
-<b>Your request is in the Observer Dashboard.</b>
-<button class="secondary" onclick="reset()">Start New Request</button>
-</div>
-
+<!-- AGENT REQUEST FORM (UNCHANGED FORMAT) -->
 <div class="card">
-<b>My Requests</b>
-<button class="secondary" onclick="hardRefresh()">Refresh</button>
-<div id="list"></div>
+  <input id="agentName" placeholder="Agent Name">
+  <input id="address" placeholder="Property Address">
+  <input id="city" placeholder="City">
+  <select id="state">
+    <option value="">State</option>
+    <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+    <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+    <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+    <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+    <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+    <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+    <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+    <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+    <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+    <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+    <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+    <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+    <option>WI</option><option>WY</option>
+  </select>
+  <input id="date" type="date">
+  <input id="time" type="time">
+  <button onclick="submitRequest()">Request Observer</button>
 </div>
+
+<!-- REQUEST LIST -->
+<div class="card">
+  <div id="list"></div>
+</div>
+
 </div>
 
 <script>
-const REQ="rg_agent_requests_v1";
-const STATUS="rg_request_status_v3";
+/* ===== STORAGE KEYS ===== */
+const REQ_KEY = "rg_agent_requests_v1";
+const STATUS_KEY = "rg_request_status_v3";
 
-const loadReq=()=>JSON.parse(localStorage.getItem(REQ))||[];
-const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS))||{};
+/* ===== HELPERS ===== */
+const loadReq = () =>
+  JSON.parse(localStorage.getItem(REQ_KEY)) || [];
 
-function hardRefresh(){location.reload();}
+const saveReq = r =>
+  localStorage.setItem(REQ_KEY, JSON.stringify(r));
 
-function addProp(){
-const d=document.createElement("div");
-d.innerHTML=`
-<input placeholder="Property Address">
-<input type="date">
-<input type="time">
-`;
-props.appendChild(d);
+const loadStatus = () =>
+  JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+
+function scheduledAt(r){
+  return new Date(`${r.date}T${r.time}`);
 }
 
-function submit(){
-const agent=agentName.value.trim();
-if(!agent)return alert("Agent name required");
-const reqs=loadReq();
-document.querySelectorAll("#props div").forEach((b,i)=>{
-const [addr,date,time]=b.querySelectorAll("input");
-if(addr.value&&date.value&&time.value){
-reqs.push({
-id:"req_"+Date.now()+"_"+i,
-agentName:agent,
-address:addr.value,
-date:date.value,
-time:time.value
-});
-}});
-localStorage.setItem(REQ,JSON.stringify(reqs));
-form.style.display="none";
-success.style.display="block";
-render();
+/* ===== SUBMIT REQUEST ===== */
+function submitRequest(){
+  if(!address.value || !date.value || !time.value){
+    alert("Complete the form");
+    return;
+  }
+
+  const reqs = loadReq();
+  reqs.push({
+    id: Date.now().toString(),
+    agentName: agentName.value,
+    address: `${address.value}, ${city.value}, ${state.value}`,
+    date: date.value,
+    time: time.value
+  });
+
+  saveReq(reqs);
+  render();
 }
 
-function reset(){
-agentName.value="";
-props.innerHTML="";
-form.style.display="block";
-success.style.display="none";
+/* ===== STATUS MAPPING (THE KEY FIX) ===== */
+function getAgentStatus(req){
+  const statusMap = loadStatus();
+  const stat = statusMap[req.id];
+  const sched = scheduledAt(req);
+
+  if(stat?.status === "in_route"){
+    return { text: "In Route", cls: "inroute" };
+  }
+
+  if(stat?.status === "accepted"){
+    return { text: "Accepted", cls: "accepted" };
+  }
+
+  if(Date.now() > sched.getTime()){
+    return { text: "Expired", cls: "expired" };
+  }
+
+  return { text: "Pending", cls: "pending" };
 }
 
+/* ===== RENDER ===== */
 function render(){
-list.innerHTML="";
-const reqs=loadReq().reverse();
-const stat=loadStatus();
-reqs.forEach(r=>{
-const st=stat[r.id]?.status||"pending";
-list.innerHTML+=`
-<div class="card">
-<b>${r.address}</b>
-<div class="pill ${st==="accepted"?"green":""}">${st.toUpperCase()}</div>
-</div>`;
-});
+  list.innerHTML = "";
+  const reqs = loadReq();
+
+  reqs.forEach(r=>{
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const status = getAgentStatus(r);
+
+    card.innerHTML = `
+      <b>${r.address}</b>
+      <div>${r.date} ${r.time}</div>
+      <div class="status ${status.cls}">${status.text}</div>
+    `;
+
+    list.appendChild(card);
+  });
 }
 
-addProp();
 render();
 </script>
 </body>
