@@ -10,8 +10,9 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 .wrap{max-width:900px;margin:auto;padding:16px}
 .card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
 box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select,button{
-  width:100%;padding:14px;margin-top:10px;border-radius:12px;font-size:16px
+input,select,button,textarea{
+  width:100%;padding:14px;margin-top:10px;
+  border-radius:12px;font-size:16px
 }
 button{border:none;font-weight:900;background:#111;color:#fff}
 .secondary{background:#fff;color:#111;border:1px solid #ccc}
@@ -27,11 +28,15 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- AGENT FORM (UNCHANGED) -->
+<!-- FORM -->
 <div class="card">
   <input id="agentName" placeholder="Agent Name">
+
+  <div id="properties"></div>
+
   <input id="address" placeholder="Property Address">
   <input id="city" placeholder="City">
+
   <select id="state">
     <option value="">State</option>
     <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
@@ -48,16 +53,42 @@ button{border:none;font-weight:900;background:#111;color:#fff}
     <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
     <option>WI</option><option>WY</option>
   </select>
+
+  <select id="timezone">
+    <option value="">Time Zone</option>
+    <option>Eastern</option>
+    <option>Central</option>
+    <option>Mountain</option>
+    <option>Pacific</option>
+  </select>
+
+  <select id="visitType" onchange="toggleOther()">
+    <option value="">Visit Type</option>
+    <option>Open House</option>
+    <option>Showing</option>
+    <option>Other</option>
+  </select>
+
+  <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
+
   <input id="date" type="date">
   <input id="time" type="time">
+
+  <select id="duration">
+    <option value="">Duration</option>
+    <option>30 minutes</option>
+    <option>60 minutes</option>
+    <option>90 minutes</option>
+  </select>
+
+  <button class="secondary" onclick="addProperty()">Add Another Property</button>
   <button onclick="submitRequest()">Request Observer</button>
 </div>
 
-<!-- DELETE EXPIRED (NEW, SIMPLE) -->
+<!-- CONTROLS -->
 <div class="card">
-  <button class="secondary" onclick="deleteExpiredRequests()">
-    Delete Expired Requests
-  </button>
+  <button class="secondary" onclick="deleteExpired()">Delete Expired Requests</button>
+  <button class="secondary" onclick="render()">Refresh</button>
 </div>
 
 <!-- REQUEST LIST -->
@@ -68,88 +99,86 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 </div>
 
 <script>
-/* ===== STORAGE KEYS (MATCH OBSERVER) ===== */
-const REQ_KEY = "rg_agent_requests_v1";
-const STATUS_KEY = "rg_request_status_v3";
+const REQ_KEY="rg_agent_requests_v1";
+const STATUS_KEY="rg_request_status_v3";
 
-/* ===== HELPERS ===== */
-const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
-const saveReq = r => localStorage.setItem(REQ_KEY, JSON.stringify(r));
-const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const loadReq=()=>JSON.parse(localStorage.getItem(REQ_KEY))||[];
+const saveReq=r=>localStorage.setItem(REQ_KEY,JSON.stringify(r));
+const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS_KEY))||{};
 
-function scheduledAt(r){
-  return new Date(`${r.date}T${r.time}`);
+let propertyCount=1;
+
+function toggleOther(){
+  otherDesc.style.display = visitType.value==="Other" ? "block" : "none";
 }
 
-/* ===== SUBMIT REQUEST ===== */
+function addProperty(){
+  if(propertyCount>=3) return;
+  propertyCount++;
+  const d=document.createElement("div");
+  d.innerHTML=`<input placeholder="Property Address ${propertyCount}">`;
+  properties.appendChild(d);
+}
+
 function submitRequest(){
-  if(!address.value || !date.value || !time.value){
-    alert("Complete the form");
-    return;
-  }
-
-  const reqs = loadReq();
+  const reqs=loadReq();
   reqs.push({
-    id: Date.now().toString(),
-    agentName: agentName.value,
-    address: `${address.value}, ${city.value}, ${state.value}`,
-    date: date.value,
-    time: time.value
+    id:Date.now().toString(),
+    address:`${address.value}, ${city.value}, ${state.value}`,
+    date:date.value,
+    time:time.value
   });
-
   saveReq(reqs);
   render();
 }
 
-/* ===== STATUS RESOLUTION (FIXES PENDING ISSUE) ===== */
 function resolveStatus(r){
-  const stat = loadStatus()[r.id];
-  const now = Date.now();
-  const sched = scheduledAt(r);
+  const s=loadStatus()[r.id];
+  const sched=new Date(`${r.date}T${r.time}`);
+  const now=Date.now();
 
-  if(stat?.status === "in_route")
-    return {t:"In Route", c:"inroute"};
-
-  if(stat?.status === "accepted")
-    return {t:"Accepted", c:"accepted"};
-
-  if(now > sched)
-    return {t:"Expired", c:"expired"};
-
-  return {t:"Pending", c:"pending"};
+  if(s?.status==="in_route") return{t:"In Route",c:"inroute"};
+  if(s?.status==="accepted") return{t:"Accepted",c:"accepted"};
+  if(now>sched) return{t:"Expired",c:"expired"};
+  return{t:"Pending",c:"pending"};
 }
 
-/* ===== DELETE EXPIRED (WORKING) ===== */
-function deleteExpiredRequests(){
-  const now = Date.now();
-  const statusMap = loadStatus();
-
-  const cleaned = loadReq().filter(r=>{
-    if(statusMap[r.id]) return true; // keep accepted / in-route
-    return scheduledAt(r) > now;
+function deleteExpired(){
+  const now=Date.now();
+  const status=loadStatus();
+  const filtered=loadReq().filter(r=>{
+    if(status[r.id]) return true;
+    return new Date(`${r.date}T${r.time}`)>now;
   });
-
-  saveReq(cleaned);
+  saveReq(filtered);
   render();
 }
 
-/* ===== RENDER (LIVE SYNC) ===== */
+function cancelRequest(id){
+  const reqs=loadReq().filter(r=>r.id!==id);
+  saveReq(reqs);
+  const status=loadStatus();
+  delete status[id];
+  localStorage.setItem(STATUS_KEY,JSON.stringify(status));
+  render();
+}
+
 function render(){
-  list.innerHTML = "";
+  list.innerHTML="";
   loadReq().forEach(r=>{
-    const s = resolveStatus(r);
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
+    const s=resolveStatus(r);
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`
       <b>${r.address}</b>
       <div>${r.date} ${r.time}</div>
       <div class="status ${s.c}">${s.t}</div>
+      <button class="secondary" onclick="cancelRequest('${r.id}')">Delete</button>
     `;
-    list.appendChild(card);
+    list.appendChild(c);
   });
 }
 
-setInterval(render, 1000);
 render();
 </script>
 </body>
