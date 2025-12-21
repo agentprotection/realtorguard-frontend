@@ -1,110 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Agent Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Agent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
+<style>
+body {
+  margin: 0;
+  background: #ededed;
+  font-family: Arial, sans-serif;
+}
 
-    .wrap {
-      max-width: 900px;
-      margin: auto;
-      padding: 16px;
-    }
+.container {
+  max-width: 820px;
+  margin: auto;
+  padding: 20px;
+}
 
-    h2 {
-      margin-bottom: 12px;
-    }
+.form-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
 
-    .card {
-      background: #fff;
-      padding: 16px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
+.form-box input,
+.form-box select {
+  padding: 12px;
+  font-size: 15px;
+}
 
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      font-size: 16px;
-    }
+.form-box button {
+  grid-column: span 2;
+  padding: 14px;
+  font-weight: bold;
+  background: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
 
-    button {
-      cursor: pointer;
-      font-weight: bold;
-    }
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
 
-    .primary {
-      background: #111;
-      color: #fff;
-      border: none;
-    }
+.actions button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-weight: bold;
+}
 
-    .secondary {
-      background: #fff;
-      border: 1px solid #ccc;
-    }
+.list {
+  margin-top: 20px;
+}
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+.item {
+  background: #fff;
+  padding: 14px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
 
-    .status {
-      font-weight: bold;
-      margin-top: 6px;
-    }
-
-    .pending { color: #b78100; }
-    .accepted { color: #2e7d32; }
-    .expired { color: #b71c1c; }
-    .cancelled { color: #555; }
-  </style>
+.expired {
+  color: #b00000;
+  font-weight: bold;
+}
+</style>
 </head>
 
 <body>
-<div class="wrap">
-  <h2>Agent Dashboard</h2>
+<div class="container">
 
-  <!-- FORM -->
-  <div class="card">
-    <input id="address" placeholder="Property Address" />
+  <!-- NEW FORM (VISUALLY DIFFERENT) -->
+  <div class="form-box">
+    <input id="address" placeholder="Property Address">
+    <select id="state"></select>
 
-    <div class="row">
-      <select id="state"></select>
-      <select id="timezone">
-        <option value="ET">Eastern Time</option>
-        <option value="CT">Central Time</option>
-        <option value="MT">Mountain Time</option>
-        <option value="PT">Pacific Time</option>
-      </select>
-    </div>
+    <input type="date" id="date">
+    <select id="time"></select>
 
-    <div class="row">
-      <input type="date" id="date" />
-      <select id="time"></select>
-    </div>
+    <select id="timezone">
+      <option>ET</option>
+      <option>CT</option>
+      <option>MT</option>
+      <option>PT</option>
+    </select>
 
-    <button class="primary" onclick="submitRequest()">Submit</button>
+    <button onclick="add()">Submit</button>
   </div>
 
-  <!-- ACTIONS -->
-  <div class="card">
-    <button class="secondary" onclick="render()">Refresh</button>
-    <button class="secondary" onclick="deleteExpired()">Delete Expired</button>
+  <div class="actions">
+    <button onclick="render()">Refresh</button>
+    <button onclick="clearExpired()">Delete Expired</button>
   </div>
 
-  <!-- REQUEST LIST -->
-  <div id="requestList"></div>
+  <div id="list" class="list"></div>
+
 </div>
 
 <script>
@@ -116,80 +115,63 @@ const STATES = [
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
 
-function init() {
-  state.innerHTML = STATES.map(s => `<option>${s}</option>`).join("");
+state.innerHTML = STATES.map(s => `<option>${s}</option>`).join("");
 
-  time.innerHTML = "";
-  for (let h = 8; h <= 18; h++) {
-    ["00","30"].forEach(m => {
-      const ampm = h >= 12 ? "PM" : "AM";
-      const dh = h > 12 ? h - 12 : h;
-      time.innerHTML += `<option>${dh}:${m} ${ampm}</option>`;
-    });
-  }
+for (let h = 8; h <= 18; h++) {
+  ["00","30"].forEach(m => {
+    const ap = h >= 12 ? "PM" : "AM";
+    const dh = h > 12 ? h - 12 : h;
+    time.innerHTML += `<option>${dh}:${m} ${ap}</option>`;
+  });
 }
 
-function getReqs() {
-  return JSON.parse(localStorage.getItem("requests")) || [];
+function get() {
+  return JSON.parse(localStorage.getItem("reqs")) || [];
 }
 
-function saveReqs(r) {
-  localStorage.setItem("requests", JSON.stringify(r));
+function set(r) {
+  localStorage.setItem("reqs", JSON.stringify(r));
 }
 
-function submitRequest() {
-  const r = getReqs();
+function add() {
+  const r = get();
   r.push({
-    address: address.value,
-    state: state.value,
-    timezone: timezone.value,
-    date: date.value,
-    time: time.value,
-    status: "pending"
+    a: address.value,
+    s: state.value,
+    d: date.value,
+    t: time.value,
+    z: timezone.value
   });
-  saveReqs(r);
-  render();
-}
-
-function deleteExpired() {
-  const now = new Date();
-  const r = getReqs().filter(x => {
-    const d = new Date(`${x.date} ${x.time}`);
-    return d >= now;
-  });
-  saveReqs(r);
+  set(r);
   render();
 }
 
 function render() {
-  const list = document.getElementById("requestList");
-  const r = getReqs();
+  const r = get();
   list.innerHTML = "";
 
-  if (!r.length) {
-    list.innerHTML = "<p>No requests</p>";
-    return;
-  }
+  if (!r.length) return;
 
-  r.forEach((x, i) => {
-    const expired = new Date(`${x.date} ${x.time}`) < new Date();
-    if (x.status === "pending" && expired) x.status = "expired";
-
+  r.forEach(x => {
+    const expired = new Date(`${x.d} ${x.t}`) < new Date();
     list.innerHTML += `
-      <div class="card">
-        <strong>${x.address}</strong><br>
-        ${x.state} · ${x.date} · ${x.time} · ${x.timezone}<br>
-        <span class="status ${x.status}">
-          ${x.status.toUpperCase()}
-        </span>
+      <div class="item ${expired ? "expired" : ""}">
+        ${x.a}<br>
+        ${x.s} · ${x.d} · ${x.t} · ${x.z}
+        ${expired ? "<div>EXPIRED</div>" : ""}
       </div>
     `;
   });
-
-  saveReqs(r);
 }
 
-init();
+function clearExpired() {
+  const r = get().filter(x =>
+    new Date(`${x.d} ${x.t}`) >= new Date()
+  );
+  set(r);
+  render();
+}
+
 render();
 </script>
 </body>
