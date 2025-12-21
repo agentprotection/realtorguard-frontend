@@ -25,8 +25,8 @@ margin-top:10px;border:1px solid #ccc}
 
 <h2>Observer Dashboard</h2>
 
-<!-- PROFILE -->
-<div class="card">
+<!-- PROFILE (ACCOUNT SETUP) -->
+<div class="card" id="profileCard">
   <input id="name" placeholder="Name">
   <input id="phone" placeholder="Phone">
   <input id="photoInput" type="file" accept="image/*">
@@ -54,9 +54,10 @@ const photoInput = document.getElementById("photoInput");
 const photoEl = document.getElementById("photo");
 const saveBtn = document.getElementById("saveProfile");
 const listEl = document.getElementById("list");
+const profileCard = document.getElementById("profileCard");
 
 /* ===== STATE ===== */
-let photoReady = false;
+let photoLoaded = false;
 
 /* ===== HELPERS ===== */
 const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
@@ -68,40 +69,40 @@ function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
 }
 
-/* ===== CLEAN EXPIRED (AUTO) ===== */
-function purgeExpired(){
-  const now = Date.now();
-  const reqs = loadReq();
-  const status = loadStatus();
+/* ===== PROFILE INIT ===== */
+function loadProfile(){
+  const profile = JSON.parse(localStorage.getItem(OBS_KEY));
+  if(!profile) return false;
 
-  const valid = reqs.filter(r=>{
-    const sched = scheduledAt(r);
-    if(!sched) return false;
-    if(status[r.id]?.status === "accepted") return true;
-    return sched.getTime() > now;
-  });
+  nameEl.value = profile.name;
+  phoneEl.value = profile.phone;
+  photoEl.src = profile.photo;
+  photoLoaded = true;
 
-  localStorage.setItem(REQ_KEY, JSON.stringify(valid));
+  // Lock profile UI after creation
+  profileCard.style.opacity = "0.6";
+  profileCard.style.pointerEvents = "none";
+  return true;
 }
 
-/* ===== PHOTO ===== */
+/* ===== PHOTO UPLOAD (ACCOUNT ONLY) ===== */
 photoInput.onchange = () => {
   const file = photoInput.files[0];
   if(!file) return;
 
-  photoReady = false;
+  photoLoaded = false;
   const reader = new FileReader();
   reader.onload = () => {
     photoEl.src = reader.result;
-    photoReady = true;
+    photoLoaded = true;
   };
   reader.readAsDataURL(file);
 };
 
-/* ===== SAVE PROFILE ===== */
+/* ===== SAVE PROFILE (ONE TIME) ===== */
 saveBtn.onclick = () => {
-  if(!nameEl.value.trim() || !phoneEl.value.trim() || !photoReady){
-    alert("Upload photo and wait for it to load");
+  if(!nameEl.value.trim() || !phoneEl.value.trim() || !photoLoaded){
+    alert("Complete profile setup first");
     return;
   }
 
@@ -111,14 +112,15 @@ saveBtn.onclick = () => {
     photo: photoEl.src
   }));
 
-  alert("Profile saved");
+  loadProfile();
+  alert("Profile created");
 };
 
-/* ===== ACCEPT ===== */
+/* ===== ACCEPT REQUEST (PROFILE ALREADY EXISTS) ===== */
 function accept(id){
   const profile = JSON.parse(localStorage.getItem(OBS_KEY));
   if(!profile){
-    alert("Save profile first");
+    alert("Create your profile first");
     return;
   }
 
@@ -132,18 +134,16 @@ function accept(id){
   render();
 }
 
-/* ===== RENDER ===== */
+/* ===== RENDER REQUESTS ===== */
 function render(){
   listEl.innerHTML = "";
-  purgeExpired();
-
   const reqs = loadReq();
   const status = loadStatus();
   const now = Date.now();
 
   reqs.forEach(r=>{
     const sched = scheduledAt(r);
-    if(!sched) return;
+    if(!sched || now > sched && !status[r.id]) return;
 
     let state = "pending";
     if(status[r.id]?.status === "accepted"){
@@ -183,12 +183,14 @@ function render(){
     start.onclick = ()=>window.open(
       `https://maps.google.com?q=${encodeURIComponent(r.address)}`
     );
-
     card.appendChild(start);
+
     listEl.appendChild(card);
   });
 }
 
+/* ===== INIT ===== */
+loadProfile();
 setInterval(render,1000);
 render();
 </script>
