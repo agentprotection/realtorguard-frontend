@@ -6,17 +6,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    body { font-family: Arial; background: #f4f4f4; margin: 0; }
-    .wrap { max-width: 900px; margin: auto; padding: 16px; }
-    .card { background: #fff; padding: 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    input, select, button { width: 100%; padding: 12px; margin-top: 8px; }
-    button { font-weight: bold; cursor: pointer; }
-    .primary { background: #111; color: #fff; }
-    .secondary { background: #fff; border: 1px solid #ccc; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+
+    .wrap {
+      max-width: 900px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .primary {
+      background: #111;
+      color: #fff;
+      border: none;
+    }
+
+    .secondary {
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .status {
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
     .pending { color: #b78100; }
     .accepted { color: #2e7d32; }
-    .cancelled { color: #555; }
     .expired { color: #b71c1c; }
+    .cancelled { color: #555; }
   </style>
 </head>
 
@@ -24,28 +75,56 @@
 <div class="wrap">
   <h2>Agent Dashboard</h2>
 
-  <!-- REQUEST FORM -->
+  <!-- FORM -->
   <div class="card">
-    <h3>Request Observer</h3>
     <input id="address" placeholder="Property Address" />
-    <input type="date" id="date" />
-    <select id="time"></select>
-    <button class="primary" onclick="submitRequest()">Submit Request</button>
+
+    <div class="row">
+      <select id="state"></select>
+      <select id="timezone">
+        <option value="ET">Eastern Time</option>
+        <option value="CT">Central Time</option>
+        <option value="MT">Mountain Time</option>
+        <option value="PT">Pacific Time</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <input type="date" id="date" />
+      <select id="time"></select>
+    </div>
+
+    <button class="primary" onclick="submitRequest()">Submit</button>
   </div>
 
-  <h3>Your Requests</h3>
+  <!-- ACTIONS -->
+  <div class="card">
+    <button class="secondary" onclick="render()">Refresh</button>
+    <button class="secondary" onclick="deleteExpired()">Delete Expired</button>
+  </div>
+
+  <!-- REQUEST LIST -->
   <div id="requestList"></div>
 </div>
 
 <script>
-function load() {
-  const t = document.getElementById("time");
-  t.innerHTML = "";
+const STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+];
+
+function init() {
+  state.innerHTML = STATES.map(s => `<option>${s}</option>`).join("");
+
+  time.innerHTML = "";
   for (let h = 8; h <= 18; h++) {
     ["00","30"].forEach(m => {
       const ampm = h >= 12 ? "PM" : "AM";
       const dh = h > 12 ? h - 12 : h;
-      t.innerHTML += `<option>${dh}:${m} ${ampm}</option>`;
+      time.innerHTML += `<option>${dh}:${m} ${ampm}</option>`;
     });
   }
 }
@@ -59,27 +138,25 @@ function saveReqs(r) {
 }
 
 function submitRequest() {
-  const reqs = getReqs();
-  reqs.push({
+  const r = getReqs();
+  r.push({
     address: address.value,
+    state: state.value,
+    timezone: timezone.value,
     date: date.value,
     time: time.value,
     status: "pending"
   });
-  saveReqs(reqs);
-  render();
-}
-
-function cancel(i) {
-  const r = getReqs();
-  r[i].status = "cancelled";
   saveReqs(r);
   render();
 }
 
-function del(i) {
-  const r = getReqs();
-  r.splice(i,1);
+function deleteExpired() {
+  const now = new Date();
+  const r = getReqs().filter(x => {
+    const d = new Date(`${x.date} ${x.time}`);
+    return d >= now;
+  });
   saveReqs(r);
   render();
 }
@@ -94,28 +171,25 @@ function render() {
     return;
   }
 
-  r.forEach((x,i) => {
+  r.forEach((x, i) => {
     const expired = new Date(`${x.date} ${x.time}`) < new Date();
     if (x.status === "pending" && expired) x.status = "expired";
 
     list.innerHTML += `
       <div class="card">
         <strong>${x.address}</strong><br>
-        ${x.date} ${x.time}<br>
-        <span class="${x.status}">${x.status.toUpperCase()}</span>
-
-        ${x.status === "pending"
-          ? `<button class="secondary" onclick="cancel(${i})">Cancel</button>`
-          : ""}
-
-        <button class="secondary" onclick="del(${i})">Delete</button>
-      </div>`;
+        ${x.state} · ${x.date} · ${x.time} · ${x.timezone}<br>
+        <span class="status ${x.status}">
+          ${x.status.toUpperCase()}
+        </span>
+      </div>
+    `;
   });
 
   saveReqs(r);
 }
 
-load();
+init();
 render();
 </script>
 </body>
