@@ -72,32 +72,30 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 
   <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
 
-  <!-- TEXT inputs so placeholders ALWAYS show -->
-  <input id="date" placeholder="Date (YYYY-MM-DD)">
-  <input id="time" placeholder="Time (HH:MM AM/PM)">
+  <!-- DATE CALENDAR -->
+  <input id="date" type="date">
+
+  <!-- TIME DROPDOWN (30 MIN, NON-MILITARY) -->
+  <select id="time">
+    <option value="">Time</option>
+  </select>
 
   <select id="duration">
     <option value="">Duration</option>
-    <option value="30">30 minutes</option>
-    <option value="60">60 minutes</option>
-    <option value="90">90 minutes</option>
-    <option value="120">120 minutes</option>
-    <option value="150">150 minutes</option>
-    <option value="180">180 minutes</option>
-    <option value="210">210 minutes</option>
-    <option value="240">240 minutes</option>
+    <option>30 minutes</option>
+    <option>60 minutes</option>
+    <option>90 minutes</option>
+    <option>120 minutes</option>
+    <option>150 minutes</option>
+    <option>180 minutes</option>
+    <option>210 minutes</option>
+    <option>240 minutes</option>
   </select>
 
   <button id="btnRequest">Request Observer</button>
-  <button id="btnFormRefresh" class="secondary">Refresh</button>
+  <button id="btnRefresh" class="secondary">Refresh</button>
 
   <div class="note" id="msg"></div>
-</div>
-
-<!-- LIST CONTROLS -->
-<div class="card">
-  <button id="btnDeleteExpired" class="secondary">Delete Expired Requests</button>
-  <button id="btnListRefresh" class="secondary">Refresh List</button>
 </div>
 
 <!-- REQUEST LIST -->
@@ -108,29 +106,38 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 
 <script>
 const REQ_KEY="rg_agent_requests_v1";
-const STATUS_KEY="rg_request_status_v3";
 const $=id=>document.getElementById(id);
 
 const loadReq=()=>JSON.parse(localStorage.getItem(REQ_KEY))||[];
 const saveReq=r=>localStorage.setItem(REQ_KEY,JSON.stringify(r));
-const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS_KEY))||{};
-const saveStatus=s=>localStorage.setItem(STATUS_KEY,JSON.stringify(s));
 
-function showMsg(t){$("msg").textContent=t||""}
+/* build time dropdown */
+(function buildTimes(){
+  const t=$("time");
+  const times=[];
+  for(let h=8;h<=20;h++){
+    for(let m=0;m<60;m+=30){
+      let hh=h%12||12;
+      let ap=h<12?"AM":"PM";
+      let mm=m===0?"00":"30";
+      times.push(`${hh}:${mm} ${ap}`);
+    }
+  }
+  times.forEach(x=>{
+    const o=document.createElement("option");
+    o.textContent=o.value=x;
+    t.appendChild(o);
+  });
+})();
 
-function to24h(t){
-  const m=t.trim().toUpperCase().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
-  if(!m) return null;
-  let h=parseInt(m[1]); const mm=m[2];
-  if(m[3]==="PM"&&h!==12)h+=12;
-  if(m[3]==="AM"&&h===12)h=0;
-  return String(h).padStart(2,"0")+":"+mm;
-}
+/* visit type */
+$("visitType").addEventListener("change",()=>{
+  $("otherDesc").style.display=$("visitType").value==="Other"?"block":"none";
+});
 
-function scheduledAt(r){return new Date(`${r.date}T${r.time24}`)}
-
-function submit(){
-  showMsg("");
+/* submit */
+$("btnRequest").addEventListener("click",()=>{
+  $("msg").textContent="";
   const data={
     agentName:$("agentName").value.trim(),
     address:$("address").value.trim(),
@@ -139,98 +146,51 @@ function submit(){
     zip:$("zip").value.trim(),
     timezone:$("timezone").value,
     visitType:$("visitType").value,
-    otherDesc:$("otherDesc").value.trim(),
-    date:$("date").value.trim(),
-    time:$("time").value.trim(),
+    other:$("otherDesc").value.trim(),
+    date:$("date").value,
+    time:$("time").value,
     duration:$("duration").value
   };
 
-  if(Object.values(data).some(v=>!v)&&!(data.visitType!=="Other"&&data.otherDesc==="")){
-    showMsg("Complete required fields"); return;
+  if(!data.agentName||!data.address||!data.city||!data.state||!data.zip||
+     !data.timezone||!data.visitType||!data.date||!data.time||!data.duration){
+    $("msg").textContent="Complete required fields";
+    return;
+  }
+  if(data.visitType==="Other"&&!data.other){
+    $("msg").textContent="Complete required fields";
+    return;
   }
 
-  const time24=to24h(data.time);
-  if(!time24){showMsg("Time format HH:MM AM/PM");return;}
-
   const reqs=loadReq();
-  reqs.push({
-    id:Date.now().toString(),
-    ...data,
-    time24
-  });
+  reqs.push({id:Date.now().toString(),...data});
   saveReq(reqs);
   render();
-  showMsg("Saved");
-}
+  $("msg").textContent="Request sent";
+});
 
-function refreshForm(){
+/* refresh form */
+$("btnRefresh").addEventListener("click",()=>{
   document.querySelectorAll("input,select,textarea").forEach(e=>e.value="");
   $("otherDesc").style.display="none";
-  showMsg("");
-}
+  $("msg").textContent="";
+});
 
-function resolve(r){
-  const s=loadStatus()[r.id];
-  const now=Date.now();
-  const sched=scheduledAt(r).getTime();
-  if(s?.status==="in_route")return{t:"In Route",c:"inroute"};
-  if(s?.status==="accepted")return{t:"Accepted",c:"accepted"};
-  if(now>sched)return{t:"Expired",c:"expired"};
-  return{t:"Pending",c:"pending"};
-}
-
-function cancel(id){
-  saveReq(loadReq().filter(r=>r.id!==id));
-  const st=loadStatus(); st[id]={status:"canceled_by_agent",time:Date.now()};
-  saveStatus(st); render();
-}
-
-function del(id){
-  saveReq(loadReq().filter(r=>r.id!==id));
-  const st=loadStatus(); delete st[id];
-  saveStatus(st); render();
-}
-
-function deleteExpired(){
-  const now=Date.now();
-  const st=loadStatus();
-  saveReq(loadReq().filter(r=>{
-    if(st[r.id]?.status==="accepted")return true;
-    if(st[r.id]?.status==="in_route")return true;
-    return scheduledAt(r).getTime()>now;
-  }));
-  render();
-}
-
+/* render list */
 function render(){
   $("list").innerHTML="";
   loadReq().forEach(r=>{
-    const s=resolve(r);
     const d=document.createElement("div");
     d.className="card";
     d.innerHTML=`
       <b>${r.address}, ${r.city}, ${r.state} ${r.zip}</b>
       <div>${r.date} ${r.time}</div>
-      <div class="status ${s.c}">${s.t}</div>
-      ${s.t==="Expired"
-        ? `<button class="secondary" data-del="${r.id}">Delete</button>`
-        : `<button class="secondary" data-cancel="${r.id}">Cancel</button>`}
+      <div class="status pending">Pending</div>
     `;
     $("list").appendChild(d);
   });
-
-  document.querySelectorAll("[data-cancel]").forEach(b=>b.onclick=()=>cancel(b.dataset.cancel));
-  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>del(b.dataset.del));
 }
-
-document.addEventListener("DOMContentLoaded",()=>{
-  $("visitType").onchange=()=>{$("otherDesc").style.display=$("visitType").value==="Other"?"block":"none"};
-  $("btnRequest").onclick=submit;
-  $("btnFormRefresh").onclick=refreshForm;
-  $("btnDeleteExpired").onclick=deleteExpired;
-  $("btnListRefresh").onclick=render;
-  render();
-});
+render();
 </script>
 </body>
 </html>
