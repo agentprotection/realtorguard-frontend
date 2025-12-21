@@ -10,7 +10,7 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 .wrap{max-width:900px;margin:auto;padding:16px}
 .card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
 box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select,button,textarea{
+input,select,button{
   width:100%;padding:14px;margin-top:10px;
   border-radius:12px;font-size:16px
 }
@@ -28,16 +28,17 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- FORM -->
+<!-- AGENT FORM -->
 <div class="card">
+
   <input id="agentName" placeholder="Agent Name">
 
-  <div id="properties"></div>
+  <!-- PROPERTY 1 -->
+  <input class="propAddress" placeholder="Property Address">
+  <input class="propCity" placeholder="City">
+  <input class="propZip" placeholder="ZIP Code">
 
-  <input id="address" placeholder="Property Address">
-  <input id="city" placeholder="City">
-
-  <select id="state">
+  <select class="propState">
     <option value="">State</option>
     <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
     <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
@@ -54,41 +55,35 @@ button{border:none;font-weight:900;background:#111;color:#fff}
     <option>WI</option><option>WY</option>
   </select>
 
-  <select id="timezone">
-    <option value="">Time Zone</option>
-    <option>Eastern</option>
-    <option>Central</option>
-    <option>Mountain</option>
-    <option>Pacific</option>
-  </select>
+  <!-- ADDITIONAL PROPERTIES -->
+  <div id="extraProperties"></div>
 
-  <select id="visitType" onchange="toggleOther()">
+  <button class="secondary" onclick="addProperty()">Add Property</button>
+
+  <!-- VISIT INFO -->
+  <select id="visitType">
     <option value="">Visit Type</option>
     <option>Open House</option>
     <option>Showing</option>
     <option>Other</option>
   </select>
 
-  <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
-
-  <input id="date" type="date">
-  <input id="time" type="time">
+  <input id="date" type="date" placeholder="Date">
+  <input id="time" type="time" placeholder="Time">
 
   <select id="duration">
     <option value="">Duration</option>
     <option>30 minutes</option>
     <option>60 minutes</option>
     <option>90 minutes</option>
+    <option>120 minutes</option>
+    <option>150 minutes</option>
+    <option>180 minutes</option>
+    <option>210 minutes</option>
+    <option>240 minutes</option>
   </select>
 
-  <button class="secondary" onclick="addProperty()">Add Another Property</button>
   <button onclick="submitRequest()">Request Observer</button>
-</div>
-
-<!-- CONTROLS -->
-<div class="card">
-  <button class="secondary" onclick="deleteExpired()">Delete Expired Requests</button>
-  <button class="secondary" onclick="render()">Refresh</button>
 </div>
 
 <!-- REQUEST LIST -->
@@ -108,72 +103,71 @@ const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS_KEY))||{};
 
 let propertyCount=1;
 
-function toggleOther(){
-  otherDesc.style.display = visitType.value==="Other" ? "block" : "none";
-}
-
 function addProperty(){
   if(propertyCount>=3) return;
   propertyCount++;
-  const d=document.createElement("div");
-  d.innerHTML=`<input placeholder="Property Address ${propertyCount}">`;
-  properties.appendChild(d);
+
+  const div=document.createElement("div");
+  div.innerHTML=`
+    <input class="propAddress" placeholder="Property Address">
+    <input class="propCity" placeholder="City">
+    <input class="propZip" placeholder="ZIP Code">
+    <select class="propState">
+      <option value="">State</option>
+      <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+      <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+      <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+      <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+      <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+      <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+      <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+      <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+      <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+      <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+      <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+      <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+      <option>WI</option><option>WY</option>
+    </select>
+  `;
+  extraProperties.appendChild(div);
 }
 
 function submitRequest(){
+  const addresses=[...document.querySelectorAll(".propAddress")];
+  if(!agentName.value || !addresses[0].value || !date.value || !time.value){
+    alert("Complete required fields");
+    return;
+  }
+
   const reqs=loadReq();
   reqs.push({
     id:Date.now().toString(),
-    address:`${address.value}, ${city.value}, ${state.value}`,
+    agentName:agentName.value,
+    properties:addresses.map((a,i)=>({
+      address:a.value,
+      city:document.querySelectorAll(".propCity")[i].value,
+      zip:document.querySelectorAll(".propZip")[i].value,
+      state:document.querySelectorAll(".propState")[i].value
+    })),
+    visitType:visitType.value,
     date:date.value,
-    time:time.value
+    time:time.value,
+    duration:duration.value
   });
+
   saveReq(reqs);
-  render();
-}
-
-function resolveStatus(r){
-  const s=loadStatus()[r.id];
-  const sched=new Date(`${r.date}T${r.time}`);
-  const now=Date.now();
-
-  if(s?.status==="in_route") return{t:"In Route",c:"inroute"};
-  if(s?.status==="accepted") return{t:"Accepted",c:"accepted"};
-  if(now>sched) return{t:"Expired",c:"expired"};
-  return{t:"Pending",c:"pending"};
-}
-
-function deleteExpired(){
-  const now=Date.now();
-  const status=loadStatus();
-  const filtered=loadReq().filter(r=>{
-    if(status[r.id]) return true;
-    return new Date(`${r.date}T${r.time}`)>now;
-  });
-  saveReq(filtered);
-  render();
-}
-
-function cancelRequest(id){
-  const reqs=loadReq().filter(r=>r.id!==id);
-  saveReq(reqs);
-  const status=loadStatus();
-  delete status[id];
-  localStorage.setItem(STATUS_KEY,JSON.stringify(status));
   render();
 }
 
 function render(){
   list.innerHTML="";
   loadReq().forEach(r=>{
-    const s=resolveStatus(r);
     const c=document.createElement("div");
     c.className="card";
     c.innerHTML=`
-      <b>${r.address}</b>
+      <b>${r.properties[0].address}</b>
       <div>${r.date} ${r.time}</div>
-      <div class="status ${s.c}">${s.t}</div>
-      <button class="secondary" onclick="cancelRequest('${r.id}')">Delete</button>
+      <div class="status pending">Pending</div>
     `;
     list.appendChild(c);
   });
