@@ -6,25 +6,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;font-family:Arial;background:#f4f4f4}
-.wrap{max-width:900px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
-box-shadow:0 2px 8px rgba(0,0,0,.08)}
-button{width:100%;padding:14px;margin-top:10px;
-border-radius:12px;font-size:16px;font-weight:900;border:none}
-.accept{background:#111;color:#fff}
-.cancel{background:#fff;color:#111;border:1px solid #ccc}
-.disabled{opacity:.5;pointer-events:none}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f4f4;
+}
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+}
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  margin-top:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:900;
+  border:none;
+}
+.accept{
+  background:#111;
+  color:#fff;
+}
+.cancel{
+  background:#fff;
+  color:#111;
+  border:1px solid #ccc;
+}
+.start-disabled{
+  background:#9ca3af; /* GREY */
+  color:#fff;
+  pointer-events:none;
+}
+.start-active{
+  background:#16a34a; /* GREEN */
+  color:#fff;
+}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-<h2>Observer Dashboard</h2>
+  <h2>Observer Dashboard</h2>
 
-<div class="card">
-  <div id="list"></div>
-</div>
+  <div class="card">
+    <div id="list"></div>
+  </div>
 </div>
 
 <script>
@@ -33,9 +68,14 @@ const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 
 /* ===== HELPERS ===== */
-const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
-const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
-const saveStatus = s => localStorage.setItem(STATUS_KEY, JSON.stringify(s));
+const loadReq = () =>
+  JSON.parse(localStorage.getItem(REQ_KEY)) || [];
+
+const loadStatus = () =>
+  JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+
+const saveStatus = (s) =>
+  localStorage.setItem(STATUS_KEY, JSON.stringify(s));
 
 function scheduledAt(r){
   if(!r.date || !r.time) return null;
@@ -60,6 +100,22 @@ function cancel(id){
   render();
 }
 
+function startAssignment(id){
+  const status = loadStatus();
+  if(!status[id]) return;
+
+  status[id].status = "in_route";
+  status[id].startedAt = Date.now();
+  saveStatus(status);
+
+  const req = loadReq().find(r => r.id === id);
+  if(req){
+    window.open(
+      `https://maps.google.com?q=${encodeURIComponent(req.address)}`
+    );
+  }
+}
+
 /* ===== RENDER ===== */
 function render(){
   list.innerHTML = "";
@@ -69,11 +125,17 @@ function render(){
 
   reqs.forEach(r=>{
     const sched = scheduledAt(r);
-    if(!sched || now > sched && !status[r.id]) return;
+    if(!sched) return;
+
+    // hide expired if never accepted
+    if(now > sched && !status[r.id]) return;
 
     let state = "open";
     if(status[r.id]?.status === "accepted"){
       state = now >= sched ? "active" : "accepted";
+    }
+    if(status[r.id]?.status === "in_route"){
+      state = "in_route";
     }
 
     const card = document.createElement("div");
@@ -85,52 +147,56 @@ function render(){
       <div>${state.toUpperCase()}</div>
     `;
 
-    // COUNTDOWN
+    /* COUNTDOWN */
     if(state === "accepted"){
       const diff = Math.max(0, sched - now);
-      const s = Math.floor(diff/1000);
-      const h = String(Math.floor(s/3600)).padStart(2,"0");
-      const m = String(Math.floor((s%3600)/60)).padStart(2,"0");
-      const sec = String(s%60).padStart(2,"0");
+      const s = Math.floor(diff / 1000);
+      const h = String(Math.floor(s / 3600)).padStart(2,"0");
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
+      const sec = String(s % 60).padStart(2,"0");
 
       const cd = document.createElement("div");
       cd.innerText = `${h}:${m}:${sec}`;
       card.appendChild(cd);
     }
 
-    // ACCEPT
+    /* ACCEPT */
     if(state === "open"){
       const b = document.createElement("button");
       b.className = "accept";
       b.innerText = "Accept";
-      b.onclick = ()=>accept(r.id);
+      b.onclick = () => accept(r.id);
       card.appendChild(b);
     }
 
-    // CANCEL
+    /* CANCEL */
     if(state === "accepted"){
       const c = document.createElement("button");
       c.className = "cancel";
       c.innerText = "Cancel";
-      c.onclick = ()=>cancel(r.id);
+      c.onclick = () => cancel(r.id);
       card.appendChild(c);
     }
 
-    // START
+    /* START ASSIGNMENT */
     const start = document.createElement("button");
     start.innerText = "Start Assignment";
-    if(state !== "active") start.classList.add("disabled");
-    start.onclick = ()=>window.open(
-      `https://maps.google.com?q=${encodeURIComponent(r.address)}`
-    );
-    card.appendChild(start);
 
+    if(state === "active"){
+      start.className = "start-active";   // GREEN
+      start.onclick = () => startAssignment(r.id);
+    } else {
+      start.className = "start-disabled"; // GREY
+    }
+
+    card.appendChild(start);
     list.appendChild(card);
   });
 }
 
-setInterval(render,1000);
+setInterval(render, 1000);
 render();
 </script>
 </body>
 </html>
+✅ COMM
