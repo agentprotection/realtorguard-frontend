@@ -10,54 +10,27 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 .wrap{max-width:900px;margin:auto;padding:16px}
 .card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
 box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,button{width:100%;padding:14px;margin-top:10px;
-border-radius:12px;font-size:16px}
-button{border:none;font-weight:900;background:#111;color:#fff}
-button.secondary{background:#fff;color:#111;border:1px solid #ccc}
-button.disabled{opacity:.5;pointer-events:none}
-img{width:90px;height:90px;border-radius:50%;object-fit:cover;
-margin-top:10px;border:1px solid #ccc}
+button{width:100%;padding:14px;margin-top:10px;
+border-radius:12px;font-size:16px;font-weight:900;border:none}
+.accept{background:#111;color:#fff}
+.cancel{background:#fff;color:#111;border:1px solid #ccc}
+.disabled{opacity:.5;pointer-events:none}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-
 <h2>Observer Dashboard</h2>
 
-<!-- PROFILE (ACCOUNT SETUP) -->
-<div class="card" id="profileCard">
-  <input id="name" placeholder="Name">
-  <input id="phone" placeholder="Phone">
-  <input id="photoInput" type="file" accept="image/*">
-  <img id="photo">
-  <button class="secondary" id="saveProfile">Save Profile</button>
-</div>
-
-<!-- REQUESTS -->
 <div class="card">
   <div id="list"></div>
 </div>
-
 </div>
 
 <script>
 /* ===== STORAGE KEYS ===== */
 const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
-const OBS_KEY = "rg_observer_profile_v2";
-
-/* ===== ELEMENTS ===== */
-const nameEl = document.getElementById("name");
-const phoneEl = document.getElementById("phone");
-const photoInput = document.getElementById("photoInput");
-const photoEl = document.getElementById("photo");
-const saveBtn = document.getElementById("saveProfile");
-const listEl = document.getElementById("list");
-const profileCard = document.getElementById("profileCard");
-
-/* ===== STATE ===== */
-let photoLoaded = false;
 
 /* ===== HELPERS ===== */
 const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
@@ -69,74 +42,27 @@ function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
 }
 
-/* ===== PROFILE INIT ===== */
-function loadProfile(){
-  const profile = JSON.parse(localStorage.getItem(OBS_KEY));
-  if(!profile) return false;
-
-  nameEl.value = profile.name;
-  phoneEl.value = profile.phone;
-  photoEl.src = profile.photo;
-  photoLoaded = true;
-
-  // Lock profile UI after creation
-  profileCard.style.opacity = "0.6";
-  profileCard.style.pointerEvents = "none";
-  return true;
-}
-
-/* ===== PHOTO UPLOAD (ACCOUNT ONLY) ===== */
-photoInput.onchange = () => {
-  const file = photoInput.files[0];
-  if(!file) return;
-
-  photoLoaded = false;
-  const reader = new FileReader();
-  reader.onload = () => {
-    photoEl.src = reader.result;
-    photoLoaded = true;
-  };
-  reader.readAsDataURL(file);
-};
-
-/* ===== SAVE PROFILE (ONE TIME) ===== */
-saveBtn.onclick = () => {
-  if(!nameEl.value.trim() || !phoneEl.value.trim() || !photoLoaded){
-    alert("Complete profile setup first");
-    return;
-  }
-
-  localStorage.setItem(OBS_KEY, JSON.stringify({
-    name: nameEl.value.trim(),
-    phone: phoneEl.value.trim(),
-    photo: photoEl.src
-  }));
-
-  loadProfile();
-  alert("Profile created");
-};
-
-/* ===== ACCEPT REQUEST (PROFILE ALREADY EXISTS) ===== */
+/* ===== ACTIONS ===== */
 function accept(id){
-  const profile = JSON.parse(localStorage.getItem(OBS_KEY));
-  if(!profile){
-    alert("Create your profile first");
-    return;
-  }
-
   const status = loadStatus();
   status[id] = {
     status: "accepted",
-    acceptedAt: Date.now(),
-    observer: profile
+    acceptedAt: Date.now()
   };
   saveStatus(status);
   render();
 }
 
-/* ===== RENDER REQUESTS ===== */
+function cancel(id){
+  const status = loadStatus();
+  delete status[id]; // release request
+  saveStatus(status);
+  render();
+}
+
+/* ===== RENDER ===== */
 function render(){
-  listEl.innerHTML = "";
+  list.innerHTML = "";
   const reqs = loadReq();
   const status = loadStatus();
   const now = Date.now();
@@ -145,7 +71,7 @@ function render(){
     const sched = scheduledAt(r);
     if(!sched || now > sched && !status[r.id]) return;
 
-    let state = "pending";
+    let state = "open";
     if(status[r.id]?.status === "accepted"){
       state = now >= sched ? "active" : "accepted";
     }
@@ -159,24 +85,38 @@ function render(){
       <div>${state.toUpperCase()}</div>
     `;
 
+    // COUNTDOWN
     if(state === "accepted"){
-      const diff = Math.max(0, sched-now);
+      const diff = Math.max(0, sched - now);
       const s = Math.floor(diff/1000);
       const h = String(Math.floor(s/3600)).padStart(2,"0");
       const m = String(Math.floor((s%3600)/60)).padStart(2,"0");
       const sec = String(s%60).padStart(2,"0");
+
       const cd = document.createElement("div");
       cd.innerText = `${h}:${m}:${sec}`;
       card.appendChild(cd);
     }
 
-    if(state === "pending"){
+    // ACCEPT
+    if(state === "open"){
       const b = document.createElement("button");
+      b.className = "accept";
       b.innerText = "Accept";
       b.onclick = ()=>accept(r.id);
       card.appendChild(b);
     }
 
+    // CANCEL
+    if(state === "accepted"){
+      const c = document.createElement("button");
+      c.className = "cancel";
+      c.innerText = "Cancel";
+      c.onclick = ()=>cancel(r.id);
+      card.appendChild(c);
+    }
+
+    // START
     const start = document.createElement("button");
     start.innerText = "Start Assignment";
     if(state !== "active") start.classList.add("disabled");
@@ -185,12 +125,10 @@ function render(){
     );
     card.appendChild(start);
 
-    listEl.appendChild(card);
+    list.appendChild(card);
   });
 }
 
-/* ===== INIT ===== */
-loadProfile();
 setInterval(render,1000);
 render();
 </script>
