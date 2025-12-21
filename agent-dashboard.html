@@ -28,7 +28,7 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- AGENT FORM -->
+<!-- FORM -->
 <div class="card">
 
   <input id="agentName" placeholder="Agent Name">
@@ -55,12 +55,10 @@ button{border:none;font-weight:900;background:#111;color:#fff}
     <option>WI</option><option>WY</option>
   </select>
 
-  <!-- ADDITIONAL PROPERTIES -->
-  <div id="extraProperties"></div>
+  <!-- EXTRA PROPERTIES -->
+  <div id="extraProps"></div>
 
-  <button class="secondary" onclick="addProperty()">Add Property</button>
-
-  <!-- VISIT INFO -->
+  <!-- VISIT -->
   <select id="visitType">
     <option value="">Visit Type</option>
     <option>Open House</option>
@@ -83,6 +81,9 @@ button{border:none;font-weight:900;background:#111;color:#fff}
     <option>240 minutes</option>
   </select>
 
+  <!-- ADD PROPERTY MOVED HERE -->
+  <button class="secondary" onclick="addProperty()">Add Property</button>
+
   <button onclick="submitRequest()">Request Observer</button>
 </div>
 
@@ -101,14 +102,13 @@ const loadReq=()=>JSON.parse(localStorage.getItem(REQ_KEY))||[];
 const saveReq=r=>localStorage.setItem(REQ_KEY,JSON.stringify(r));
 const loadStatus=()=>JSON.parse(localStorage.getItem(STATUS_KEY))||{};
 
-let propertyCount=1;
+let propCount=1;
 
 function addProperty(){
-  if(propertyCount>=3) return;
-  propertyCount++;
-
-  const div=document.createElement("div");
-  div.innerHTML=`
+  if(propCount>=3) return;
+  propCount++;
+  const d=document.createElement("div");
+  d.innerHTML=`
     <input class="propAddress" placeholder="Property Address">
     <input class="propCity" placeholder="City">
     <input class="propZip" placeholder="ZIP Code">
@@ -129,12 +129,11 @@ function addProperty(){
       <option>WI</option><option>WY</option>
     </select>
   `;
-  extraProperties.appendChild(div);
+  extraProps.appendChild(d);
 }
 
 function submitRequest(){
-  const addresses=[...document.querySelectorAll(".propAddress")];
-  if(!agentName.value || !addresses[0].value || !date.value || !time.value){
+  if(!agentName.value || !document.querySelector(".propAddress").value){
     alert("Complete required fields");
     return;
   }
@@ -142,32 +141,43 @@ function submitRequest(){
   const reqs=loadReq();
   reqs.push({
     id:Date.now().toString(),
-    agentName:agentName.value,
-    properties:addresses.map((a,i)=>({
-      address:a.value,
-      city:document.querySelectorAll(".propCity")[i].value,
-      zip:document.querySelectorAll(".propZip")[i].value,
-      state:document.querySelectorAll(".propState")[i].value
-    })),
-    visitType:visitType.value,
+    address:document.querySelector(".propAddress").value,
     date:date.value,
-    time:time.value,
-    duration:duration.value
+    time:time.value
   });
-
   saveReq(reqs);
+  render();
+}
+
+function resolveStatus(r){
+  const s=loadStatus()[r.id];
+  const sched=new Date(`${r.date}T${r.time}`);
+  const now=Date.now();
+
+  if(s?.status==="in_route") return{t:"In Route",c:"inroute"};
+  if(s?.status==="accepted") return{t:"Accepted",c:"accepted"};
+  if(now>sched) return{t:"Expired",c:"expired"};
+  return{t:"Pending",c:"pending"};
+}
+
+function deleteRequest(id){
+  saveReq(loadReq().filter(r=>r.id!==id));
   render();
 }
 
 function render(){
   list.innerHTML="";
   loadReq().forEach(r=>{
+    const s=resolveStatus(r);
     const c=document.createElement("div");
     c.className="card";
     c.innerHTML=`
-      <b>${r.properties[0].address}</b>
+      <b>${r.address}</b>
       <div>${r.date} ${r.time}</div>
-      <div class="status pending">Pending</div>
+      <div class="status ${s.c}">${s.t}</div>
+      ${s.t==="Expired"
+        ? `<button class="secondary" onclick="deleteRequest('${r.id}')">Delete</button>`
+        : ``}
     `;
     list.appendChild(c);
   });
