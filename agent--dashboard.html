@@ -6,52 +6,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f4f4f4;
-}
-.wrap{
-  max-width:900px;
-  margin:auto;
-  padding:16px;
-}
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  margin-top:14px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-}
+body{margin:0;font-family:Arial;background:#f4f4f4}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
+box-shadow:0 2px 8px rgba(0,0,0,.08)}
 input,select,button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border-radius:12px;
-  font-size:16px;
+  width:100%;padding:14px;margin-top:10px;border-radius:12px;font-size:16px
 }
-button{
-  border:none;
-  font-weight:900;
-  background:#111;
-  color:#fff;
-}
-.status{
-  margin-top:8px;
-  font-weight:900;
-}
-.accepted{
-  color:#2563eb; /* blue */
-}
-.inroute{
-  color:#16a34a; /* green */
-}
-.pending{
-  color:#6b7280; /* grey */
-}
-.expired{
-  color:#dc2626; /* red */
-}
+button{border:none;font-weight:900;background:#111;color:#fff}
+.status{margin-top:8px;font-weight:900}
+.pending{color:#6b7280}
+.accepted{color:#2563eb}
+.inroute{color:#16a34a}
+.expired{color:#dc2626}
 </style>
 </head>
 
@@ -59,7 +26,7 @@ button{
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- AGENT REQUEST FORM (UNCHANGED FORMAT) -->
+<!-- REQUEST FORM (UNCHANGED) -->
 <div class="card">
   <input id="agentName" placeholder="Agent Name">
   <input id="address" placeholder="Property Address">
@@ -93,19 +60,14 @@ button{
 </div>
 
 <script>
-/* ===== STORAGE KEYS ===== */
+/* ===== STORAGE KEYS (MUST MATCH OBSERVER) ===== */
 const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 
 /* ===== HELPERS ===== */
-const loadReq = () =>
-  JSON.parse(localStorage.getItem(REQ_KEY)) || [];
-
-const saveReq = r =>
-  localStorage.setItem(REQ_KEY, JSON.stringify(r));
-
-const loadStatus = () =>
-  JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
+const saveReq = r => localStorage.setItem(REQ_KEY, JSON.stringify(r));
+const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
 
 function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
@@ -131,48 +93,50 @@ function submitRequest(){
   render();
 }
 
-/* ===== STATUS MAPPING (THE KEY FIX) ===== */
-function getAgentStatus(req){
+/* ===== STATUS LOGIC (FIXED) ===== */
+function getStatus(req){
   const statusMap = loadStatus();
   const stat = statusMap[req.id];
   const sched = scheduledAt(req);
 
   if(stat?.status === "in_route"){
-    return { text: "In Route", cls: "inroute" };
+    return { text:"In Route", cls:"inroute" };
   }
 
   if(stat?.status === "accepted"){
-    return { text: "Accepted", cls: "accepted" };
+    return { text:"Accepted", cls:"accepted" };
   }
 
   if(Date.now() > sched.getTime()){
-    return { text: "Expired", cls: "expired" };
+    return { text:"Expired", cls:"expired" };
   }
 
-  return { text: "Pending", cls: "pending" };
+  return { text:"Pending", cls:"pending" };
 }
 
-/* ===== RENDER ===== */
+/* ===== RENDER (LIVE SYNC) ===== */
 function render(){
   list.innerHTML = "";
   const reqs = loadReq();
 
   reqs.forEach(r=>{
+    const s = getStatus(r);
+
     const card = document.createElement("div");
     card.className = "card";
-
-    const status = getAgentStatus(r);
 
     card.innerHTML = `
       <b>${r.address}</b>
       <div>${r.date} ${r.time}</div>
-      <div class="status ${status.cls}">${status.text}</div>
+      <div class="status ${s.cls}">${s.text}</div>
     `;
 
     list.appendChild(card);
   });
 }
 
+/* 🔑 THIS IS CRITICAL */
+setInterval(render, 1000);
 render();
 </script>
 </body>
