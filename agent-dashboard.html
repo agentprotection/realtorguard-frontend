@@ -24,102 +24,102 @@
 
     .logo-wrap {
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .logo-wrap img {
-      width: 160px;
+      width: 170px;
       max-width: 80%;
     }
 
     .card {
       background: #ffffff;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    .card input,
-    .card select,
-    .card button {
+    input,
+    select,
+    button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
+      margin-top: 10px;
       font-size: 16px;
-      margin-top: 8px;
+      border-radius: 8px;
     }
 
-    .card button {
+    input,
+    select {
+      border: 1px solid #ccc;
+    }
+
+    button {
+      border: none;
       background: #000;
       color: #fff;
-      border: none;
       font-weight: bold;
       cursor: pointer;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .actions button {
-      flex: 1;
-      background: #fff;
-      border: 1px solid #ccc;
-      color: #000;
-    }
-
-    .request {
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .expired {
-      color: #b00000;
-      font-weight: bold;
+      margin-top: 16px;
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
+<div class="app">
 
-    <!-- LOGO -->
-    <div class="logo-wrap">
-      <img src="logo.png" alt="Realtor Guard Logo">
-    </div>
-
-    <!-- FORM -->
-    <div class="card">
-      <input id="address" placeholder="Property Address">
-
-      <select id="state"></select>
-
-      <select id="timezone">
-        <option value="ET">ET</option>
-        <option value="CT">CT</option>
-        <option value="MT">MT</option>
-        <option value="PT">PT</option>
-      </select>
-
-      <input type="date" id="date">
-      <select id="time"></select>
-
-      <button onclick="addRequest()">Submit</button>
-    </div>
-
-    <!-- ACTION BUTTONS -->
-    <div class="card actions">
-      <button onclick="render()">Refresh</button>
-      <button onclick="clearExpired()">Delete Expired</button>
-    </div>
-
-    <!-- REQUEST LIST -->
-    <div id="list"></div>
-
+  <!-- LOGO -->
+  <div class="logo-wrap">
+    <img src="logo.png" alt="Realtor Guard Logo">
   </div>
 
+  <!-- FORM -->
+  <div class="card">
+
+    <!-- AGENT NAME (ABOVE ADDRESS) -->
+    <input id="agentName" placeholder="Agent Name">
+
+    <!-- PROPERTY -->
+    <input id="address" placeholder="Property Address">
+    <input id="city" placeholder="City">
+
+    <!-- STATE DROPDOWN ONLY -->
+    <select id="state"></select>
+
+    <input id="zip" placeholder="Zip" inputmode="numeric">
+
+    <!-- VISIT TYPE -->
+    <select id="visitType">
+      <option value="">Type of Visit</option>
+      <option>Showing</option>
+      <option>Inspection</option>
+      <option>Open House</option>
+      <option>Other</option>
+    </select>
+
+    <!-- DATE -->
+    <input type="date" id="date">
+
+    <!-- TIME DROPDOWN ONLY -->
+    <select id="time"></select>
+
+    <!-- TIME ZONE DROPDOWN ONLY -->
+    <select id="timezone">
+      <option value="">Time Zone</option>
+      <option>ET</option>
+      <option>CT</option>
+      <option>MT</option>
+      <option>PT</option>
+    </select>
+
+    <!-- SUBMIT -->
+    <button onclick="requestObserver()">Request Observer</button>
+
+  </div>
+</div>
+
 <script>
+/* STATES */
 const STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
   "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
@@ -128,64 +128,39 @@ const STATES = [
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 ];
 
-state.innerHTML = STATES.map(s => `<option>${s}</option>`).join("");
+state.innerHTML =
+  `<option value="">State</option>` +
+  STATES.map(s => `<option>${s}</option>`).join("");
 
+/* TIME OPTIONS (30 MIN INCREMENTS) */
+time.innerHTML = `<option value="">Time</option>`;
 for (let h = 8; h <= 18; h++) {
   ["00","30"].forEach(m => {
-    const ap = h >= 12 ? "PM" : "AM";
-    const dh = h > 12 ? h - 12 : h;
-    time.innerHTML += `<option>${dh}:${m} ${ap}</option>`;
+    const ampm = h >= 12 ? "PM" : "AM";
+    const displayHour = h > 12 ? h - 12 : h;
+    time.innerHTML += `<option>${displayHour}:${m} ${ampm}</option>`;
   });
 }
 
-function getRequests() {
-  return JSON.parse(localStorage.getItem("requests")) || [];
+/* SUBMIT HANDLER */
+function requestObserver() {
+  const req = {
+    agentName: agentName.value,
+    address: address.value,
+    city: city.value,
+    state: state.value,
+    zip: zip.value,
+    visitType: visitType.value,
+    date: date.value,
+    time: time.value,
+    timezone: timezone.value,
+    status: "Pending"
+  };
+
+  localStorage.setItem("activeRequest", JSON.stringify(req));
+  window.location.href = "agent-request-status.html";
 }
-
-function saveRequests(r) {
-  localStorage.setItem("requests", JSON.stringify(r));
-}
-
-function addRequest() {
-  const r = getRequests();
-  r.push({
-    a: address.value,
-    s: state.value,
-    z: timezone.value,
-    d: date.value,
-    t: time.value
-  });
-  saveRequests(r);
-  render();
-}
-
-function render() {
-  const r = getRequests();
-  list.innerHTML = "";
-
-  if (!r.length) return;
-
-  r.forEach(x => {
-    const expired = new Date(`${x.d} ${x.t}`) < new Date();
-    list.innerHTML += `
-      <div class="card request ${expired ? "expired" : ""}">
-        ${x.a}<br>
-        ${x.s} · ${x.d} · ${x.t} · ${x.z}
-        ${expired ? "<div>EXPIRED</div>" : ""}
-      </div>
-    `;
-  });
-}
-
-function clearExpired() {
-  const r = getRequests().filter(x =>
-    new Date(`${x.d} ${x.t}`) >= new Date()
-  );
-  saveRequests(r);
-  render();
-}
-
-render();
 </script>
+
 </body>
 </html>
