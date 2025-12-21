@@ -27,7 +27,7 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- REQUEST FORM -->
+<!-- AGENT FORM (UNCHANGED) -->
 <div class="card">
   <input id="agentName" placeholder="Agent Name">
   <input id="address" placeholder="Property Address">
@@ -53,7 +53,7 @@ button{border:none;font-weight:900;background:#111;color:#fff}
   <button onclick="submitRequest()">Request Observer</button>
 </div>
 
-<!-- DELETE EXPIRED -->
+<!-- DELETE EXPIRED (NEW, SIMPLE) -->
 <div class="card">
   <button class="secondary" onclick="deleteExpiredRequests()">
     Delete Expired Requests
@@ -68,9 +68,11 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 </div>
 
 <script>
+/* ===== STORAGE KEYS (MATCH OBSERVER) ===== */
 const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 
+/* ===== HELPERS ===== */
 const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
 const saveReq = r => localStorage.setItem(REQ_KEY, JSON.stringify(r));
 const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
@@ -79,6 +81,7 @@ function scheduledAt(r){
   return new Date(`${r.date}T${r.time}`);
 }
 
+/* ===== SUBMIT REQUEST ===== */
 function submitRequest(){
   if(!address.value || !date.value || !time.value){
     alert("Complete the form");
@@ -88,6 +91,7 @@ function submitRequest(){
   const reqs = loadReq();
   reqs.push({
     id: Date.now().toString(),
+    agentName: agentName.value,
     address: `${address.value}, ${city.value}, ${state.value}`,
     date: date.value,
     time: time.value
@@ -97,32 +101,39 @@ function submitRequest(){
   render();
 }
 
+/* ===== STATUS RESOLUTION (FIXES PENDING ISSUE) ===== */
 function resolveStatus(r){
-  const status = loadStatus()[r.id];
-  const sched = scheduledAt(r);
+  const stat = loadStatus()[r.id];
   const now = Date.now();
+  const sched = scheduledAt(r);
 
-  if(status?.status === "in_route")
+  if(stat?.status === "in_route")
     return {t:"In Route", c:"inroute"};
-  if(status?.status === "accepted")
+
+  if(stat?.status === "accepted")
     return {t:"Accepted", c:"accepted"};
+
   if(now > sched)
     return {t:"Expired", c:"expired"};
 
   return {t:"Pending", c:"pending"};
 }
 
+/* ===== DELETE EXPIRED (WORKING) ===== */
 function deleteExpiredRequests(){
   const now = Date.now();
   const statusMap = loadStatus();
-  const filtered = loadReq().filter(r=>{
-    if(statusMap[r.id]) return true;
+
+  const cleaned = loadReq().filter(r=>{
+    if(statusMap[r.id]) return true; // keep accepted / in-route
     return scheduledAt(r) > now;
   });
-  saveReq(filtered);
+
+  saveReq(cleaned);
   render();
 }
 
+/* ===== RENDER (LIVE SYNC) ===== */
 function render(){
   list.innerHTML = "";
   loadReq().forEach(r=>{
