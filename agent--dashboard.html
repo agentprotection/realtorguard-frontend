@@ -10,8 +10,9 @@ body{margin:0;font-family:Arial;background:#f4f4f4}
 .wrap{max-width:900px;margin:auto;padding:16px}
 .card{background:#fff;border-radius:14px;padding:16px;margin-top:14px;
 box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select,button{
-  width:100%;padding:14px;margin-top:10px;border-radius:12px;font-size:16px
+input,select,button,textarea{
+  width:100%;padding:14px;margin-top:10px;
+  border-radius:12px;font-size:16px;box-sizing:border-box
 }
 button{border:none;font-weight:900;background:#111;color:#fff}
 .secondary{background:#fff;color:#111;border:1px solid #ccc}
@@ -27,35 +28,58 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 <div class="wrap">
 <h2>Agent Dashboard</h2>
 
-<!-- REQUEST FORM (UNCHANGED) -->
+<!-- FORM -->
 <div class="card">
   <input id="agentName" placeholder="Agent Name">
-  <input id="address" placeholder="Property Address">
-  <input id="city" placeholder="City">
-  <select id="state">
-    <option value="">State</option>
-    <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
-    <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
-    <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
-    <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
-    <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
-    <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
-    <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
-    <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
-    <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
-    <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
-    <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
-    <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
-    <option>WI</option><option>WY</option>
+
+  <!-- PROPERTIES -->
+  <div id="properties"></div>
+
+  <!-- US TIME ZONES ONLY -->
+  <select id="timezone">
+    <option value="">Time Zone</option>
+    <option>Eastern</option>
+    <option>Central</option>
+    <option>Mountain</option>
+    <option>Pacific</option>
   </select>
-  <input id="date" type="date">
-  <input id="time" type="time">
+
+  <!-- VISIT TYPE -->
+  <select id="visitType" onchange="toggleOther()">
+    <option value="">Visit Type</option>
+    <option>Open House</option>
+    <option>Showing</option>
+    <option>Other</option>
+  </select>
+
+  <textarea id="otherDesc" placeholder="Description" style="display:none"></textarea>
+
+  <!-- DATE / TIME -->
+  <input id="date" type="date" placeholder="Date">
+  <input id="time" type="time" placeholder="Time">
+
+  <!-- DURATION -->
+  <select id="duration">
+    <option value="">Duration</option>
+    <option>30 minutes</option>
+    <option>60 minutes</option>
+    <option>90 minutes</option>
+    <option>120 minutes</option>
+    <option>150 minutes</option>
+    <option>180 minutes</option>
+    <option>210 minutes</option>
+    <option>240 minutes</option>
+  </select>
+
+  <!-- BUTTON ORDER -->
+  <button class="secondary" onclick="addProperty()">Add Property</button>
   <button onclick="submitRequest()">Request Observer</button>
 </div>
 
 <!-- CONTROLS -->
 <div class="card">
   <button class="secondary" onclick="deleteExpired()">Delete Expired Requests</button>
+  <button class="secondary" onclick="render()">Refresh</button>
 </div>
 
 <!-- REQUEST LIST -->
@@ -66,101 +90,171 @@ button{border:none;font-weight:900;background:#111;color:#fff}
 </div>
 
 <script>
-/* ===== STORAGE KEYS ===== */
 const REQ_KEY = "rg_agent_requests_v1";
 const STATUS_KEY = "rg_request_status_v3";
 
-/* ===== HELPERS ===== */
 const loadReq = () => JSON.parse(localStorage.getItem(REQ_KEY)) || [];
 const saveReq = r => localStorage.setItem(REQ_KEY, JSON.stringify(r));
 const loadStatus = () => JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
+const saveStatus = s => localStorage.setItem(STATUS_KEY, JSON.stringify(s));
 
-function scheduledAt(r){
-  return new Date(`${r.date}T${r.time}`);
+const propertiesDiv = document.getElementById("properties");
+const list = document.getElementById("list");
+const otherDesc = document.getElementById("otherDesc");
+
+let propCount = 0;
+
+/* ---------- PROPERTY BLOCK ---------- */
+function propertyBlock(){
+  return `
+    <input class="propAddress" placeholder="Property Address">
+    <input class="propCity" placeholder="City">
+    <input class="propZip" placeholder="ZIP Code">
+    <select class="propState">
+      <option value="">State</option>
+      ${["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"]
+        .map(s=>`<option>${s}</option>`).join("")}
+    </select>
+  `;
 }
 
-/* ===== SUBMIT REQUEST ===== */
+function addProperty(){
+  if(propCount >= 3) return;
+  propCount++;
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = propertyBlock();
+  propertiesDiv.appendChild(d);
+}
+
+/* create first property */
+addProperty();
+
+/* ---------- VISIT TYPE ---------- */
+function toggleOther(){
+  otherDesc.style.display =
+    document.getElementById("visitType").value === "Other"
+      ? "block" : "none";
+}
+
+/* ---------- SUBMIT ---------- */
 function submitRequest(){
-  if(!address.value || !date.value || !time.value){
-    alert("Complete the form");
+  const agentName = document.getElementById("agentName").value.trim();
+  const timezone = document.getElementById("timezone").value;
+  const visitType = document.getElementById("visitType").value;
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const duration = document.getElementById("duration").value;
+
+  const addrs = [...document.querySelectorAll(".propAddress")].map(x=>x.value.trim());
+  const cities = [...document.querySelectorAll(".propCity")].map(x=>x.value.trim());
+  const zips = [...document.querySelectorAll(".propZip")].map(x=>x.value.trim());
+  const states = [...document.querySelectorAll(".propState")].map(x=>x.value);
+
+  if(!agentName || !addrs[0] || !cities[0] || !states[0] || !zips[0] ||
+     !timezone || !visitType || !date || !time || !duration){
+    alert("Complete required fields");
     return;
   }
 
+  const properties = [];
+  for(let i=0;i<addrs.length;i++){
+    if(addrs[i]){
+      if(!cities[i] || !states[i] || !zips[i]){
+        alert("Complete required fields");
+        return;
+      }
+      properties.push({
+        address:addrs[i],
+        city:cities[i],
+        state:states[i],
+        zip:zips[i]
+      });
+    }
+  }
+
   const reqs = loadReq();
+  const id = Date.now().toString();
+
   reqs.push({
-    id: Date.now().toString(),
-    agentName: agentName.value,
-    address: `${address.value}, ${city.value}, ${state.value}`,
-    date: date.value,
-    time: time.value
+    id,
+    agentName,
+    properties,
+    timezone,
+    visitType,
+    otherDesc: visitType==="Other" ? otherDesc.value : "",
+    date,
+    time,
+    duration
   });
 
   saveReq(reqs);
   render();
 }
 
-/* ===== STATUS RESOLUTION (SOURCE OF TRUTH) ===== */
-function resolveStatus(req){
-  const statusMap = loadStatus();
-  const stat = statusMap[req.id];
-  const sched = scheduledAt(req);
+/* ---------- STATUS ---------- */
+function resolveStatus(r){
+  const s = loadStatus()[r.id];
   const now = Date.now();
+  const sched = new Date(`${r.date}T${r.time}`).getTime();
 
-  if(stat?.status === "in_route"){
-    return { text:"In Route", cls:"inroute" };
-  }
-
-  if(stat?.status === "accepted"){
-    return { text:"Accepted", cls:"accepted" };
-  }
-
-  if(now > sched.getTime()){
-    return { text:"Expired", cls:"expired" };
-  }
-
-  return { text:"Pending", cls:"pending" };
+  if(s?.status==="in_route") return {t:"In Route",c:"inroute"};
+  if(s?.status==="accepted") return {t:"Accepted",c:"accepted"};
+  if(now > sched) return {t:"Expired",c:"expired"};
+  return {t:"Pending",c:"pending"};
 }
 
-/* ===== DELETE EXPIRED (EMAIL-LIKE CLEANUP) ===== */
-function deleteExpired(){
-  const reqs = loadReq();
-  const statusMap = loadStatus();
-  const now = Date.now();
-
-  const filtered = reqs.filter(r=>{
-    const sched = scheduledAt(r);
-    if(statusMap[r.id]) return true; // keep accepted/in-route
-    return sched.getTime() > now;
-  });
-
-  saveReq(filtered);
+/* ---------- CANCEL / DELETE ---------- */
+function cancelRequest(id){
+  saveReq(loadReq().filter(r=>r.id!==id));
+  const st = loadStatus();
+  st[id] = {status:"canceled_by_agent",time:Date.now()};
+  saveStatus(st);
   render();
 }
 
-/* ===== RENDER (LIVE SYNC) ===== */
+function deleteRequest(id){
+  saveReq(loadReq().filter(r=>r.id!==id));
+  const st = loadStatus();
+  delete st[id];
+  saveStatus(st);
+  render();
+}
+
+function deleteExpired(){
+  const now = Date.now();
+  const st = loadStatus();
+  saveReq(loadReq().filter(r=>{
+    if(st[r.id]?.status==="accepted") return true;
+    if(st[r.id]?.status==="in_route") return true;
+    return new Date(`${r.date}T${r.time}`).getTime() > now;
+  }));
+  render();
+}
+
+/* ---------- RENDER ---------- */
 function render(){
-  list.innerHTML = "";
-  const reqs = loadReq();
-
-  reqs.forEach(r=>{
+  list.innerHTML="";
+  loadReq().forEach(r=>{
     const s = resolveStatus(r);
-
+    const p = r.properties[0];
     const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <b>${r.address}</b>
+    card.className="card";
+    card.innerHTML=`
+      <b>${p.address}, ${p.city}, ${p.state} ${p.zip}</b>
       <div>${r.date} ${r.time}</div>
-      <div class="status ${s.cls}">${s.text}</div>
+      <div class="status ${s.c}">${s.t}</div>
+      ${s.t!=="Expired"
+        ? `<button class="secondary" onclick="cancelRequest('${r.id}')">Cancel</button>`
+        : `<button class="secondary" onclick="deleteRequest('${r.id}')">Delete</button>`}
     `;
-
     list.appendChild(card);
   });
 }
 
-/* IMPORTANT: re-read status continuously */
-setInterval(render, 1000);
+setInterval(render,1000);
 render();
 </script>
 </body>
 </html>
+✅ COMM
