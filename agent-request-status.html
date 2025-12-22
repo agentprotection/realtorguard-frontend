@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Request Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f3f3;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .logo-wrap img {
+      width: 170px;
+      max-width: 80%;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    .status {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #d48b00;
+    }
+
+    .status.accepted {
+      color: #1f9d55;
+    }
+
+    .field {
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #555;
+    }
+
+    .value {
+      margin-top: 2px;
+      color: #111;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .refresh {
+      background: #ffffff;
+      border: 2px solid #111;
+      font-weight: 700;
+    }
+
+    .cancel {
+      background: #d32f2f;
+      color: #ffffff;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- LOGO -->
+    <div class="logo-wrap">
+      <img src="logo.png" alt="Realtor Guard Logo" />
+    </div>
+
+    <!-- STATUS CARD -->
+    <div class="card">
+
+      <div id="statusText" class="status">
+        Waiting for observer acceptance
+      </div>
+
+      <!-- REQUEST DETAILS -->
+      <div class="field">
+        <div class="label">Agent Name</div>
+        <div class="value" id="agentName">—</div>
+      </div>
+
+      <div class="field">
+        <div class="label">Property Address</div>
+        <div class="value" id="propertyAddress">—</div>
+      </div>
+
+      <div class="field">
+        <div class="label">Date & Time</div>
+        <div class="value" id="dateTime">—</div>
+      </div>
+
+      <div class="field">
+        <div class="label">Duration</div>
+        <div class="value" id="duration">—</div>
+      </div>
+
+      <div class="field">
+        <div class="label">Visit Type</div>
+        <div class="value" id="visitType">—</div>
+      </div>
+
+      <!-- BUTTONS -->
+      <button class="refresh" onclick="refreshStatus()">Refresh Status</button>
+      <button class="cancel" onclick="cancelRequest()">Cancel Request</button>
+
+    </div>
+  </div>
+
+  <script>
+    // Load request data from localStorage
+    const request = JSON.parse(localStorage.getItem("agentRequest"));
+
+    if (request) {
+      document.getElementById("agentName").textContent = request.agentName;
+      document.getElementById("propertyAddress").textContent = request.address;
+      document.getElementById("dateTime").textContent =
+        request.date + " at " + request.time + " (" + request.timezone + ")";
+      document.getElementById("duration").textContent = request.duration;
+      document.getElementById("visitType").textContent = request.visitType;
+    }
+
+    function refreshStatus() {
+      const accepted = localStorage.getItem("observerAccepted");
+
+      if (accepted === "true") {
+        const status = document.getElementById("statusText");
+        status.textContent = "Observer accepted";
+        status.classList.add("accepted");
+      } else {
+        alert("No observer has accepted yet.");
+      }
+    }
+
+    function cancelRequest() {
+      if (confirm("Cancel this request?")) {
+        localStorage.removeItem("agentRequest");
+        localStorage.removeItem("observerAccepted");
+        window.location.href = "agent-dashboard.html";
+      }
+    }
+  </script>
+</body>
+</html>
