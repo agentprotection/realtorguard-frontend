@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Request Status</title>
+  <title>Request Status | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -13,7 +13,7 @@
 
     body {
       margin: 0;
-      background: #f3f3f3;
+      background: #f4f4f4;
     }
 
     .app {
@@ -22,70 +22,76 @@
       padding: 16px;
     }
 
-    .logo-wrap {
+    .logo {
       text-align: center;
-      margin: 24px 0;
+      margin-bottom: 20px;
     }
 
-    .logo-wrap img {
-      width: 170px;
-      max-width: 80%;
+    .logo img {
+      width: 180px;
+      max-width: 90%;
     }
 
     .card {
-      background: #ffffff;
-      border-radius: 14px;
+      background: #fff;
       padding: 20px;
+      border-radius: 16px;
       box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
 
     .status {
       text-align: center;
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: bold;
       margin-bottom: 16px;
-      color: #d48b00;
+      color: #d98c00;
     }
 
     .status.accepted {
-      color: #1f9d55;
-    }
-
-    .field {
-      margin-bottom: 12px;
-      font-size: 15px;
+      color: #2e9b4b;
     }
 
     .label {
-      font-weight: 600;
-      color: #555;
+      font-weight: bold;
+      margin-top: 12px;
     }
 
     .value {
-      margin-top: 2px;
-      color: #111;
+      margin-top: 4px;
+      color: #333;
+    }
+
+    .observer-box {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #eef8f1;
+      display: none;
+    }
+
+    .observer-box h3 {
+      margin: 0 0 8px;
+      color: #2e9b4b;
     }
 
     button {
       width: 100%;
-      padding: 16px;
-      font-size: 16px;
-      border-radius: 12px;
+      padding: 14px;
+      border-radius: 14px;
       border: none;
+      font-size: 16px;
+      margin-top: 14px;
       cursor: pointer;
-      margin-top: 12px;
     }
 
-    .refresh {
-      background: #ffffff;
-      border: 2px solid #111;
-      font-weight: 700;
+    .refresh-btn {
+      background: #000;
+      color: #fff;
     }
 
-    .cancel {
-      background: #d32f2f;
-      color: #ffffff;
-      font-weight: 700;
+    .cancel-btn {
+      background: #c0392b;
+      color: #fff;
     }
   </style>
 </head>
@@ -93,83 +99,78 @@
 <body>
   <div class="app">
 
-    <!-- LOGO -->
-    <div class="logo-wrap">
-      <img src="logo.png" alt="Realtor Guard Logo" />
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
     </div>
 
-    <!-- STATUS CARD -->
     <div class="card">
-
       <div id="statusText" class="status">
         Waiting for observer acceptance
       </div>
 
-      <!-- REQUEST DETAILS -->
-      <div class="field">
-        <div class="label">Agent Name</div>
-        <div class="value" id="agentName">—</div>
+      <div class="label">Agent Name</div>
+      <div id="agentName" class="value"></div>
+
+      <div class="label">Property Address</div>
+      <div id="propertyAddress" class="value"></div>
+
+      <div class="label">Date & Time</div>
+      <div id="dateTime" class="value"></div>
+
+      <div class="label">Duration</div>
+      <div id="duration" class="value"></div>
+
+      <div id="observerBox" class="observer-box">
+        <h3>Observer Accepted</h3>
+        <div><strong>Name:</strong> <span id="observerName"></span></div>
+        <div><strong>Rating:</strong> ⭐ <span id="observerRating"></span></div>
+        <div><strong>Status:</strong> <span id="observerVerified"></span></div>
       </div>
 
-      <div class="field">
-        <div class="label">Property Address</div>
-        <div class="value" id="propertyAddress">—</div>
-      </div>
-
-      <div class="field">
-        <div class="label">Date & Time</div>
-        <div class="value" id="dateTime">—</div>
-      </div>
-
-      <div class="field">
-        <div class="label">Duration</div>
-        <div class="value" id="duration">—</div>
-      </div>
-
-      <div class="field">
-        <div class="label">Visit Type</div>
-        <div class="value" id="visitType">—</div>
-      </div>
-
-      <!-- BUTTONS -->
-      <button class="refresh" onclick="refreshStatus()">Refresh Status</button>
-      <button class="cancel" onclick="cancelRequest()">Cancel Request</button>
-
+      <button class="refresh-btn" onclick="checkStatus()">Refresh Status</button>
+      <button class="cancel-btn" onclick="cancelRequest()">Cancel Request</button>
     </div>
   </div>
 
   <script>
-    // Load request data from localStorage
-    const request = JSON.parse(localStorage.getItem("agentRequest"));
+    const request = JSON.parse(localStorage.getItem("activeRequest"));
 
-    if (request) {
-      document.getElementById("agentName").textContent = request.agentName;
-      document.getElementById("propertyAddress").textContent = request.address;
-      document.getElementById("dateTime").textContent =
-        request.date + " at " + request.time + " (" + request.timezone + ")";
-      document.getElementById("duration").textContent = request.duration;
-      document.getElementById("visitType").textContent = request.visitType;
+    if (!request) {
+      alert("No active request found.");
+      window.location.href = "agent-dashboard.html";
     }
 
-    function refreshStatus() {
-      const accepted = localStorage.getItem("observerAccepted");
+    document.getElementById("agentName").textContent = request.agentName || "-";
+    document.getElementById("propertyAddress").textContent = request.property || "-";
+    document.getElementById("dateTime").textContent =
+      request.date + " at " + request.time + " (" + request.timezone + ")";
+    document.getElementById("duration").textContent = request.duration || "-";
 
-      if (accepted === "true") {
-        const status = document.getElementById("statusText");
-        status.textContent = "Observer accepted";
-        status.classList.add("accepted");
-      } else {
-        alert("No observer has accepted yet.");
+    function checkStatus() {
+      const updated = JSON.parse(localStorage.getItem("activeRequest"));
+      if (!updated) return;
+
+      if (updated.status === "accepted" && updated.observer) {
+        document.getElementById("statusText").textContent = "Accepted";
+        document.getElementById("statusText").classList.add("accepted");
+
+        document.getElementById("observerBox").style.display = "block";
+        document.getElementById("observerName").textContent = updated.observer.name;
+        document.getElementById("observerRating").textContent = updated.observer.rating;
+        document.getElementById("observerVerified").textContent =
+          updated.observer.verified ? "Verified" : "Unverified";
       }
     }
 
     function cancelRequest() {
       if (confirm("Cancel this request?")) {
-        localStorage.removeItem("agentRequest");
-        localStorage.removeItem("observerAccepted");
+        localStorage.removeItem("activeRequest");
         window.location.href = "agent-dashboard.html";
       }
     }
+
+    // Initial check on load
+    checkStatus();
   </script>
 </body>
 </html>
