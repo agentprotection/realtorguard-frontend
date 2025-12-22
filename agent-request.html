@@ -2,138 +2,180 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Agent Request | Realtor Guard</title>
+  <title>Request Status | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+    }
+
+    body {
       margin: 0;
-      padding: 20px;
+      background: #f4f4f4;
     }
 
-    .container {
-      max-width: 600px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 14px;
+    .app {
+      max-width: 420px;
       margin: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 16px;
     }
 
-    h1 {
+    .logo {
+      text-align: center;
       margin-bottom: 16px;
     }
 
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 12px;
+    .logo img {
+      width: 160px;
+      max-width: 80%;
     }
 
-    input, select {
-      width: 100%;
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .label {
+      font-weight: bold;
+      margin-top: 12px;
+      display: block;
+    }
+
+    .status {
+      margin-top: 16px;
       padding: 12px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .accepted {
+      background: #d4edda;
+      color: #155724;
     }
 
     button {
-      margin-top: 20px;
       width: 100%;
       padding: 14px;
-      font-size: 18px;
+      margin-top: 14px;
+      font-size: 16px;
       font-weight: bold;
+      border-radius: 12px;
       border: none;
-      border-radius: 10px;
-      background: #111;
-      color: #fff;
       cursor: pointer;
     }
 
-    .success {
-      margin-top: 16px;
-      padding: 12px;
-      background: #e6ffe6;
-      border-radius: 8px;
-      font-weight: bold;
-      color: #155724;
-      display: none;
+    .refresh {
+      background: #000;
+      color: #fff;
+    }
+
+    .cancel {
+      background: #b00000;
+      color: #fff;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Request an Observer</h1>
+<div class="app">
 
-    <label>Agent Name</label>
-    <input id="agentName" placeholder="Your full name" required />
-
-    <label>Type of Visit</label>
-    <select id="visitType">
-      <option>Property Showing</option>
-      <option>Open House</option>
-      <option>Inspection</option>
-      <option>Other</option>
-    </select>
-
-    <label>Property Address</label>
-    <input id="address" placeholder="123 Main St, City, State" required />
-
-    <label>Date</label>
-    <input id="date" type="date" required />
-
-    <label>Time</label>
-    <input id="time" type="time" required />
-
-    <button onclick="submitRequest()">Submit Request</button>
-
-    <div id="success" class="success">
-      ✅ Request submitted successfully
-    </div>
+  <!-- LOGO -->
+  <div class="logo">
+    <img src="logo.png" alt="Realtor Guard Logo">
   </div>
 
-  <script>
-    const STORAGE_KEY = "rg_agent_requests_v1";
+  <!-- REQUEST SUMMARY -->
+  <div class="card" id="summary"></div>
 
-    function submitRequest() {
-      const agentName = document.getElementById("agentName").value.trim();
-      const visitType = document.getElementById("visitType").value;
-      const address = document.getElementById("address").value.trim();
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
+  <!-- STATUS -->
+  <div id="statusBox" class="status pending">
+    Waiting for observer acceptance
+  </div>
 
-      if (!agentName || !address || !date || !time) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  <!-- ACTIONS -->
+  <button class="refresh" onclick="refreshStatus()">Refresh Status</button>
+  <button id="cancelBtn" class="cancel" onclick="cancelRequest()">Cancel Request</button>
 
-      const requests =
-        JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+</div>
 
-      const newRequest = {
-        id: "req_" + Date.now(),
-        agentName,
-        visitType,
-        address,
-        date,
-        time,
-        createdAt: new Date().toISOString()
-      };
+<script>
+/*
+  Expected: agent-dashboard.html saves the request like this:
+  localStorage.setItem("agentRequest", JSON.stringify({...}))
+*/
 
-      requests.push(newRequest);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(requests));
+const request = JSON.parse(localStorage.getItem("agentRequest"));
 
-      document.getElementById("success").style.display = "block";
+if (!request) {
+  window.location.href = "agent-dashboard.html";
+}
 
-      // optional reset
-      document.getElementById("agentName").value = "";
-      document.getElementById("address").value = "";
-    }
-  </script>
+function renderSummary() {
+  summary.innerHTML = `
+    <span class="label">Agent Name</span>
+    ${request.agentName}
+
+    <span class="label">Property Address</span>
+    ${request.address}
+
+    <span class="label">City / State / Zip</span>
+    ${request.city}, ${request.state} ${request.zip}
+
+    <span class="label">Date</span>
+    ${request.date}
+
+    <span class="label">Time</span>
+    ${request.time}
+
+    <span class="label">Duration</span>
+    ${request.duration}
+
+    <span class="label">Time Zone</span>
+    ${request.timezone}
+
+    <span class="label">Visit Type</span>
+    ${request.visitType}
+
+    ${request.otherDesc ? `<span class="label">Description</span>${request.otherDesc}` : ``}
+  `;
+}
+
+function refreshStatus() {
+  const status = localStorage.getItem("requestStatus") || "pending";
+
+  if (status === "accepted") {
+    statusBox.textContent = "Observer Accepted";
+    statusBox.classList.remove("pending");
+    statusBox.classList.add("accepted");
+    cancelBtn.style.display = "none";
+  } else {
+    statusBox.textContent = "Waiting for observer acceptance";
+    statusBox.classList.remove("accepted");
+    statusBox.classList.add("pending");
+    cancelBtn.style.display = "block";
+  }
+}
+
+function cancelRequest() {
+  localStorage.removeItem("agentRequest");
+  localStorage.removeItem("requestStatus");
+  window.location.href = "agent-dashboard.html";
+}
+
+/* Initial render */
+renderSummary();
+refreshStatus();
+</script>
+
 </body>
 </html>
