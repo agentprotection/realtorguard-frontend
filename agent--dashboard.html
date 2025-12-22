@@ -24,7 +24,7 @@
 
     .logo {
       text-align: center;
-      margin-bottom: 14px;
+      margin: 24px 0;
     }
 
     .logo img {
@@ -34,123 +34,121 @@
 
     .card {
       background: #ffffff;
-      border-radius: 10px;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    input, select, textarea, button {
+      width: 100%;
       padding: 14px;
       margin-bottom: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    input,
-    select,
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
       font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: none;
     }
 
     button {
-      background: #000;
+      background: #111;
       color: #fff;
+      font-weight: 700;
       border: none;
-      font-weight: bold;
       cursor: pointer;
     }
   </style>
 </head>
 
 <body>
-<div class="app">
+  <div class="app">
 
-  <!-- LOGO -->
-  <div class="logo">
-    <img src="logo.png" alt="Realtor Guard Logo">
+    <!-- LOGO -->
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
+    </div>
+
+    <!-- FORM -->
+    <div class="card">
+      <input id="agentName" placeholder="Agent Name" />
+      <input id="address" placeholder="Property Address" />
+      <input id="city" placeholder="City" />
+
+      <select id="state">
+        <option value="">State</option>
+        <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+        <option>California</option><option>Florida</option><option>Georgia</option>
+        <option>New York</option><option>Texas</option>
+      </select>
+
+      <input id="zip" placeholder="Zip Code" />
+
+      <input id="date" type="date" />
+
+      <select id="time">
+        <option value="">Time</option>
+        <option>9:00 AM</option><option>9:30 AM</option>
+        <option>10:00 AM</option><option>10:30 AM</option>
+        <option>11:00 AM</option><option>11:30 AM</option>
+      </select>
+
+      <select id="duration">
+        <option value="">Duration</option>
+        <option>30 minutes</option>
+        <option>1 hour</option>
+        <option>1.5 hours</option>
+      </select>
+
+      <select id="timezone">
+        <option value="">Time Zone</option>
+        <option>Eastern Time (ET)</option>
+        <option>Central Time (CT)</option>
+        <option>Mountain Time (MT)</option>
+        <option>Pacific Time (PT)</option>
+      </select>
+
+      <select id="visitType" onchange="toggleOther()">
+        <option value="">Visit Type</option>
+        <option>Showing</option>
+        <option>Open House</option>
+        <option>Other</option>
+      </select>
+
+      <textarea id="otherDesc" placeholder="Describe visit" style="display:none;"></textarea>
+
+      <button onclick="submitRequest()">Request Observer</button>
+    </div>
   </div>
 
-  <!-- AGENT REQUEST FORM -->
-  <div class="card">
-    <input id="agentName" placeholder="Agent Name">
+  <script>
+    function toggleOther() {
+      const visit = document.getElementById("visitType").value;
+      document.getElementById("otherDesc").style.display =
+        visit === "Other" ? "block" : "none";
+    }
 
-    <input id="address" placeholder="Property Address">
+    function submitRequest() {
+      const request = {
+        agentName: agentName.value,
+        address: address.value,
+        city: city.value,
+        state: state.value,
+        zip: zip.value,
+        date: date.value,
+        time: time.value,
+        duration: duration.value,
+        timezone: timezone.value,
+        visitType: visitType.value,
+        other: otherDesc.value
+      };
 
-    <input id="city" placeholder="City">
+      localStorage.setItem("agentRequest", JSON.stringify(request));
+      localStorage.setItem("observerAccepted", "false");
 
-    <!-- STATE DROPDOWN ONLY -->
-    <select id="state"></select>
-
-    <input id="zip" placeholder="Zip" inputmode="numeric">
-
-    <select id="visitType">
-      <option value="">Type of Visit</option>
-      <option value="Showing">Showing</option>
-      <option value="Inspection">Inspection</option>
-      <option value="Open House">Open House</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <!-- DATE -->
-    <input type="date" id="date">
-
-    <!-- TIME DROPDOWN ONLY -->
-    <select id="time"></select>
-
-    <!-- TIME ZONE DROPDOWN ONLY -->
-    <select id="timezone">
-      <option value="">Time Zone</option>
-      <option value="ET">ET</option>
-      <option value="CT">CT</option>
-      <option value="MT">MT</option>
-      <option value="PT">PT</option>
-    </select>
-
-    <button onclick="requestObserver()">Request Observer</button>
-  </div>
-
-</div>
-
-<script>
-/* US STATES */
-const STATES = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
-];
-
-state.innerHTML =
-  `<option value="">State</option>` +
-  STATES.map(s => `<option value="${s}">${s}</option>`).join("");
-
-/* TIME OPTIONS (30 MIN INCREMENTS) */
-time.innerHTML = `<option value="">Time</option>`;
-for (let h = 8; h <= 18; h++) {
-  ["00", "30"].forEach(m => {
-    const ampm = h >= 12 ? "PM" : "AM";
-    const displayHour = h > 12 ? h - 12 : h;
-    time.innerHTML += `<option>${displayHour}:${m} ${ampm}</option>`;
-  });
-}
-
-/* SUBMIT REQUEST */
-function requestObserver() {
-  const request = {
-    agentName: agentName.value,
-    address: address.value,
-    city: city.value,
-    state: state.value,
-    zip: zip.value,
-    visitType: visitType.value,
-    date: date.value,
-    time: time.value,
-    timezone: timezone.value,
-    status: "Pending"
-  };
-
-  localStorage.setItem("activeRequest", JSON.stringify(request));
-  window.location.href = "agent-request-status.html";
-}
-</script>
-
+      window.location.href = "agent-request-status.html";
+    }
+  </script>
 </body>
 </html>
