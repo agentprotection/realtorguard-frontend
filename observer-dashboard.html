@@ -1,202 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Observer Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f4f4f4;
-}
-.wrap{
-  max-width:900px;
-  margin:auto;
-  padding:16px;
-}
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  margin-top:14px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-}
-button{
-  width:100%;
-  padding:14px;
-  margin-top:10px;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:900;
-  border:none;
-}
-.accept{
-  background:#111;
-  color:#fff;
-}
-.cancel{
-  background:#fff;
-  color:#111;
-  border:1px solid #ccc;
-}
-.start-disabled{
-  background:#9ca3af; /* GREY */
-  color:#fff;
-  pointer-events:none;
-}
-.start-active{
-  background:#16a34a; /* GREEN */
-  color:#fff;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>Observer Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 420px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    .row {
+      margin-bottom: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .accept {
+      background: #28a745;
+      color: white;
+    }
+    .decline {
+      background: #ccc;
+    }
+  </style>
 </head>
-
 <body>
-<div class="wrap">
-  <h2>Observer Dashboard</h2>
 
-  <div class="card">
-    <div id="list"></div>
-  </div>
+<div class="card" id="requestCard">
+  <h2>Pending Request</h2>
+  <div id="details"></div>
+
+  <button class="accept" onclick="acceptRequest()">Accept Request</button>
+  <button class="decline" onclick="declineRequest()">Decline</button>
 </div>
 
 <script>
-/* ===== STORAGE KEYS ===== */
-const REQ_KEY = "rg_agent_requests_v1";
-const STATUS_KEY = "rg_request_status_v3";
+  const request = JSON.parse(localStorage.getItem("activeRequest"));
 
-/* ===== HELPERS ===== */
-const loadReq = () =>
-  JSON.parse(localStorage.getItem(REQ_KEY)) || [];
+  const detailsDiv = document.getElementById("details");
 
-const loadStatus = () =>
-  JSON.parse(localStorage.getItem(STATUS_KEY)) || {};
-
-const saveStatus = (s) =>
-  localStorage.setItem(STATUS_KEY, JSON.stringify(s));
-
-function scheduledAt(r){
-  if(!r.date || !r.time) return null;
-  return new Date(`${r.date}T${r.time}`);
-}
-
-/* ===== ACTIONS ===== */
-function accept(id){
-  const status = loadStatus();
-  status[id] = {
-    status: "accepted",
-    acceptedAt: Date.now()
-  };
-  saveStatus(status);
-  render();
-}
-
-function cancel(id){
-  const status = loadStatus();
-  delete status[id]; // release request
-  saveStatus(status);
-  render();
-}
-
-function startAssignment(id){
-  const status = loadStatus();
-  if(!status[id]) return;
-
-  status[id].status = "in_route";
-  status[id].startedAt = Date.now();
-  saveStatus(status);
-
-  const req = loadReq().find(r => r.id === id);
-  if(req){
-    window.open(
-      `https://maps.google.com?q=${encodeURIComponent(req.address)}`
-    );
-  }
-}
-
-/* ===== RENDER ===== */
-function render(){
-  list.innerHTML = "";
-  const reqs = loadReq();
-  const status = loadStatus();
-  const now = Date.now();
-
-  reqs.forEach(r=>{
-    const sched = scheduledAt(r);
-    if(!sched) return;
-
-    // hide expired if never accepted
-    if(now > sched && !status[r.id]) return;
-
-    let state = "open";
-    if(status[r.id]?.status === "accepted"){
-      state = now >= sched ? "active" : "accepted";
-    }
-    if(status[r.id]?.status === "in_route"){
-      state = "in_route";
-    }
-
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <b>${r.address}</b>
-      <div>${r.date} ${r.time}</div>
-      <div>${state.toUpperCase()}</div>
+  if (!request || request.status !== "waiting") {
+    detailsDiv.innerHTML = "<p>No pending requests.</p>";
+  } else {
+    detailsDiv.innerHTML = `
+      <div class="row"><strong>Agent:</strong> ${request.agentName}</div>
+      <div class="row"><strong>Address:</strong> ${request.address}</div>
+      <div class="row"><strong>Date:</strong> ${request.date}</div>
+      <div class="row"><strong>Time:</strong> ${request.time} (${request.timezone})</div>
     `;
+  }
 
-    /* COUNTDOWN */
-    if(state === "accepted"){
-      const diff = Math.max(0, sched - now);
-      const s = Math.floor(diff / 1000);
-      const h = String(Math.floor(s / 3600)).padStart(2,"0");
-      const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
-      const sec = String(s % 60).padStart(2,"0");
+  function acceptRequest() {
+    request.status = "accepted";
+    request.observer = {
+      name: "Demo Observer",
+      rating: "5.0",
+      verified: true
+    };
+    localStorage.setItem("activeRequest", JSON.stringify(request));
+    alert("Request accepted");
+  }
 
-      const cd = document.createElement("div");
-      cd.innerText = `${h}:${m}:${sec}`;
-      card.appendChild(cd);
-    }
-
-    /* ACCEPT */
-    if(state === "open"){
-      const b = document.createElement("button");
-      b.className = "accept";
-      b.innerText = "Accept";
-      b.onclick = () => accept(r.id);
-      card.appendChild(b);
-    }
-
-    /* CANCEL */
-    if(state === "accepted"){
-      const c = document.createElement("button");
-      c.className = "cancel";
-      c.innerText = "Cancel";
-      c.onclick = () => cancel(r.id);
-      card.appendChild(c);
-    }
-
-    /* START ASSIGNMENT */
-    const start = document.createElement("button");
-    start.innerText = "Start Assignment";
-
-    if(state === "active"){
-      start.className = "start-active";   // GREEN
-      start.onclick = () => startAssignment(r.id);
-    } else {
-      start.className = "start-disabled"; // GREY
-    }
-
-    card.appendChild(start);
-    list.appendChild(card);
-  });
-}
-
-setInterval(render, 1000);
-render();
+  function declineRequest() {
+    localStorage.removeItem("activeRequest");
+    alert("Request declined");
+    location.reload();
+  }
 </script>
+
 </body>
 </html>
-✅ COMM
