@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Choose Role</title>
+  <title>Who Are You</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
       background: #ffffff;
       display: flex;
       justify-content: center;
@@ -23,51 +27,63 @@
       text-align: center;
     }
 
-    h2 {
-      margin-bottom: 24px;
+    .logo {
+      margin-bottom: 40px;
+    }
+
+    .logo img {
+      width: 200px;
+      max-width: 90%;
+    }
+
+    .card {
+      background: #f4f4f4;
+      border-radius: 14px;
+      padding: 20px;
     }
 
     button {
       width: 100%;
       padding: 16px;
-      margin-bottom: 12px;
-      font-size: 16px;
+      margin-top: 16px;
+      font-size: 18px;
       font-weight: bold;
-      border-radius: 8px;
+      border-radius: 12px;
       border: none;
       cursor: pointer;
     }
 
     .agent {
-      background: #000;
+      background: #111;
       color: #fff;
     }
 
     .observer {
-      background: #fff;
-      color: #000;
-      border: 2px solid #000;
+      background: #ffffff;
+      color: #111;
+      border: 2px solid #111;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h2>Who are you?</h2>
 
-    <button
-      class="agent"
-      onclick="window.location.href='agent-dashboard.html'"
-    >
-      Agent
-    </button>
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard Logo">
+    </div>
 
-    <button
-      class="observer"
-      onclick="window.location.href='observer-dashboard.html'"
-    >
-      Observer
-    </button>
+    <div class="card">
+      <button class="agent" onclick="window.location.href='agent-dashboard.html'">
+        Agent
+      </button>
+
+      <button class="observer" onclick="window.location.href='observer-dashboard.html'">
+        Observer
+      </button>
+    </div>
+
   </div>
 </body>
 </html>
+🎯 STEP 4 
