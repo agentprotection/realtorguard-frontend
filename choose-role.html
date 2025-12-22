@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Who Are You</title>
+  <title>Who Are You | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
@@ -16,69 +16,69 @@
       background: #ffffff;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
     }
 
-    .container {
+    .page {
       width: 100%;
       max-width: 420px;
-      padding: 20px;
+      padding: 24px 16px;
       text-align: center;
     }
 
+    /* LOGO */
     .logo {
-      margin-bottom: 40px;
+      margin-top: 16px;
+      margin-bottom: 24px;
     }
 
     .logo img {
-      width: 200px;
-      max-width: 90%;
+      width: 180px;
+      max-width: 80%;
     }
 
-    .card {
-      background: #f4f4f4;
-      border-radius: 14px;
-      padding: 20px;
+    /* BUTTONS */
+    .role-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 12px;
     }
 
-    button {
+    .role-buttons button {
       width: 100%;
       padding: 16px;
-      margin-top: 16px;
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 600;
       border-radius: 12px;
       border: none;
       cursor: pointer;
-    }
-
-    .agent {
-      background: #111;
+      background: #000;
       color: #fff;
     }
 
-    .observer {
-      background: #ffffff;
-      color: #111;
-      border: 2px solid #111;
+    .role-buttons button:active {
+      transform: scale(0.98);
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="page">
 
+    <!-- LOGO -->
     <div class="logo">
       <img src="logo.png" alt="Realtor Guard Logo">
     </div>
 
-    <div class="card">
-      <button class="agent" onclick="window.location.href='agent-dashboard.html'">
+    <!-- BUTTONS -->
+    <div class="role-buttons">
+      <button onclick="window.location.href='agent-dashboard.html'">
         Agent
       </button>
 
-      <button class="observer" onclick="window.location.href='observer-dashboard.html'">
+      <button onclick="window.location.href='observer-dashboard.html'">
         Observer
       </button>
     </div>
@@ -86,4 +86,3 @@
   </div>
 </body>
 </html>
-🎯 STEP 4 
