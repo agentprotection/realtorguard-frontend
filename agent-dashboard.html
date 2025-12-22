@@ -6,42 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
 
-    body {
-      margin: 0;
-      background: #f3f3f3;
-    }
+    body { margin: 0; background: #f3f3f3; }
 
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 16px;
-    }
+    .app { max-width: 420px; margin: auto; padding: 16px; }
 
-    .logo-wrap {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .logo-wrap img {
-      width: 170px;
-      max-width: 80%;
-    }
+    .logo-wrap { text-align: center; margin-bottom: 18px; }
+    .logo-wrap img { width: 170px; max-width: 80%; }
 
     .card {
-      background: #ffffff;
+      background: #fff;
       border-radius: 12px;
       padding: 16px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     }
 
-    input,
-    select,
-    button {
+    input, select, textarea, button {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
@@ -49,9 +30,20 @@
       border-radius: 8px;
     }
 
-    input,
-    select {
-      border: 1px solid #ccc;
+    input, select, textarea { border: 1px solid #ccc; }
+
+    textarea { min-height: 90px; resize: vertical; }
+
+    .hidden { display: none; }
+
+    .error {
+      margin-top: 10px;
+      background: #ffe6e6;
+      border: 1px solid #ffb3b3;
+      color: #8a0000;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
     }
 
     button {
@@ -75,90 +67,143 @@
 
   <!-- FORM -->
   <div class="card">
-
-    <!-- AGENT NAME (ABOVE ADDRESS) -->
     <input id="agentName" placeholder="Agent Name">
 
-    <!-- PROPERTY -->
     <input id="address" placeholder="Property Address">
     <input id="city" placeholder="City">
 
-    <!-- STATE DROPDOWN ONLY -->
+    <!-- STATE (US FULL NAMES) -->
     <select id="state"></select>
 
     <input id="zip" placeholder="Zip" inputmode="numeric">
 
     <!-- VISIT TYPE -->
-    <select id="visitType">
-      <option value="">Type of Visit</option>
-      <option>Showing</option>
-      <option>Inspection</option>
-      <option>Open House</option>
-      <option>Other</option>
+    <select id="visitType" onchange="onVisitTypeChange()">
+      <option value="">Visit Type</option>
+      <option value="Showing">Showing</option>
+      <option value="Open House">Open House</option>
+      <option value="Other">Other</option>
     </select>
+
+    <!-- OTHER DESCRIPTION (REQUIRED IF OTHER) -->
+    <textarea id="otherDesc" class="hidden" placeholder="Describe visit"></textarea>
 
     <!-- DATE -->
     <input type="date" id="date">
 
-    <!-- TIME DROPDOWN ONLY -->
+    <!-- TIME (30-MIN INCREMENTS) -->
     <select id="time"></select>
 
-    <!-- TIME ZONE DROPDOWN ONLY -->
+    <!-- DURATION (30-MIN INCREMENTS) -->
+    <select id="duration"></select>
+
+    <!-- TIME ZONE (US ONLY FULL NAMES) -->
     <select id="timezone">
       <option value="">Time Zone</option>
-      <option>ET</option>
-      <option>CT</option>
-      <option>MT</option>
-      <option>PT</option>
+      <option value="Eastern Time">Eastern Time</option>
+      <option value="Central Time">Central Time</option>
+      <option value="Mountain Time">Mountain Time</option>
+      <option value="Pacific Time">Pacific Time</option>
     </select>
 
-    <!-- SUBMIT -->
-    <button onclick="requestObserver()">Request Observer</button>
+    <div id="err" class="error hidden"></div>
 
+    <button onclick="requestObserver()">Request Observer</button>
   </div>
+
 </div>
 
 <script>
-/* STATES */
-const STATES = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
-  "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
-  "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
-  "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+/* US STATES (FULL NAMES) */
+const STATE_NAMES = [
+  "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware",
+  "Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana",
+  "Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana",
+  "Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota",
+  "Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee",
+  "Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"
 ];
 
 state.innerHTML =
   `<option value="">State</option>` +
-  STATES.map(s => `<option>${s}</option>`).join("");
+  STATE_NAMES.map(n => `<option value="${n}">${n}</option>`).join("");
 
-/* TIME OPTIONS (30 MIN INCREMENTS) */
+/* TIME (30-MIN INCREMENTS) */
 time.innerHTML = `<option value="">Time</option>`;
 for (let h = 8; h <= 18; h++) {
   ["00","30"].forEach(m => {
     const ampm = h >= 12 ? "PM" : "AM";
     const displayHour = h > 12 ? h - 12 : h;
-    time.innerHTML += `<option>${displayHour}:${m} ${ampm}</option>`;
+    time.innerHTML += `<option value="${displayHour}:${m} ${ampm}">${displayHour}:${m} ${ampm}</option>`;
   });
 }
 
-/* SUBMIT HANDLER */
+/* DURATION (30-MIN INCREMENTS) */
+const durations = [
+  "30 minutes",
+  "1 hour",
+  "1 hour 30 minutes",
+  "2 hours",
+  "2 hours 30 minutes",
+  "3 hours"
+];
+
+duration.innerHTML =
+  `<option value="">Duration</option>` +
+  durations.map(d => `<option value="${d}">${d}</option>`).join("");
+
+function onVisitTypeChange() {
+  const isOther = visitType.value === "Other";
+  otherDesc.classList.toggle("hidden", !isOther);
+  if (!isOther) otherDesc.value = "";
+  hideError();
+}
+
+function showError(msg) {
+  err.textContent = msg;
+  err.classList.remove("hidden");
+}
+
+function hideError() {
+  err.textContent = "";
+  err.classList.add("hidden");
+}
+
 function requestObserver() {
+  hideError();
+
+  // Basic required checks
+  if (!agentName.value.trim()) return showError("Agent Name is required.");
+  if (!address.value.trim()) return showError("Property Address is required.");
+  if (!city.value.trim()) return showError("City is required.");
+  if (!state.value) return showError("State is required.");
+  if (!zip.value.trim()) return showError("Zip is required.");
+  if (!visitType.value) return showError("Visit Type is required.");
+  if (visitType.value === "Other" && !otherDesc.value.trim()) {
+    return showError("Describe visit is required for Other.");
+  }
+  if (!date.value) return showError("Date is required.");
+  if (!time.value) return showError("Time is required.");
+  if (!duration.value) return showError("Duration is required.");
+  if (!timezone.value) return showError("Time Zone is required.");
+
   const req = {
-    agentName: agentName.value,
-    address: address.value,
-    city: city.value,
+    agentName: agentName.value.trim(),
+    address: address.value.trim(),
+    city: city.value.trim(),
     state: state.value,
-    zip: zip.value,
+    zip: zip.value.trim(),
     visitType: visitType.value,
+    otherDesc: otherDesc.value.trim(),
     date: date.value,
     time: time.value,
+    duration: duration.value,
     timezone: timezone.value,
     status: "Pending"
   };
 
   localStorage.setItem("activeRequest", JSON.stringify(req));
-  window.location.href = "agent-request-status.html";
+  window.location.href = "agent-request.html";
 }
 </script>
 
