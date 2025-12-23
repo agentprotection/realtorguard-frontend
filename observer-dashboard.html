@@ -2,144 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observer Dashboard</title>
 
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-
     body {
       margin: 0;
-      background: #f4f4f4;
-      padding: 16px;
+      font-family: Arial, sans-serif;
     }
 
-    .card {
-      max-width: 420px;
-      margin: auto;
-      background: #fff;
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.08);
-    }
-
-    h2 {
+    .logo {
       text-align: center;
-      margin-bottom: 14px;
+      margin: 20px 0;
     }
 
-    .row {
+    .logo img {
+      max-width: 200px;
+    }
+
+    .container {
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    .box {
+      border: 1px solid #ccc;
+      padding: 10px;
       margin-bottom: 10px;
     }
 
-    .label {
-      font-weight: bold;
-    }
-
-    .status {
-      text-align: center;
-      font-weight: bold;
-      margin: 12px 0;
-      color: #f39c12;
-    }
-
-    .status.accepted { color: #2ecc71; }
-    .status.progress { color: #2980b9; }
-
     button {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border-radius: 12px;
-      border: none;
+      height: 46px;
+      margin-bottom: 10px;
       font-size: 16px;
-      cursor: pointer;
     }
-
-    .accept { background: #2ecc71; color: #fff; }
-    .start { background: #000; color: #fff; }
-    .complete { background: #555; color: #fff; }
   </style>
 </head>
 
 <body>
 
-<div class="card" id="app"></div>
+  <div class="logo">
+    <img src="./logo.png">
+  </div>
 
-<script>
-  const app = document.getElementById("app");
-  let request = JSON.parse(localStorage.getItem("activeRequest"));
+  <div class="container" id="content"></div>
 
-  // No request at all
-  if (!request) {
-    app.innerHTML = "<h2>No Assignments</h2>";
-  }
-
-  // WAITING — available to accept
-  else if (request.status === "waiting") {
-    app.innerHTML = `
-      <h2>Available Request</h2>
-
-      <div class="row"><span class="label">Agent:</span> ${request.agentName}</div>
-      <div class="row"><span class="label">Address:</span> ${request.address}, ${request.city}, ${request.state}</div>
-      <div class="row"><span class="label">Date:</span> ${request.date}</div>
-      <div class="row"><span class="label">Time:</span> ${request.time} (${request.timezone})</div>
-      <div class="row"><span class="label">Duration:</span> ${request.duration}</div>
-
-      <button class="accept" onclick="acceptRequest()">Accept Assignment</button>
-    `;
-  }
-
-  // ACCEPTED — locked to observer
-  else if (request.status === "accepted") {
-    app.innerHTML = `
-      <h2>Your Assignment</h2>
-
-      <div class="status accepted">Accepted – Waiting to Start</div>
-
-      <div class="row"><span class="label">Property:</span> ${request.address}</div>
-      <div class="row"><span class="label">Start Time:</span> ${request.time}</div>
-
-      <button class="start" onclick="startAssignment()">Start Assignment</button>
-    `;
-  }
-
-  // IN PROGRESS
-  else if (request.status === "in_progress") {
-    app.innerHTML = `
-      <h2>Assignment In Progress</h2>
-
-      <div class="status progress">Observer On Assignment</div>
-
-      <div class="row"><span class="label">Property:</span> ${request.address}</div>
-
-      <button class="complete" onclick="completeAssignment()">Complete Assignment</button>
-    `;
-  }
-
-  function acceptRequest() {
-    request.status = "accepted";
-    request.observer = {
-      name: "Demo Observer",
-      rating: "5.0",
-      verified: true
+  <script>
+    const observerProfile = {
+      name: "Alex Johnson",
+      phone: "555-321-7788",
+      rating: 4.9,
+      photo: "observer-photo.jpg"
     };
-    localStorage.setItem("activeRequest", JSON.stringify(request));
-    location.reload();
-  }
 
-  function startAssignment() {
-    request.status = "in_progress";
-    localStorage.setItem("activeRequest", JSON.stringify(request));
-    location.reload();
-  }
+    const request = JSON.parse(localStorage.getItem("activeRequest"));
+    const content = document.getElementById("content");
 
-  function completeAssignment() {
-    localStorage.removeItem("activeRequest");
-    alert("Assignment completed");
-    location.reload();
-  }
-</script>
+    if (!request || request.status === "accepted") {
+      content.innerHTML = "<p>No available requests.</p>";
+    } else {
+      content.innerHTML = `
+        <div class="box">${request.agent}</div>
+        <div class="box">${request.address}</div>
+        <div class="box">${request.city}, ${request.state} ${request.zip}</div>
+        <div class="box">${request.date}</div>
+        <div class="box">${request.time}</div>
+        <div class="box">${request.duration}</div>
+
+        <button onclick="accept()">Accept Assignment</button>
+        <button onclick="decline()">Decline</button>
+      `;
+    }
+
+    function accept() {
+      if (!observerProfile.name || !observerProfile.phone || !observerProfile.photo || !observerProfile.rating) {
+        alert("Observer profile incomplete.");
+        return;
+      }
+
+      request.status = "accepted";
+      request.filled = true;
+      request.acceptedAt = Date.now();
+      request.observer = observerProfile;
+
+      localStorage.setItem("activeRequest", JSON.stringify(request));
+      alert("Assignment accepted");
+      location.reload();
+    }
+
+    function decline() {
+      alert("Request declined");
+    }
+  </script>
 
 </body>
 </html>
