@@ -1,193 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Agent Dashboard | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<form id="agent-request-form">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+  <input
+    type="text"
+    id="agentName"
+    placeholder="Agent Full Name"
+    required
+  />
 
-    body {
-      margin: 0;
-      background: #f4f4f4;
-    }
+  <input
+    type="text"
+    id="propertyAddress"
+    placeholder="Property Address (Street, City, State)"
+    required
+  />
 
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 16px;
-    }
+  <input
+    type="date"
+    id="visitDate"
+    required
+  />
 
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  <select id="visitDuration" required>
+    <option value="" disabled selected>
+      Select Visit Duration
+    </option>
+    <option value="30">30 minutes</option>
+    <option value="60">1 hour</option>
+    <option value="90">1 hour 30 minutes</option>
+    <option value="120">2 hours</option>
+  </select>
 
-    .logo img {
-      width: 180px;
-      max-width: 90%;
-    }
+  <select id="visitType" required>
+    <option value="" disabled selected>
+      Type of Visit
+    </option>
+    <option value="Showing">Showing</option>
+    <option value="Open House">Open House</option>
+    <option value="Inspection">Inspection</option>
+    <option value="Other">Other</option>
+  </select>
 
-    .card {
-      background: #fff;
-      padding: 18px;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
+  <!-- PRIMARY ACTION -->
+  <button type="submit" id="requestObserverBtn">
+    Request Observer
+  </button>
 
-    .field {
-      margin-bottom: 14px;
-    }
+  <!-- SECONDARY ACTION (DIRECTLY BENEATH) -->
+  <button type="button" id="refreshFormBtn">
+    Refresh Form
+  </button>
 
-    input, select, textarea {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      font-size: 18px;
-      background: #000;
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="app">
-
-    <div class="logo">
-      <img src="logo.png" alt="Realtor Guard Logo" />
-    </div>
-
-    <div class="card">
-
-      <div class="field">
-        <input id="agentName" placeholder="Agent Name" />
-      </div>
-
-      <div class="field">
-        <input id="address" placeholder="Property Address" />
-      </div>
-
-      <div class="field">
-        <input id="city" placeholder="City" />
-      </div>
-
-      <div class="field">
-        <select id="state">
-          <option value="">Select State</option>
-          <option>Alabama</option><option>Alaska</option><option>Arizona</option>
-          <option>Arkansas</option><option>California</option><option>Colorado</option>
-          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
-          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
-          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
-          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
-          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
-          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
-          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
-          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
-          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
-          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
-          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
-          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
-          <option>Texas</option><option>Utah</option><option>Vermont</option>
-          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
-          <option>Wisconsin</option><option>Wyoming</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <input id="zip" placeholder="Zip Code" />
-      </div>
-
-      <div class="field">
-        <input type="date" id="date" />
-      </div>
-
-      <div class="field">
-        <select id="time">
-          <option>9:00 AM</option><option>9:30 AM</option>
-          <option>10:00 AM</option><option>10:30 AM</option>
-          <option>11:00 AM</option><option>11:30 AM</option>
-          <option>12:00 PM</option><option>12:30 PM</option>
-          <option>1:00 PM</option><option>1:30 PM</option>
-          <option>2:00 PM</option><option>2:30 PM</option>
-          <option>3:00 PM</option><option>3:30 PM</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <select id="duration">
-          <option>30 minutes</option>
-          <option>1 hour</option>
-          <option>2 hours</option>
-          <option>3 hours</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <select id="timezone">
-          <option>Eastern Time (ET)</option>
-          <option>Central Time (CT)</option>
-          <option>Mountain Time (MT)</option>
-          <option>Pacific Time (PT)</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <select id="visitType">
-          <option>Showing</option>
-          <option>Open House</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <textarea id="notes" placeholder="Additional details (optional)"></textarea>
-      </div>
-
-      <button onclick="submitRequest()">Request Observer</button>
-    </div>
-  </div>
-
-  <script>
-    function submitRequest() {
-      const request = {
-        id: Date.now(),
-        status: "waiting",
-        agentName: agentName.value,
-        address: address.value,
-        city: city.value,
-        state: state.value,
-        zip: zip.value,
-        date: date.value,
-        time: time.value,
-        duration: duration.value,
-        timezone: timezone.value,
-        visitType: visitType.value,
-        notes: notes.value
-      };
-
-      localStorage.setItem("activeRequest", JSON.stringify(request));
-      window.location.href = "agent-request-status.html";
-    }
-  </script>
-
-</body>
-</html>
+</form>
