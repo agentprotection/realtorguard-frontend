@@ -2,70 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Observer Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
       margin: 0;
+      background: #f4f4f4;
       padding: 16px;
     }
+
     .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       max-width: 420px;
       margin: auto;
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
     }
+
     h2 {
       text-align: center;
+      margin-bottom: 14px;
     }
+
     .row {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
+
+    .label {
+      font-weight: bold;
+    }
+
+    .status {
+      text-align: center;
+      font-weight: bold;
+      margin: 12px 0;
+      color: #f39c12;
+    }
+
+    .status.accepted { color: #2ecc71; }
+    .status.progress { color: #2980b9; }
+
     button {
       width: 100%;
       padding: 14px;
       margin-top: 10px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: none;
       font-size: 16px;
       cursor: pointer;
     }
-    .accept {
-      background: #28a745;
-      color: white;
-    }
-    .decline {
-      background: #ccc;
-    }
+
+    .accept { background: #2ecc71; color: #fff; }
+    .start { background: #000; color: #fff; }
+    .complete { background: #555; color: #fff; }
   </style>
 </head>
+
 <body>
 
-<div class="card" id="requestCard">
-  <h2>Pending Request</h2>
-  <div id="details"></div>
-
-  <button class="accept" onclick="acceptRequest()">Accept Request</button>
-  <button class="decline" onclick="declineRequest()">Decline</button>
-</div>
+<div class="card" id="app"></div>
 
 <script>
-  const request = JSON.parse(localStorage.getItem("activeRequest"));
+  const app = document.getElementById("app");
+  let request = JSON.parse(localStorage.getItem("activeRequest"));
 
-  const detailsDiv = document.getElementById("details");
+  // No request at all
+  if (!request) {
+    app.innerHTML = "<h2>No Assignments</h2>";
+  }
 
-  if (!request || request.status !== "waiting") {
-    detailsDiv.innerHTML = "<p>No pending requests.</p>";
-  } else {
-    detailsDiv.innerHTML = `
-      <div class="row"><strong>Agent:</strong> ${request.agentName}</div>
-      <div class="row"><strong>Address:</strong> ${request.address}</div>
-      <div class="row"><strong>Date:</strong> ${request.date}</div>
-      <div class="row"><strong>Time:</strong> ${request.time} (${request.timezone})</div>
+  // WAITING — available to accept
+  else if (request.status === "waiting") {
+    app.innerHTML = `
+      <h2>Available Request</h2>
+
+      <div class="row"><span class="label">Agent:</span> ${request.agentName}</div>
+      <div class="row"><span class="label">Address:</span> ${request.address}, ${request.city}, ${request.state}</div>
+      <div class="row"><span class="label">Date:</span> ${request.date}</div>
+      <div class="row"><span class="label">Time:</span> ${request.time} (${request.timezone})</div>
+      <div class="row"><span class="label">Duration:</span> ${request.duration}</div>
+
+      <button class="accept" onclick="acceptRequest()">Accept Assignment</button>
+    `;
+  }
+
+  // ACCEPTED — locked to observer
+  else if (request.status === "accepted") {
+    app.innerHTML = `
+      <h2>Your Assignment</h2>
+
+      <div class="status accepted">Accepted – Waiting to Start</div>
+
+      <div class="row"><span class="label">Property:</span> ${request.address}</div>
+      <div class="row"><span class="label">Start Time:</span> ${request.time}</div>
+
+      <button class="start" onclick="startAssignment()">Start Assignment</button>
+    `;
+  }
+
+  // IN PROGRESS
+  else if (request.status === "in_progress") {
+    app.innerHTML = `
+      <h2>Assignment In Progress</h2>
+
+      <div class="status progress">Observer On Assignment</div>
+
+      <div class="row"><span class="label">Property:</span> ${request.address}</div>
+
+      <button class="complete" onclick="completeAssignment()">Complete Assignment</button>
     `;
   }
 
@@ -77,12 +125,18 @@
       verified: true
     };
     localStorage.setItem("activeRequest", JSON.stringify(request));
-    alert("Request accepted");
+    location.reload();
   }
 
-  function declineRequest() {
+  function startAssignment() {
+    request.status = "in_progress";
+    localStorage.setItem("activeRequest", JSON.stringify(request));
+    location.reload();
+  }
+
+  function completeAssignment() {
     localStorage.removeItem("activeRequest");
-    alert("Request declined");
+    alert("Assignment completed");
     location.reload();
   }
 </script>
