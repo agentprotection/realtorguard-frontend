@@ -1,125 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Agent Dashboard | Realtor Guard</title>
-  <link rel="stylesheet" href="./css/styles.css"/>
-</head>
+<!-- LOGO TOP CENTER -->
+<header style="text-align:center; margin-bottom:20px;">
+  <img src="./assets/logo.png" alt="Realtor Guard Logo" style="max-width:160px;">
+</header>
 
-<body>
+<h2>Request an Observer</h2>
 
-  <!-- LOGO (TOP CENTERED) -->
-  <header class="rg-header-center">
-    <img src="./assets/logo.png" alt="Realtor Guard Logo" class="rg-logo"/>
-  </header>
+<form id="agent-request-form">
 
-  <main class="rg-container">
+  <input type="text" id="agentName" placeholder="Agent Full Name" required>
 
-    <section class="rg-card">
-      <h2>Request an Observer</h2>
+  <input type="text" id="propertyAddress" placeholder="Property Address" required>
 
-      <form id="agent-request-form">
+  <input type="text" id="city" placeholder="City" required>
 
-        <!-- Agent Name -->
-        <input type="text" id="agentName" placeholder="Agent Full Name" required />
+  <!-- STATE DROPDOWN (ALL US STATES) -->
+  <select id="state" required>
+    <option value="" disabled selected>Select State</option>
+    <option>Alabama</option>
+    <option>Alaska</option>
+    <option>Arizona</option>
+    <option>Arkansas</option>
+    <option>California</option>
+    <option>Colorado</option>
+    <option>Connecticut</option>
+    <option>Delaware</option>
+    <option>Florida</option>
+    <option>Georgia</option>
+    <option>Hawaii</option>
+    <option>Idaho</option>
+    <option>Illinois</option>
+    <option>Indiana</option>
+    <option>Iowa</option>
+    <option>Kansas</option>
+    <option>Kentucky</option>
+    <option>Louisiana</option>
+    <option>Maine</option>
+    <option>Maryland</option>
+    <option>Massachusetts</option>
+    <option>Michigan</option>
+    <option>Minnesota</option>
+    <option>Mississippi</option>
+    <option>Missouri</option>
+    <option>Montana</option>
+    <option>Nebraska</option>
+    <option>Nevada</option>
+    <option>New Hampshire</option>
+    <option>New Jersey</option>
+    <option>New Mexico</option>
+    <option>New York</option>
+    <option>North Carolina</option>
+    <option>North Dakota</option>
+    <option>Ohio</option>
+    <option>Oklahoma</option>
+    <option>Oregon</option>
+    <option>Pennsylvania</option>
+    <option>Rhode Island</option>
+    <option>South Carolina</option>
+    <option>South Dakota</option>
+    <option>Tennessee</option>
+    <option>Texas</option>
+    <option>Utah</option>
+    <option>Vermont</option>
+    <option>Virginia</option>
+    <option>Washington</option>
+    <option>West Virginia</option>
+    <option>Wisconsin</option>
+    <option>Wyoming</option>
+  </select>
 
-        <!-- Property Address -->
-        <input type="text" id="propertyAddress" placeholder="Property Address" required />
+  <!-- TIME ZONE DROPDOWN -->
+  <select id="timeZone" required>
+    <option value="" disabled selected>Select Time Zone</option>
+    <option>Eastern (ET)</option>
+    <option>Central (CT)</option>
+    <option>Mountain (MT)</option>
+    <option>Pacific (PT)</option>
+    <option>Alaska (AKT)</option>
+    <option>Hawaii (HST)</option>
+  </select>
 
-        <!-- City -->
-        <input type="text" id="city" placeholder="City" required />
+  <!-- VISIT TYPE -->
+  <select id="visitType" required onchange="toggleDescription()">
+    <option value="" disabled selected>Visit Type</option>
+    <option value="Showing">Showing</option>
+    <option value="Open House">Open House</option>
+    <option value="Other">Other</option>
+  </select>
 
-        <!-- State -->
-        <select id="state" required>
-          <option value="" disabled selected>Select State</option>
-          <option>Alabama</option><option>Alaska</option><option>Arizona</option>
-          <option>Arkansas</option><option>California</option><option>Colorado</option>
-          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
-          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
-          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
-          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
-          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
-          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
-          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
-          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
-          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
-          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
-          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
-          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
-          <option>Texas</option><option>Utah</option><option>Vermont</option>
-          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
-          <option>Wisconsin</option><option>Wyoming</option>
-        </select>
+  <!-- DESCRIPTION (ONLY FOR OTHER) -->
+  <textarea
+    id="visitDescription"
+    placeholder="Describe the visit"
+    style="display:none;"
+  ></textarea>
 
-        <!-- Time Zone -->
-        <select id="timezone" required>
-          <option value="" disabled selected>Select Time Zone</option>
-          <option>Eastern (ET)</option>
-          <option>Central (CT)</option>
-          <option>Mountain (MT)</option>
-          <option>Pacific (PT)</option>
-          <option>Alaska (AKT)</option>
-          <option>Hawaii (HST)</option>
-        </select>
+  <!-- DATE -->
+  <input type="date" id="visitDate" required>
 
-        <!-- Visit Type -->
-        <select id="visitType" required onchange="toggleOther()">
-          <option value="" disabled selected>Visit Type</option>
-          <option value="Showing">Showing</option>
-          <option value="Open House">Open House</option>
-          <option value="Other">Other</option>
-        </select>
+  <!-- TIME (30-MIN INCREMENTS) -->
+  <select id="visitTime" required>
+    <option value="" disabled selected>Select Time</option>
+    <option>09:00 AM</option>
+    <option>09:30 AM</option>
+    <option>10:00 AM</option>
+    <option>10:30 AM</option>
+    <option>11:00 AM</option>
+    <option>11:30 AM</option>
+    <option>12:00 PM</option>
+    <option>12:30 PM</option>
+    <option>01:00 PM</option>
+    <option>01:30 PM</option>
+    <option>02:00 PM</option>
+    <option>02:30 PM</option>
+    <option>03:00 PM</option>
+    <option>03:30 PM</option>
+    <option>04:00 PM</option>
+    <option>04:30 PM</option>
+    <option>05:00 PM</option>
+  </select>
 
-        <!-- Description (Only if Other) -->
-        <textarea
-          id="visitDescription"
-          placeholder="Describe visit (required if Other)"
-          style="display:none"
-        ></textarea>
+  <!-- DURATION (30-MIN INCREMENTS) -->
+  <select id="duration" required>
+    <option value="" disabled selected>Select Duration</option>
+    <option>30 minutes</option>
+    <option>60 minutes</option>
+    <option>90 minutes</option>
+    <option>120 minutes</option>
+  </select>
 
-        <!-- Date -->
-        <input type="date" id="visitDate" required />
+  <!-- BUTTONS -->
+  <button type="submit">Request Observer</button>
+  <button type="button" onclick="this.form.reset()">Refresh Form</button>
 
-        <!-- Time -->
-        <select id="visitTime" required>
-          <option value="" disabled selected>Select Time</option>
-          <option>09:00 AM</option><option>09:30 AM</option>
-          <option>10:00 AM</option><option>10:30 AM</option>
-          <option>11:00 AM</option><option>11:30 AM</option>
-          <option>12:00 PM</option><option>12:30 PM</option>
-          <option>01:00 PM</option><option>01:30 PM</option>
-          <option>02:00 PM</option><option>02:30 PM</option>
-          <option>03:00 PM</option><option>03:30 PM</option>
-          <option>04:00 PM</option><option>04:30 PM</option>
-          <option>05:00 PM</option>
-        </select>
+</form>
 
-        <!-- Duration -->
-        <select id="duration" required>
-          <option value="" disabled selected>Select Duration</option>
-          <option>30 minutes</option>
-          <option>60 minutes</option>
-          <option>90 minutes</option>
-          <option>120 minutes</option>
-        </select>
-
-        <!-- Buttons -->
-        <button type="submit">Request Observer</button>
-        <button type="button" onclick="this.form.reset()">Refresh Form</button>
-
-      </form>
-    </section>
-
-  </main>
-
-  <script>
-    function toggleOther() {
-      const type = document.getElementById("visitType").value;
-      document.getElementById("visitDescription").style.display =
-        type === "Other" ? "block" : "none";
-    }
-  </script>
-
-</body>
-</html>
+<script>
+  function toggleDescription() {
+    const type = document.getElementById("visitType").value;
+    document.getElementById("visitDescription").style.display =
+      type === "Other" ? "block" : "none";
+  }
+</script>
