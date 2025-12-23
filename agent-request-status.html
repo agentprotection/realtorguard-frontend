@@ -31,7 +31,7 @@
       padding: 0 12px 32px;
     }
 
-    /* INFO BOX */
+    /* INFO BOXES */
     .info-box {
       border: 1px solid #ccc;
       padding: 12px;
@@ -53,12 +53,6 @@
       font-size: 16px;
       cursor: pointer;
     }
-
-    @media (max-width: 768px) {
-      .app-logo img {
-        max-width: 220px;
-      }
-    }
   </style>
 </head>
 
@@ -72,27 +66,37 @@
   <!-- CONTENT -->
   <div class="app-container">
 
-    <div class="info-box">Agent Name</div>
-    <div class="info-box">Property Address</div>
-    <div class="info-box">City, State ZIP</div>
-    <div class="info-box">Date</div>
-    <div class="info-box">Time</div>
-    <div class="info-box">Duration</div>
+    <div class="info-box" id="agent"></div>
+    <div class="info-box" id="address"></div>
+    <div class="info-box" id="location"></div>
+    <div class="info-box" id="date"></div>
+    <div class="info-box" id="time"></div>
+    <div class="info-box" id="duration"></div>
 
     <div class="status">
       Waiting for observer acceptance
     </div>
 
-    <!-- CANCEL BUTTON -->
-    <button onclick="cancelRequest()">
-      Cancel Request
-    </button>
+    <!-- CANCEL -->
+    <button onclick="cancelRequest()">Cancel Request</button>
 
   </div>
 
   <script>
+    const request = JSON.parse(localStorage.getItem("activeRequest"));
+
+    if (request) {
+      document.getElementById("agent").innerText = request.agent;
+      document.getElementById("address").innerText = request.address;
+      document.getElementById("location").innerText =
+        request.city + ", " + request.state + " " + request.zip;
+      document.getElementById("date").innerText = request.date;
+      document.getElementById("time").innerText = request.time;
+      document.getElementById("duration").innerText = request.duration;
+    }
+
     function cancelRequest() {
-      // later this will also notify observers
+      localStorage.removeItem("activeRequest");
       window.location.href = "agent-dashboard.html";
     }
   </script>
