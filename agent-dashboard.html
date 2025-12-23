@@ -1,53 +1,92 @@
-<form id="agent-request-form">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Dashboard | Realtor Guard</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
 
-  <input
-    type="text"
-    id="agentName"
-    placeholder="Agent Full Name"
-    required
-  />
+<body>
 
-  <input
-    type="text"
-    id="propertyAddress"
-    placeholder="Property Address (Street, City, State)"
-    required
-  />
+  <!-- LOGO HEADER (RESTORED) -->
+  <header class="rg-header">
+    <a href="./index.html">
+      <img src="./assets/logo.png" alt="Realtor Guard Logo" class="rg-logo" />
+    </a>
+    <h1 class="rg-title">Agent Dashboard</h1>
+  </header>
 
-  <input
-    type="date"
-    id="visitDate"
-    required
-  />
+  <main class="rg-container">
 
-  <select id="visitDuration" required>
-    <option value="" disabled selected>
-      Select Visit Duration
-    </option>
-    <option value="30">30 minutes</option>
-    <option value="60">1 hour</option>
-    <option value="90">1 hour 30 minutes</option>
-    <option value="120">2 hours</option>
-  </select>
+    <!-- AGENT REQUEST FORM -->
+    <section class="rg-card">
+      <h2 class="rg-section-title">Request an Observer</h2>
 
-  <select id="visitType" required>
-    <option value="" disabled selected>
-      Type of Visit
-    </option>
-    <option value="Showing">Showing</option>
-    <option value="Open House">Open House</option>
-    <option value="Inspection">Inspection</option>
-    <option value="Other">Other</option>
-  </select>
+      <form id="agent-request-form" class="rg-form">
 
-  <!-- PRIMARY ACTION -->
-  <button type="submit" id="requestObserverBtn">
-    Request Observer
-  </button>
+        <!-- Agent Name -->
+        <div class="rg-form-row">
+          <input
+            type="text"
+            id="agentName"
+            placeholder="Agent Full Name"
+            required
+          />
+        </div>
 
-  <!-- SECONDARY ACTION (DIRECTLY BENEATH) -->
-  <button type="button" id="refreshFormBtn">
-    Refresh Form
-  </button>
+        <!-- Property Address -->
+        <div class="rg-form-row">
+          <input
+            type="text"
+            id="propertyAddress"
+            placeholder="Property Address (Street, City, State)"
+            required
+          />
+        </div>
 
-</form>
+        <!-- Date + Duration -->
+        <div class="rg-form-row two-col">
+          <input type="date" id="visitDate" required />
+
+          <select id="visitDuration" required>
+            <option value="" disabled selected>Select Visit Duration</option>
+            <option value="30">30 minutes</option>
+            <option value="60">1 hour</option>
+            <option value="90">1 hour 30 minutes</option>
+            <option value="120">2 hours</option>
+          </select>
+        </div>
+
+        <!-- Visit Type -->
+        <div class="rg-form-row">
+          <select id="visitType" required>
+            <option value="" disabled selected>Type of Visit</option>
+            <option value="Showing">Showing</option>
+            <option value="Open House">Open House</option>
+            <option value="Inspection">Inspection</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- BUTTONS (ORDER MATTERS) -->
+        <div class="rg-form-row">
+          <button type="submit" id="requestObserverBtn" class="rg-btn primary">
+            Request Observer
+          </button>
+        </div>
+
+        <div class="rg-form-row">
+          <button type="button" id="refreshFormBtn" class="rg-btn secondary">
+            Refresh Form
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <script src="./js/agent.js"></script>
+</body>
+</html>
