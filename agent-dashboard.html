@@ -6,42 +6,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #f4f4f4; }
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-    .app { max-width: 420px; margin: auto; padding: 16px; }
+    body {
+      margin: 0;
+      background: #f4f4f4;
+    }
 
-    .logo { text-align: center; margin: 18px 0; }
-    .logo img { width: 180px; max-width: 90%; }
+    .app {
+      max-width: 420px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 180px;
+      max-width: 90%;
+    }
 
     .card {
       background: #fff;
-      border-radius: 14px;
       padding: 18px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .field { margin-bottom: 14px; }
+    .field {
+      margin-bottom: 14px;
+    }
 
     input, select, textarea {
       width: 100%;
       padding: 14px;
+      font-size: 16px;
       border-radius: 12px;
       border: 1px solid #ccc;
-      font-size: 16px;
     }
 
-    textarea { resize: none; display: none; }
+    textarea {
+      resize: vertical;
+    }
 
     button {
       width: 100%;
       padding: 16px;
-      border-radius: 14px;
-      border: none;
+      font-size: 18px;
       background: #000;
       color: #fff;
-      font-size: 18px;
-      font-weight: bold;
+      border: none;
+      border-radius: 14px;
       cursor: pointer;
     }
   </style>
@@ -51,30 +72,56 @@
   <div class="app">
 
     <div class="logo">
-      <img src="logo.png" alt="Realtor Guard Logo">
+      <img src="logo.png" alt="Realtor Guard Logo" />
     </div>
 
     <div class="card">
-      <div class="field"><input id="agentName" placeholder="Agent Name"></div>
-      <div class="field"><input id="address" placeholder="Property Address"></div>
-      <div class="field"><input id="city" placeholder="City"></div>
+
+      <div class="field">
+        <input id="agentName" placeholder="Agent Name" />
+      </div>
+
+      <div class="field">
+        <input id="address" placeholder="Property Address" />
+      </div>
+
+      <div class="field">
+        <input id="city" placeholder="City" />
+      </div>
 
       <div class="field">
         <select id="state">
-          <option value="">State</option>
+          <option value="">Select State</option>
           <option>Alabama</option><option>Alaska</option><option>Arizona</option>
-          <option>California</option><option>Florida</option><option>Georgia</option>
-          <option>New York</option><option>Texas</option>
+          <option>Arkansas</option><option>California</option><option>Colorado</option>
+          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+          <option>Texas</option><option>Utah</option><option>Vermont</option>
+          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+          <option>Wisconsin</option><option>Wyoming</option>
         </select>
       </div>
 
-      <div class="field"><input id="zip" placeholder="Zip Code"></div>
+      <div class="field">
+        <input id="zip" placeholder="Zip Code" />
+      </div>
 
-      <div class="field"><input type="date" id="date"></div>
+      <div class="field">
+        <input type="date" id="date" />
+      </div>
 
       <div class="field">
         <select id="time">
-          <option value="">Time</option>
           <option>9:00 AM</option><option>9:30 AM</option>
           <option>10:00 AM</option><option>10:30 AM</option>
           <option>11:00 AM</option><option>11:30 AM</option>
@@ -82,24 +129,20 @@
           <option>1:00 PM</option><option>1:30 PM</option>
           <option>2:00 PM</option><option>2:30 PM</option>
           <option>3:00 PM</option><option>3:30 PM</option>
-          <option>4:00 PM</option><option>4:30 PM</option>
-          <option>5:00 PM</option>
         </select>
       </div>
 
       <div class="field">
         <select id="duration">
-          <option value="">Duration</option>
           <option>30 minutes</option>
-          <option>60 minutes</option>
-          <option>90 minutes</option>
-          <option>120 minutes</option>
+          <option>1 hour</option>
+          <option>2 hours</option>
+          <option>3 hours</option>
         </select>
       </div>
 
       <div class="field">
         <select id="timezone">
-          <option value="">Time Zone</option>
           <option>Eastern Time (ET)</option>
           <option>Central Time (CT)</option>
           <option>Mountain Time (MT)</option>
@@ -108,8 +151,7 @@
       </div>
 
       <div class="field">
-        <select id="visitType" onchange="toggleOther()">
-          <option value="">Visit Type</option>
+        <select id="visitType">
           <option>Showing</option>
           <option>Open House</option>
           <option>Other</option>
@@ -117,21 +159,18 @@
       </div>
 
       <div class="field">
-        <textarea id="otherDesc" placeholder="Describe visit (required if Other)"></textarea>
+        <textarea id="notes" placeholder="Additional details (optional)"></textarea>
       </div>
 
-      <button type="button" onclick="submitRequest()">Request Observer</button>
+      <button onclick="submitRequest()">Request Observer</button>
     </div>
   </div>
 
   <script>
-    function toggleOther() {
-      const isOther = document.getElementById("visitType").value === "Other";
-      document.getElementById("otherDesc").style.display = isOther ? "block" : "none";
-    }
-
     function submitRequest() {
-      const data = {
+      const request = {
+        id: Date.now(),
+        status: "waiting",
         agentName: agentName.value,
         address: address.value,
         city: city.value,
@@ -142,12 +181,13 @@
         duration: duration.value,
         timezone: timezone.value,
         visitType: visitType.value,
-        other: otherDesc.value
+        notes: notes.value
       };
 
-      localStorage.setItem("agentRequest", JSON.stringify(data));
+      localStorage.setItem("activeRequest", JSON.stringify(request));
       window.location.href = "agent-request-status.html";
     }
   </script>
+
 </body>
 </html>
