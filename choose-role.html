@@ -1,88 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Who Are You | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Choose Role | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
     body {
       margin: 0;
-      background: #ffffff;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      align-items: center;
+      height: 100vh;
     }
 
-    .page {
+    .container {
+      background: white;
       width: 100%;
       max-width: 420px;
-      padding: 24px 16px;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       text-align: center;
     }
 
-    /* LOGO */
-    .logo {
-      margin-top: 16px;
-      margin-bottom: 24px;
+    h1 {
+      margin-bottom: 10px;
+      color: #0a2540;
     }
 
-    .logo img {
-      width: 180px;
-      max-width: 80%;
+    p {
+      color: #555;
+      margin-bottom: 30px;
+      font-size: 14px;
     }
 
-    /* BUTTONS */
-    .role-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-top: 12px;
-    }
-
-    .role-buttons button {
+    .role-btn {
       width: 100%;
       padding: 16px;
-      font-size: 18px;
-      font-weight: 600;
-      border-radius: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border-radius: 6px;
       border: none;
       cursor: pointer;
-      background: #000;
-      color: #fff;
     }
 
-    .role-buttons button:active {
-      transform: scale(0.98);
+    .agent {
+      background: #0a2540;
+      color: white;
+    }
+
+    .observer {
+      background: #1d9bf0;
+      color: white;
+    }
+
+    .back {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .back a {
+      text-decoration: none;
+      color: #555;
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
 
-    <!-- LOGO -->
-    <div class="logo">
-      <img src="logo.png" alt="Realtor Guard Logo">
+  <div class="container">
+    <h1>Who Are You?</h1>
+    <p>Please select your role to continue</p>
+
+    <button class="role-btn agent" onclick="goAgent()">
+      I am an Agent
+    </button>
+
+    <button class="role-btn observer" onclick="goObserver()">
+      I am an Observer
+    </button>
+
+    <div class="back">
+      <a href="index.html">← Back to Home</a>
     </div>
-
-    <!-- BUTTONS -->
-    <div class="role-buttons">
-      <button onclick="window.location.href='agent-dashboard.html'">
-        Agent
-      </button>
-
-      <button onclick="window.location.href='observer-dashboard.html'">
-        Observer
-      </button>
-    </div>
-
   </div>
+
+  <script>
+    function goAgent() {
+      window.location.href = "agent-auth.html";
+    }
+
+    function goObserver() {
+      window.location.href = "observer-auth.html";
+    }
+  </script>
+
 </body>
 </html>
