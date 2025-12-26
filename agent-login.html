@@ -2,45 +2,132 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Login | Realtor Guard</title>
+
   <style>
+    /* ===== Realtor Guard — Agent Login (FULL REWRITE) ===== */
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fc;
+      margin: 0;
+      background: #f6f7fb;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .logo img {
+      width: 96px; /* STANDARD SIZE */
+      height: auto;
+      display: block;
+    }
+
+    h1 {
       text-align: center;
-      padding: 40px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #0b1a33;
+      margin: 6px 0 20px;
     }
-    img {
-      width: 90px;
-      margin-bottom: 20px;
+
+    label {
+      display: block;
+      font-weight: 700;
+      color: #0b1a33;
+      margin-bottom: 6px;
     }
+
     input {
-      width: 260px;
+      width: 100%;
       padding: 12px;
-      margin: 10px 0;
-      font-size: 14px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 15px;
+      margin-bottom: 16px;
     }
+
     button {
-      padding: 12px 30px;
-      background: #0b2c4f;
-      color: white;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
       border: none;
+      background: #0b1a33;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
       cursor: pointer;
-      font-weight: bold;
+    }
+
+    .links {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .links a {
+      color: #0b1a33;
+      text-decoration: none;
+      margin: 0 6px;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
+  <div class="page">
+    <div class="card">
 
-  <img src="images/logo.png" alt="Realtor Guard Logo">
+      <div class="logo">
+        <img src="logo.png" alt="Realtor Guard Logo" />
+      </div>
 
-  <h1>Agent Login</h1>
+      <h1>Agent Login</h1>
 
-  <input type="email" placeholder="Email address"><br>
-  <input type="password" placeholder="Password"><br>
-<a href="agent-dashboard.html">
-  <button>Login</button>
-</a>  
+      <form>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@email.com" />
 
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="••••••••" />
+
+        <button type="button">Login</button>
+      </form>
+
+      <div class="links">
+        <a href="agent-auth.html">Create Account</a> •
+        <a href="agent-auth.html">Forgot Password</a>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>
