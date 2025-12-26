@@ -3,117 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Choose Role | Realtor Guard</title>
+  <title>Who Are You | Realtor Guard</title>
 
   <style>
-    /* ===== Realtor Guard — Choose Role (FULL REWRITE) ===== */
-    /* LOGO + SPACING MATCHES index.html EXACTLY */
-
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
       font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
       background: #ffffff;
-      min-height: 100vh;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
 
     .page {
       width: 100%;
-      max-width: 420px;   /* SAME AS LANDING */
-      padding-top: 40px;  /* SAME AS LANDING */
+      max-width: 420px;
+      padding-top: 40px;
       text-align: center;
     }
 
-    /* ---- LOGO (GLOBAL STANDARD) ---- */
     .logo {
       width: 180px;
       max-width: 70%;
-      cursor: pointer;
+      margin-bottom: 32px;
     }
 
     @media (min-width: 768px) {
-      .logo {
-        width: 200px;
-      }
+      .logo { width: 200px; }
     }
 
     h1 {
-      margin-top: 24px;
-      margin-bottom: 32px;
       font-size: 22px;
       font-weight: 800;
       color: #0b1a33;
+      margin-bottom: 28px;
     }
 
-    /* ---- ROLE BUTTONS ---- */
-    .role-btn {
+    button {
       width: 100%;
       padding: 16px;
       border-radius: 12px;
+      border: none;
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
-    /* AGENT — BLUE */
-    .agent-btn {
+    .agent {
       background: #0b1a33;
       color: #ffffff;
-      border: none;
     }
 
-    /* OBSERVER — WHITE + NAVY */
-    .observer-btn {
+    .observer {
       background: #ffffff;
       color: #0b1a33;
       border: 2px solid #0b1a33;
-    }
-
-    .hint {
-      margin-top: 18px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
     }
   </style>
 </head>
 
 <body>
   <div class="page">
-
-    <img
-      src="logo.png"
-      alt="Realtor Guard Logo"
-      class="logo"
-    />
+    <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
 
     <h1>Who are you?</h1>
 
-    <!-- AGENT -->
-    <button
-      class="role-btn agent-btn"
-      onclick="window.location.href='agent-auth.html'">
-      I am an Agent
-    </button>
-
-    <!-- OBSERVER -->
-    <button
-      class="role-btn observer-btn"
-      onclick="window.location.href='observer-auth.html'">
-      I am an Observer
-    </button>
-
-    <div class="hint">
-      You’ll login or create an account on the next screen.
-    </div>
-
+    <button class="agent" onclick="goAgent()">I am an Agent</button>
+    <button class="observer" onclick="goObserver()">I am an Observer</button>
   </div>
+
+  <script>
+    function goAgent() {
+      window.location.href = "agent-auth.html";
+    }
+
+    function goObserver() {
+      window.location.href = "observer-auth.html";
+    }
+  </script>
 </body>
 </html>
