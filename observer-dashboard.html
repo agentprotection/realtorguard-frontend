@@ -1,705 +1,193 @@
-// src/pages/ObserverDashboard.jsx
-// FULL REWRITE (no patching)
-// Features:
-// - Shows open requests list (any observer can accept)
-// - Accept / Decline buttons per request (mobile-safe)
-// - Enforces mandatory observer profile fields: phone, rating, photo
-// - After accept: request becomes "My Assignment", persists in localStorage
-// - Start Assignment button unlocks 20 minutes before scheduled time
-// - Countdown timer updates every second
-// - Start Assignment opens Google Maps navigation to the property
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Observer Dashboard | Realtor Guard</title>
 
-const API_BASE = import.meta?.env?.VITE_API_BASE_URL || ""; // e.g. https://api.realtorguard.com
-
-const LS_KEY = "rg_observer_active_assignment_v1";
-const UNLOCK_MINUTES_BEFORE = 20;
-
-function safeJsonParse(str) {
-  try {
-    return JSON.parse(str);
-  } catch {
-    return null;
-  }
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-function toMs(dateStr, timeStr) {
-  // Accepts common formats:
-  // dateStr: "2025-12-23" or "12/23/2025"
-  // timeStr: "08:00" or "8:00 AM" or "08:00 AM"
-  // We'll normalize using Date parsing safely.
-
-  // If timeStr includes AM/PM, build "date time" string.
-  const hasAmPm = /\b(am|pm)\b/i.test(timeStr || "");
-  let combined;
-
-  if (hasAmPm) {
-    combined = `${dateStr} ${timeStr}`;
-  } else {
-    // If time is "HH:mm", append ":00" seconds
-    combined = `${dateStr} ${timeStr}`;
-  }
-
-  const d = new Date(combined);
-  if (!Number.isFinite(d.getTime())) {
-    // fallback: try MM/DD/YYYY for date input like "12/23/2025"
-    const d2 = new Date(`${dateStr} ${timeStr}`);
-    return d2.getTime();
-  }
-  return d.getTime();
+body {
+  margin: 0;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
 }
 
-function formatCountdown(ms) {
-  if (ms <= 0) return "00:00:00";
-  const totalSeconds = Math.floor(ms / 1000);
-  const hrs = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  const secs = totalSeconds % 60;
-
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+.page {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 20px 60px;
+  text-align: center;
 }
 
-function buildMapsUrl(address) {
-  const q = encodeURIComponent(address || "");
-  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+.logo {
+  width: 180px;
+  margin: 0 auto 24px;
 }
 
-async function apiFetch(path, opts = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(opts.headers || {}),
-    },
-    credentials: "include",
-    ...opts,
-  });
-
-  // Try to parse JSON error bodies if present
-  const contentType = res.headers.get("content-type") || "";
-  const isJson = contentType.includes("application/json");
-
-  if (!res.ok) {
-    const payload = isJson ? await res.json().catch(() => null) : null;
-    const message =
-      payload?.message ||
-      payload?.error ||
-      `Request failed (${res.status})`;
-    throw new Error(message);
-  }
-
-  return isJson ? res.json() : res.text();
+h1 {
+  margin-bottom: 12px;
 }
 
-export default function ObserverDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [loadingActionId, setLoadingActionId] = useState(null);
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState("");
+.card {
+  background: #f7f9fc;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
 
-  const [observerProfile, setObserverProfile] = useState(null);
-  const [openRequests, setOpenRequests] = useState([]);
+.card strong {
+  display: block;
+  margin-top: 6px;
+}
 
-  const [activeAssignment, setActiveAssignment] = useState(() => {
-    const saved = safeJsonParse(localStorage.getItem(LS_KEY));
-    return saved || null;
-  });
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-  const intervalRef = useRef(null);
-  const [nowMs, setNowMs] = useState(Date.now());
+.accept {
+  background: #0b1f3a;
+  color: #fff;
+  margin-top: 12px;
+}
 
-  // ---- Derived: profile completeness
-  const profileMissing = useMemo(() => {
-    if (!observerProfile) return ["profile"];
-    const missing = [];
-    if (!observerProfile.phone) missing.push("phone");
-    // rating could be number or string; treat 0 or null as missing
-    if (
-      observerProfile.rating === undefined ||
-      observerProfile.rating === null ||
-      observerProfile.rating === "" ||
-      Number(observerProfile.rating) <= 0
-    )
-      missing.push("rating");
-    if (!observerProfile.photoUrl) missing.push("photo");
-    return missing;
-  }, [observerProfile]);
+.decline {
+  background: #ccc;
+  margin-top: 8px;
+}
 
-  const canAccept = profileMissing.length === 0;
+.start {
+  background: #198754;
+  color: #fff;
+  margin-top: 12px;
+}
 
-  // ---- Derived: timer/unlock for active assignment
-  const scheduleMs = useMemo(() => {
-    if (!activeAssignment) return null;
-    const ms = toMs(activeAssignment.date, activeAssignment.time);
-    return Number.isFinite(ms) ? ms : null;
-  }, [activeAssignment]);
+.logout {
+  margin-top: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #555;
+  text-align: center;
+}
+</style>
+</head>
 
-  const unlockMs = useMemo(() => {
-    if (!scheduleMs) return null;
-    return scheduleMs - UNLOCK_MINUTES_BEFORE * 60 * 1000;
-  }, [scheduleMs]);
+<body>
+<div class="page">
 
-  const isUnlocked = useMemo(() => {
-    if (!activeAssignment || !unlockMs) return false;
-    return nowMs >= unlockMs;
-  }, [activeAssignment, unlockMs, nowMs]);
+<img src="logo.png" class="logo" alt="Realtor Guard Logo" />
+<h1>Observer Dashboard</h1>
 
-  const timeUntilUnlock = useMemo(() => {
-    if (!activeAssignment || !unlockMs) return 0;
-    return unlockMs - nowMs;
-  }, [activeAssignment, unlockMs, nowMs]);
+<div id="content"></div>
 
-  const timeUntilAppointment = useMemo(() => {
-    if (!activeAssignment || !scheduleMs) return 0;
-    return scheduleMs - nowMs;
-  }, [activeAssignment, scheduleMs, nowMs]);
+<div class="logout" onclick="logout()">Log out</div>
 
-  // ---- ticker
-  useEffect(() => {
-    intervalRef.current = window.setInterval(() => setNowMs(Date.now()), 1000);
-    return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
-    };
-  }, []);
+</div>
 
-  // ---- initial load
-  useEffect(() => {
-    let mounted = true;
+<script>
+// AUTH GUARD
+if (localStorage.getItem("rg_observer_logged_in") !== "true") {
+  window.location.href = "observer-auth.html";
+}
 
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        // 1) observer profile (for required fields)
-        // EXPECTED RESPONSE EXAMPLE:
-        // { id, name, phone, rating, photoUrl }
-        const me = await apiFetch("/api/observers/me");
-        if (!mounted) return;
-        setObserverProfile(me);
+// MOCK PROFILE CHECK (replace later with real profile)
+const observerProfileComplete = localStorage.getItem("rg_observer_profile_complete") === "true";
 
-        // 2) if no active assignment, fetch open requests
-        if (!activeAssignment) {
-          // EXPECTED RESPONSE: array of requests
-          // Each request should include at least:
-          // { id, agentName, visitType, propertyAddress, city, state, zip, date, time, notes }
-          const reqs = await apiFetch("/api/requests/open");
-          if (!mounted) return;
-          setOpenRequests(Array.isArray(reqs) ? reqs : []);
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setError(e?.message || "Failed to load observer dashboard");
-      } finally {
-        if (!mounted) return;
-        setLoading(false);
-      }
-    }
+// ACTIVE ASSIGNMENT
+const activeAssignment = JSON.parse(localStorage.getItem("rg_active_assignment") || "null");
 
-    load();
-    return () => {
-      mounted = false;
-    };
-    // activeAssignment intentionally excluded from dependency to avoid refetch loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+// OPEN REQUEST (from agent)
+const openRequest = JSON.parse(localStorage.getItem("rg_active_request") || "null");
 
-  // If active assignment exists, we keep openRequests empty (focus mode)
-  useEffect(() => {
-    if (activeAssignment) setOpenRequests([]);
-    // persist
-    if (activeAssignment) localStorage.setItem(LS_KEY, JSON.stringify(activeAssignment));
-    else localStorage.removeItem(LS_KEY);
-  }, [activeAssignment]);
+const content = document.getElementById("content");
 
-  // ---- actions
-  async function handleAccept(req) {
-    setToast("");
-    setError("");
+// ---------- RENDER ----------
+if (activeAssignment) {
+  renderAssignment(activeAssignment);
+} else if (openRequest) {
+  renderRequest(openRequest);
+} else {
+  content.innerHTML = "<p>No open requests available.</p>";
+}
 
-    if (!canAccept) {
-      setError(
-        `You must complete your profile before accepting (missing: ${profileMissing.join(
-          ", "
-        )}).`
-      );
-      return;
-    }
-
-    setLoadingActionId(req.id);
-    try {
-      // Accept endpoint: marks request as taken and returns assignment payload
-      // Recommended response: { assignment: {...}, observerProfileSentToAgent: true }
-      const payload = await apiFetch(`/api/requests/${req.id}/accept`, {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      const assignment =
-        payload?.assignment || {
-          ...req,
-          status: "accepted",
-          acceptedAt: new Date().toISOString(),
-        };
-
-      setActiveAssignment(assignment);
-      setToast("Accepted. Assignment saved to your phone.");
-      setOpenRequests([]); // hide other requests
-    } catch (e) {
-      setError(e?.message || "Accept failed");
-    } finally {
-      setLoadingActionId(null);
-    }
-  }
-
-  async function handleDecline(req) {
-    setToast("");
-    setError("");
-    setLoadingActionId(req.id);
-
-    try {
-      await apiFetch(`/api/requests/${req.id}/decline`, {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      // remove from this observer’s list
-      setOpenRequests((prev) => prev.filter((r) => r.id !== req.id));
-      setToast("Declined.");
-    } catch (e) {
-      setError(e?.message || "Decline failed");
-    } finally {
-      setLoadingActionId(null);
-    }
-  }
-
-  async function handleCompleteAssignment() {
-    if (!activeAssignment?.id) return;
-    setToast("");
-    setError("");
-    setLoadingActionId(activeAssignment.id);
-
-    try {
-      await apiFetch(`/api/assignments/${activeAssignment.id}/complete`, {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-
-      setActiveAssignment(null);
-      setToast("Assignment completed.");
-      // reload open requests
-      const reqs = await apiFetch("/api/requests/open");
-      setOpenRequests(Array.isArray(reqs) ? reqs : []);
-    } catch (e) {
-      setError(e?.message || "Complete failed");
-    } finally {
-      setLoadingActionId(null);
-    }
-  }
-
-  function startNavigation() {
-    const address =
-      activeAssignment?.propertyAddress ||
-      activeAssignment?.address ||
-      [
-        activeAssignment?.propertyLocation,
-        activeAssignment?.city,
-        activeAssignment?.state,
-        activeAssignment?.zip,
-      ]
-        .filter(Boolean)
-        .join(", ");
-
-    const url = buildMapsUrl(address);
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-
-  // ---- UI helpers
-  function RequestCard({ req }) {
-    const address =
-      req.propertyAddress ||
-      req.address ||
-      [req.propertyLocation, req.city, req.state, req.zip]
-        .filter(Boolean)
-        .join(", ");
-
-    const busy = loadingActionId === req.id;
-
-    return (
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.title}>Request</div>
-          <div style={styles.badge}>Open</div>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Agent</span>
-          <span style={styles.value}>{req.agentName || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Visit Type</span>
-          <span style={styles.value}>{req.visitType || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Address</span>
-          <span style={styles.value}>{address || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Date</span>
-          <span style={styles.value}>{req.date || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Time</span>
-          <span style={styles.value}>{req.time || "—"}</span>
-        </div>
-
-        {req.notes ? (
-          <div style={{ ...styles.row, alignItems: "flex-start" }}>
-            <span style={styles.label}>Notes</span>
-            <span style={styles.value}>{req.notes}</span>
-          </div>
-        ) : null}
-
-        {!canAccept ? (
-          <div style={styles.warn}>
-            Complete your observer profile to accept (missing:{" "}
-            <strong>{profileMissing.join(", ")}</strong>)
-          </div>
-        ) : null}
-
-        <div style={styles.actions}>
-          <button
-            style={{
-              ...styles.button,
-              ...(canAccept ? {} : styles.buttonDisabled),
-            }}
-            onClick={() => handleAccept(req)}
-            disabled={!canAccept || busy}
-          >
-            {busy ? "Accepting..." : "Accept"}
-          </button>
-
-          <button
-            style={{ ...styles.button, ...styles.buttonSecondary }}
-            onClick={() => handleDecline(req)}
-            disabled={busy}
-          >
-            {busy ? "Declining..." : "Decline"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  function AssignmentCard() {
-    const busy = loadingActionId === activeAssignment?.id;
-
-    const address =
-      activeAssignment?.propertyAddress ||
-      activeAssignment?.address ||
-      [
-        activeAssignment?.propertyLocation,
-        activeAssignment?.city,
-        activeAssignment?.state,
-        activeAssignment?.zip,
-      ]
-        .filter(Boolean)
-        .join(", ");
-
-    return (
-      <div style={styles.card}>
-        <div style={styles.cardHeader}>
-          <div style={styles.title}>My Assignment</div>
-          <div style={{ ...styles.badge, ...styles.badgeAccepted }}>
-            Accepted
-          </div>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Agent</span>
-          <span style={styles.value}>{activeAssignment?.agentName || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Visit Type</span>
-          <span style={styles.value}>{activeAssignment?.visitType || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Address</span>
-          <span style={styles.value}>{address || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Date</span>
-          <span style={styles.value}>{activeAssignment?.date || "—"}</span>
-        </div>
-
-        <div style={styles.row}>
-          <span style={styles.label}>Time</span>
-          <span style={styles.value}>{activeAssignment?.time || "—"}</span>
-        </div>
-
-        <div style={styles.timerBox}>
-          {!isUnlocked ? (
-            <>
-              <div style={styles.timerLabel}>
-                Start Assignment unlocks in:
-              </div>
-              <div style={styles.timerValue}>
-                {formatCountdown(timeUntilUnlock)}
-              </div>
-              <div style={styles.timerSub}>
-                (Unlocks {UNLOCK_MINUTES_BEFORE} minutes before appointment)
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={styles.timerLabel}>Appointment starts in:</div>
-              <div style={styles.timerValue}>
-                {formatCountdown(timeUntilAppointment)}
-              </div>
-              <div style={styles.timerSub}>You can start navigation now.</div>
-            </>
-          )}
-        </div>
-
-        <div style={styles.actions}>
-          <button
-            style={{
-              ...styles.button,
-              ...(isUnlocked ? {} : styles.buttonDisabled),
-            }}
-            onClick={startNavigation}
-            disabled={!isUnlocked}
-          >
-            Start Assignment (Navigate)
-          </button>
-
-          <button
-            style={{ ...styles.button, ...styles.buttonSecondary }}
-            onClick={handleCompleteAssignment}
-            disabled={busy}
-          >
-            {busy ? "Completing..." : "Complete Assignment"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ---- render
-  return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <h2 style={styles.h2}>Observer Dashboard</h2>
-        <div style={styles.sub}>
-          {observerProfile?.name ? `Welcome, ${observerProfile.name}` : ""}
-        </div>
-      </div>
-
-      {error ? <div style={styles.error}>{error}</div> : null}
-      {toast ? <div style={styles.toast}>{toast}</div> : null}
-
-      {loading ? (
-        <div style={styles.loading}>Loading...</div>
-      ) : (
-        <>
-          {activeAssignment ? (
-            <AssignmentCard />
-          ) : (
-            <>
-              <div style={styles.sectionTitle}>Available Requests</div>
-
-              {openRequests.length === 0 ? (
-                <div style={styles.empty}>
-                  No open requests right now.
-                </div>
-              ) : (
-                <div style={styles.list}>
-                  {openRequests.map((req) => (
-                    <RequestCard key={req.id} req={req} />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </>
-      )}
+// ---------- FUNCTIONS ----------
+function renderRequest(req) {
+  content.innerHTML = `
+    <div class="card">
+      <strong>Agent:</strong> ${req.agentName || "—"}
+      <strong>Address:</strong> ${req.address}, ${req.city}, ${req.state} ${req.zip}
+      <strong>Date:</strong> ${req.date}
+      <strong>Time:</strong> ${req.time}
+      <strong>Duration:</strong> ${req.duration}
     </div>
-  );
+
+    <button class="accept" onclick="acceptRequest()">Accept Request</button>
+    <button class="decline" onclick="declineRequest()">Decline</button>
+  `;
 }
 
-// Mobile-safe inline styles (no dependency on existing CSS)
-const styles = {
-  page: {
-    padding: 16,
-    maxWidth: 720,
-    margin: "0 auto",
-    fontFamily:
-      'system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-  header: {
-    marginBottom: 12,
-  },
-  h2: {
-    margin: 0,
-    fontSize: 22,
-    lineHeight: 1.2,
-  },
-  sub: {
-    marginTop: 4,
-    opacity: 0.8,
-    fontSize: 14,
-  },
-  sectionTitle: {
-    marginTop: 8,
-    marginBottom: 10,
-    fontSize: 16,
-    fontWeight: 700,
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
-  },
-  card: {
-    border: "1px solid rgba(0,0,0,0.12)",
-    borderRadius: 12,
-    padding: 14,
-    boxShadow: "0 1px 10px rgba(0,0,0,0.04)",
-    background: "#fff",
-  },
-  cardHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    gap: 8,
-  },
-  title: {
-    fontWeight: 800,
-    fontSize: 16,
-  },
-  badge: {
-    fontSize: 12,
-    padding: "4px 10px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.18)",
-    background: "rgba(0,0,0,0.04)",
-  },
-  badgeAccepted: {
-    background: "rgba(46, 204, 113, 0.14)",
-    border: "1px solid rgba(46, 204, 113, 0.35)",
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 12,
-    padding: "6px 0",
-    borderTop: "1px dashed rgba(0,0,0,0.08)",
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: 700,
-    opacity: 0.75,
-    minWidth: 90,
-  },
-  value: {
-    fontSize: 13,
-    textAlign: "right",
-    wordBreak: "break-word",
-    flex: 1,
-  },
-  actions: {
-    display: "flex",
-    flexDirection: "column", // mobile-first
-    gap: 10,
-    marginTop: 12,
-  },
-  button: {
-    width: "100%",
-    padding: "12px 14px",
-    fontSize: 14,
-    fontWeight: 800,
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.2)",
-    background: "#111",
-    color: "#fff",
-    cursor: "pointer",
-  },
-  buttonSecondary: {
-    background: "#fff",
-    color: "#111",
-  },
-  buttonDisabled: {
-    opacity: 0.45,
-    cursor: "not-allowed",
-  },
-  timerBox: {
-    marginTop: 10,
-    padding: 12,
-    borderRadius: 12,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(0,0,0,0.03)",
-  },
-  timerLabel: {
-    fontSize: 12,
-    fontWeight: 800,
-    opacity: 0.8,
-  },
-  timerValue: {
-    marginTop: 6,
-    fontSize: 22,
-    fontWeight: 900,
-    letterSpacing: 1,
-  },
-  timerSub: {
-    marginTop: 6,
-    fontSize: 12,
-    opacity: 0.75,
-  },
-  warn: {
-    marginTop: 10,
-    padding: 10,
-    borderRadius: 10,
-    background: "rgba(255, 199, 0, 0.18)",
-    border: "1px solid rgba(255, 199, 0, 0.35)",
-    fontSize: 12,
-    fontWeight: 700,
-  },
-  error: {
-    marginTop: 10,
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 10,
-    background: "rgba(255, 0, 0, 0.12)",
-    border: "1px solid rgba(255, 0, 0, 0.22)",
-    fontSize: 13,
-    fontWeight: 700,
-  },
-  toast: {
-    marginTop: 10,
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 10,
-    background: "rgba(46, 204, 113, 0.14)",
-    border: "1px solid rgba(46, 204, 113, 0.28)",
-    fontSize: 13,
-    fontWeight: 800,
-  },
-  empty: {
-    padding: 14,
-    borderRadius: 12,
-    border: "1px dashed rgba(0,0,0,0.18)",
-    opacity: 0.8,
-  },
-  loading: {
-    padding: 14,
-    opacity: 0.8,
-  },
-};
+function renderAssignment(assign) {
+  content.innerHTML = `
+    <div class="card">
+      <strong>My Assignment</strong>
+      <strong>Agent:</strong> ${assign.agentName}
+      <strong>Address:</strong> ${assign.address}, ${assign.city}, ${assign.state} ${assign.zip}
+      <strong>Date:</strong> ${assign.date}
+      <strong>Time:</strong> ${assign.time}
+      <strong>Duration:</strong> ${assign.duration}
+    </div>
+
+    <button class="start" onclick="startNavigation()">Start Assignment</button>
+  `;
+}
+
+function acceptRequest() {
+  if (!observerProfileComplete) {
+    alert("You must complete your observer profile and agreement before accepting.");
+    return;
+  }
+
+  const assignment = {
+    ...openRequest,
+    observerAccepted: true
+  };
+
+  localStorage.setItem("rg_active_assignment", JSON.stringify(assignment));
+  localStorage.removeItem("rg_active_request");
+
+  location.reload();
+}
+
+function declineRequest() {
+  localStorage.removeItem("rg_active_request");
+  location.reload();
+}
+
+function startNavigation() {
+  const a = activeAssignment;
+  const address = encodeURIComponent(
+    `${a.address}, ${a.city}, ${a.state} ${a.zip}`
+  );
+  window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, "_blank");
+}
+
+function logout() {
+  localStorage.removeItem("rg_observer_logged_in");
+  window.location.href = "observer-auth.html";
+}
+</script>
+
+</body>
+</html>
