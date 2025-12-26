@@ -7,10 +7,10 @@
 
   <style>
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
       font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     body {
@@ -37,7 +37,7 @@
     }
 
     h1 {
-      margin: 24px 0 16px;
+      margin: 24px 0 12px;
       font-size: 22px;
       font-weight: 800;
       color: #0b1a33;
@@ -75,6 +75,29 @@
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .links {
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .links a {
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .back {
+      margin-top: 18px;
+      font-size: 13px;
+      color: #6b7280;
+      text-decoration: underline;
+      cursor: pointer;
+      text-align: center;
     }
   </style>
 </head>
@@ -93,7 +116,14 @@
       <input type="password" placeholder="••••••••" />
 
       <button onclick="login()">Log In</button>
+
+      <div class="links">
+        <a href="agent-signup.html">Create Agent Account</a>
+        <a href="agent-forgot.html">Forgot Password?</a>
+      </div>
     </div>
+
+    <div class="back" onclick="goBack()">← Back to role selection</div>
   </div>
 
   <script>
@@ -104,6 +134,10 @@
     function login() {
       localStorage.setItem("rg_agent_logged_in", "true");
       window.location.href = "agent-dashboard.html";
+    }
+
+    function goBack() {
+      window.location.href = "choose-role.html";
     }
   </script>
 </body>
