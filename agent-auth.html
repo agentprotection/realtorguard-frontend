@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Access | Realtor Guard</title>
+  <title>Agent Login | Realtor Guard</title>
 
   <style>
-    /* ===== Realtor Guard — Agent Auth (MATCHES WHO-ARE-YOU PAGE) ===== */
-
     * {
       margin: 0;
       padding: 0;
@@ -22,98 +20,60 @@
       justify-content: center;
     }
 
-    /* SAME container as choose-role.html */
     .page {
-      width: 100%;
       max-width: 420px;
+      width: 100%;
       padding-top: 40px;
       text-align: center;
     }
 
-    /* SAME logo rules as landing / choose-role */
     .logo {
       width: 180px;
       max-width: 70%;
-      cursor: pointer;
     }
 
     @media (min-width: 768px) {
-      .logo {
-        width: 200px;
-      }
+      .logo { width: 200px; }
     }
 
     h1 {
-      margin-top: 24px;
-      margin-bottom: 8px;
+      margin: 24px 0 16px;
       font-size: 22px;
       font-weight: 800;
       color: #0b1a33;
     }
 
-    .subtext {
-      font-size: 14px;
-      font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 28px;
-    }
-
-    /* Card starts LOWER — logo stays high */
     .card {
-      background: #ffffff;
-      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
       text-align: left;
     }
 
     label {
-      display: block;
       font-weight: 700;
       color: #0b1a33;
+      display: block;
       margin-bottom: 6px;
     }
 
     input {
       width: 100%;
       padding: 12px;
+      margin-bottom: 16px;
       border-radius: 10px;
       border: 1px solid #e5e7eb;
-      font-size: 15px;
-      margin-bottom: 16px;
     }
 
-    /* AGENT BUTTON — NAVY */
-    .btn {
+    button {
       width: 100%;
       padding: 14px;
       border-radius: 12px;
       border: none;
       background: #0b1a33;
-      color: #ffffff;
+      color: white;
       font-size: 16px;
       font-weight: 800;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    .link {
-      display: block;
-      margin-top: 16px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: #0b1a33;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    .back {
-      margin-top: 18px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
-      text-align: center;
       cursor: pointer;
     }
   </style>
@@ -121,12 +81,9 @@
 
 <body>
   <div class="page">
-
-    <!-- LOGO (MATCHES WHO ARE YOU PAGE) -->
-    <img src="logo.png" alt="Realtor Guard Logo" class="logo" />
+    <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
 
     <h1>Agent Login</h1>
-    <div class="subtext">Log in to continue</div>
 
     <div class="card">
       <label>Email</label>
@@ -135,20 +92,11 @@
       <label>Password</label>
       <input type="password" placeholder="••••••••" />
 
-      <button class="btn" onclick="login()">Log In</button>
-
-      <span class="link">Create Agent Account</span>
-      <span class="link">Forgot Password?</span>
+      <button onclick="login()">Log In</button>
     </div>
-
-    <div class="back" onclick="window.location.href='choose-role.html'">
-      ← Back to role selection
-    </div>
-
   </div>
 
   <script>
-    /* SIMPLE STATIC WIRING */
     if (localStorage.getItem("rg_agent_logged_in") === "true") {
       window.location.href = "agent-dashboard.html";
     }
