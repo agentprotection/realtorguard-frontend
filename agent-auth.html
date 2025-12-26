@@ -2,131 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Agent Access | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Access | Realtor Guard</title>
 
   <style>
-    body {
+    /* ===== Realtor Guard — Agent Auth (MATCHES WHO-ARE-YOU PAGE) ===== */
+
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
-    .auth-container {
+    body {
       background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* SAME container as choose-role.html */
+    .page {
       width: 100%;
       max-width: 420px;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding-top: 40px;
       text-align: center;
     }
 
+    /* SAME logo rules as landing / choose-role */
     .logo {
-      margin-bottom: 20px;
-    }
-
-    .logo img {
-      width: 90px;
-    }
-
-    h1 {
-      font-size: 22px;
-      margin-bottom: 10px;
-      color: #1a2b4c;
-    }
-
-    p {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 30px;
-    }
-
-    .auth-btn {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 15px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: none;
+      width: 180px;
+      max-width: 70%;
       cursor: pointer;
     }
 
-    .login-btn {
-      background: #0a2540;
-      color: white;
+    @media (min-width: 768px) {
+      .logo {
+        width: 200px;
+      }
     }
 
-    .register-btn {
-      background: #1d9bf0;
-      color: white;
+    h1 {
+      margin-top: 24px;
+      margin-bottom: 8px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #0b1a33;
     }
 
-    .forgot-btn {
-      background: transparent;
-      color: #1d9bf0;
+    .subtext {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 28px;
+    }
+
+    /* Card starts LOWER — logo stays high */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      color: #0b1a33;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    /* AGENT BUTTON — NAVY */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: #0b1a33;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .link {
+      display: block;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0b1a33;
       text-decoration: underline;
-      font-size: 14px;
+      cursor: pointer;
     }
 
-    .back-link {
-      margin-top: 20px;
-      font-size: 14px;
-    }
-
-    .back-link a {
-      color: #555;
-      text-decoration: none;
+    .back {
+      margin-top: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      text-align: center;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
+  <div class="page">
 
-  <div class="auth-container">
+    <!-- LOGO (MATCHES WHO ARE YOU PAGE) -->
+    <img src="logo.png" alt="Realtor Guard Logo" class="logo" />
 
-    <div class="logo">
-      <img src="logo.png" alt="Realtor Guard Logo">
+    <h1>Agent Login</h1>
+    <div class="subtext">Log in to continue</div>
+
+    <div class="card">
+      <label>Email</label>
+      <input type="email" placeholder="you@email.com" />
+
+      <label>Password</label>
+      <input type="password" placeholder="••••••••" />
+
+      <button class="btn" onclick="login()">Log In</button>
+
+      <span class="link">Create Agent Account</span>
+      <span class="link">Forgot Password?</span>
     </div>
 
-    <h1>Agent Access</h1>
-    <p>Please log in or create an account to continue</p>
-
-    <button class="auth-btn login-btn" onclick="goLogin()">
-      Log In
-    </button>
-
-    <button class="auth-btn register-btn" onclick="goRegister()">
-      Create Agent Account
-    </button>
-
-    <button class="auth-btn forgot-btn" onclick="goForgot()">
-      Forgot Password?
-    </button>
-
-    <div class="back-link">
-      <a href="choose-role.html">← Back to role selection</a>
+    <div class="back" onclick="window.location.href='choose-role.html'">
+      ← Back to role selection
     </div>
 
   </div>
 
   <script>
-    function goLogin() {
-      window.location.href = "agent-login.html";
+    /* SIMPLE STATIC WIRING */
+    if (localStorage.getItem("rg_agent_logged_in") === "true") {
+      window.location.href = "agent-dashboard.html";
     }
 
-    function goRegister() {
-      window.location.href = "agent-signup.html";
-    }
-
-    function goForgot() {
-      alert("Password recovery will be enabled soon.");
+    function login() {
+      localStorage.setItem("rg_agent_logged_in", "true");
+      window.location.href = "agent-dashboard.html";
     }
   </script>
-
 </body>
 </html>
