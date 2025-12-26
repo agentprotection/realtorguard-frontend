@@ -2,180 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Request Status | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Observer | Realtor Guard</title>
 
   <style>
     * {
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
-      margin: 0;
-      background: #f4f4f4;
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
     }
 
-    .app {
+    .page {
+      width: 100%;
       max-width: 420px;
-      margin: auto;
-      padding: 16px;
+      padding-top: 40px;
+      text-align: center;
     }
 
     .logo {
-      text-align: center;
-      margin-bottom: 16px;
+      width: 180px;
+      margin-bottom: 30px;
     }
 
-    .logo img {
-      width: 160px;
-      max-width: 80%;
+    h2 {
+      margin-bottom: 20px;
     }
 
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .label {
-      font-weight: bold;
-      margin-top: 12px;
-      display: block;
-    }
-
-    .status {
-      margin-top: 16px;
+    input {
+      width: 100%;
       padding: 12px;
-      border-radius: 10px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .pending {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .accepted {
-      background: #d4edda;
-      color: #155724;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 12px;
+      margin-top: 10px;
       border: none;
+      border-radius: 8px;
+      background: #0b1f3a;
+      color: white;
+      font-size: 16px;
       cursor: pointer;
     }
 
-    .refresh {
-      background: #000;
-      color: #fff;
-    }
-
-    .cancel {
-      background: #b00000;
-      color: #fff;
+    .back {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      cursor: pointer;
+      text-decoration: underline;
     }
   </style>
 </head>
 
 <body>
-<div class="app">
+  <div class="page">
+    <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
 
-  <!-- LOGO -->
-  <div class="logo">
-    <img src="logo.png" alt="Realtor Guard Logo">
+    <h2>Request an Observer</h2>
+
+    <input id="address" placeholder="Property Address" />
+    <input id="city" placeholder="City" />
+    <input id="zip" placeholder="Zip Code" />
+    <input type="date" id="date" />
+    <input type="time" id="time" />
+
+    <button onclick="submitRequest()">Submit Request</button>
+
+    <div class="back" onclick="goBack()">← Back to Dashboard</div>
   </div>
 
-  <!-- REQUEST SUMMARY -->
-  <div class="card" id="summary"></div>
+  <script>
+    function submitRequest() {
+      const request = {
+        address: document.getElementById("address").value,
+        city: document.getElementById("city").value,
+        zip: document.getElementById("zip").value,
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        status: "Pending Observer"
+      };
 
-  <!-- STATUS -->
-  <div id="statusBox" class="status pending">
-    Waiting for observer acceptance
-  </div>
+      localStorage.setItem("rg_active_request", JSON.stringify(request));
 
-  <!-- ACTIONS -->
-  <button class="refresh" onclick="refreshStatus()">Refresh Status</button>
-  <button id="cancelBtn" class="cancel" onclick="cancelRequest()">Cancel Request</button>
+      // return agent to dashboard
+      window.location.href = "agent-dashboard.html";
+    }
 
-</div>
-
-<script>
-/*
-  Expected: agent-dashboard.html saves the request like this:
-  localStorage.setItem("agentRequest", JSON.stringify({...}))
-*/
-
-const request = JSON.parse(localStorage.getItem("agentRequest"));
-
-if (!request) {
-  window.location.href = "agent-dashboard.html";
-}
-
-function renderSummary() {
-  summary.innerHTML = `
-    <span class="label">Agent Name</span>
-    ${request.agentName}
-
-    <span class="label">Property Address</span>
-    ${request.address}
-
-    <span class="label">City / State / Zip</span>
-    ${request.city}, ${request.state} ${request.zip}
-
-    <span class="label">Date</span>
-    ${request.date}
-
-    <span class="label">Time</span>
-    ${request.time}
-
-    <span class="label">Duration</span>
-    ${request.duration}
-
-    <span class="label">Time Zone</span>
-    ${request.timezone}
-
-    <span class="label">Visit Type</span>
-    ${request.visitType}
-
-    ${request.otherDesc ? `<span class="label">Description</span>${request.otherDesc}` : ``}
-  `;
-}
-
-function refreshStatus() {
-  const status = localStorage.getItem("requestStatus") || "pending";
-
-  if (status === "accepted") {
-    statusBox.textContent = "Observer Accepted";
-    statusBox.classList.remove("pending");
-    statusBox.classList.add("accepted");
-    cancelBtn.style.display = "none";
-  } else {
-    statusBox.textContent = "Waiting for observer acceptance";
-    statusBox.classList.remove("accepted");
-    statusBox.classList.add("pending");
-    cancelBtn.style.display = "block";
-  }
-}
-
-function cancelRequest() {
-  localStorage.removeItem("agentRequest");
-  localStorage.removeItem("requestStatus");
-  window.location.href = "agent-dashboard.html";
-}
-
-/* Initial render */
-renderSummary();
-refreshStatus();
-</script>
-
+    function goBack() {
+      window.location.href = "agent-dashboard.html";
+    }
+  </script>
 </body>
 </html>
