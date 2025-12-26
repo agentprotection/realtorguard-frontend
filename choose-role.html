@@ -7,112 +7,113 @@
 
   <style>
     /* ===== Realtor Guard — Choose Role (FULL REWRITE) ===== */
+    /* LOGO + SPACING MATCHES index.html EXACTLY */
 
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
       font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
-      margin: 0;
-      background: #f6f7fb;
-    }
-
-    .page {
+      background: #ffffff;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 16px;
     }
 
-    .card {
+    .page {
       width: 100%;
-      max-width: 420px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      max-width: 420px;   /* SAME AS LANDING */
+      padding-top: 40px;  /* SAME AS LANDING */
       text-align: center;
     }
 
-    /* ---- LOGO STANDARD (SAME ON EVERY PAGE) ---- */
+    /* ---- LOGO (GLOBAL STANDARD) ---- */
     .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 12px;
+      width: 180px;
+      max-width: 70%;
+      cursor: pointer;
     }
 
-    .logo img {
-      width: 96px;          /* STANDARD SIZE — DO NOT CHANGE */
-      height: auto;
-      display: block;
-      object-fit: contain;
+    @media (min-width: 768px) {
+      .logo {
+        width: 200px;
+      }
     }
 
     h1 {
+      margin-top: 24px;
+      margin-bottom: 32px;
       font-size: 22px;
       font-weight: 800;
       color: #0b1a33;
-      margin: 8px 0 18px;
     }
 
+    /* ---- ROLE BUTTONS ---- */
     .role-btn {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       border-radius: 12px;
-      border: 2px solid #0b1a33;
-      background: #ffffff;
-      color: #0b1a33;
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
-    .role-btn.primary {
+    /* AGENT — BLUE */
+    .agent-btn {
       background: #0b1a33;
       color: #ffffff;
+      border: none;
+    }
+
+    /* OBSERVER — WHITE + NAVY */
+    .observer-btn {
+      background: #ffffff;
+      color: #0b1a33;
+      border: 2px solid #0b1a33;
     }
 
     .hint {
+      margin-top: 18px;
       font-size: 13px;
-      color: #6b7280;
       font-weight: 600;
-      margin-top: 6px;
+      color: #6b7280;
     }
   </style>
 </head>
 
 <body>
   <div class="page">
-    <div class="card">
 
-      <div class="logo">
-        <img src="logo.png" alt="Realtor Guard Logo" />
-      </div>
+    <img
+      src="logo.png"
+      alt="Realtor Guard Logo"
+      class="logo"
+    />
 
-      <h1>Who are you?</h1>
+    <h1>Who are you?</h1>
 
-      <!-- AGENT -->
-      <button
-        class="role-btn primary"
-        onclick="window.location.href='agent-auth.html'">
-        I am an Agent
-      </button>
+    <!-- AGENT -->
+    <button
+      class="role-btn agent-btn"
+      onclick="window.location.href='agent-auth.html'">
+      I am an Agent
+    </button>
 
-      <!-- OBSERVER -->
-      <button
-        class="role-btn"
-        onclick="window.location.href='observer-auth.html'">
-        I am an Observer
-      </button>
+    <!-- OBSERVER -->
+    <button
+      class="role-btn observer-btn"
+      onclick="window.location.href='observer-auth.html'">
+      I am an Observer
+    </button>
 
-      <div class="hint">
-        You’ll be able to login or create an account next.
-      </div>
-
+    <div class="hint">
+      You’ll login or create an account on the next screen.
     </div>
+
   </div>
 </body>
 </html>
