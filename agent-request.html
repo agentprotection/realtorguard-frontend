@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Request Observer | Realtor Guard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     * {
@@ -16,117 +16,171 @@
       background: #ffffff;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
       min-height: 100vh;
     }
 
-    .container {
+    .page {
       width: 100%;
       max-width: 420px;
-      padding: 32px 16px 40px;
+      padding: 24px;
       text-align: center;
     }
 
     .logo {
-      width: 120px;
-      margin-bottom: 16px;
+      width: 180px;
+      margin: 20px auto 30px;
+      display: block;
     }
 
-    h1 {
-      font-size: 26px;
-      margin-bottom: 20px;
-    }
-
-    form {
-      background: #f4f7fb;
-      padding: 20px;
-      border-radius: 14px;
-      text-align: left;
+    h2 {
+      margin-bottom: 24px;
     }
 
     label {
       display: block;
-      margin-top: 14px;
+      text-align: left;
+      margin-bottom: 6px;
       font-weight: bold;
       font-size: 14px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
+      margin-bottom: 16px;
       font-size: 15px;
     }
 
-    button {
+    .btn {
       width: 100%;
-      margin-top: 24px;
       padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: #0a2540;
-      color: white;
       font-size: 16px;
-      font-weight: bold;
+      border: none;
       cursor: pointer;
+      margin-bottom: 12px;
     }
 
-    button:active {
-      transform: scale(0.98);
+    .btn-submit {
+      background: #0a1f3d;
+      color: white;
+    }
+
+    .btn-refresh {
+      background: #cccccc;
+      color: #000;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="page">
     <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
-    <h1>Request an Observer</h1>
+
+    <h2>Request an Observer</h2>
 
     <form id="requestForm">
+      <label>Agent Name</label>
+      <input type="text" id="agentName" required />
+
       <label>Property Address</label>
-      <input id="address" required />
+      <input type="text" id="address" required />
 
       <label>City</label>
-      <input id="city" required />
+      <input type="text" id="city" required />
 
       <label>State</label>
-      <input id="state" required />
+      <select id="state" required>
+        <option value="">Select State</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+        <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+        <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+        <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+        <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+        <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+        <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+        <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+        <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+        <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+        <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+        <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+        <option>WI</option><option>WY</option>
+      </select>
 
       <label>Date</label>
       <input type="date" id="date" required />
 
       <label>Time</label>
-      <input type="time" id="time" required />
+      <select id="time" required>
+        <option value="">Select Time</option>
+      </select>
 
-      <label>Duration (hours)</label>
-      <input id="duration" placeholder="e.g. 2" required />
+      <label>Duration</label>
+      <select id="duration" required>
+        <option value="">Select Duration</option>
+        <option>30 minutes</option>
+        <option>1 hour</option>
+        <option>1.5 hours</option>
+        <option>2 hours</option>
+        <option>2.5 hours</option>
+        <option>3 hours</option>
+      </select>
 
-      <button type="submit">Submit Request</button>
+      <button type="button" class="btn btn-refresh" onclick="resetForm()">Refresh</button>
+      <button type="submit" class="btn btn-submit">Request Observer</button>
     </form>
   </div>
 
   <script>
-    const form = document.getElementById("requestForm");
+    const timeSelect = document.getElementById("time");
 
-    form.addEventListener("submit", function (e) {
+    function buildTimes() {
+      const times = [];
+      let hour = 8;
+      let isPM = false;
+
+      while (!(hour === 7 && isPM)) {
+        ["00", "30"].forEach(min => {
+          const displayHour = hour === 0 ? 12 : hour;
+          const label = `${displayHour}:${min} ${isPM ? "PM" : "AM"}`;
+          times.push(label);
+        });
+
+        hour++;
+        if (hour === 12) isPM = true;
+        if (hour === 13) hour = 1;
+      }
+
+      times.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        timeSelect.appendChild(opt);
+      });
+    }
+
+    buildTimes();
+
+    function resetForm() {
+      document.getElementById("requestForm").reset();
+    }
+
+    document.getElementById("requestForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
       const request = {
-        agentName: "Agent",
-        address: document.getElementById("address").value,
-        city: document.getElementById("city").value,
-        state: document.getElementById("state").value,
-        date: document.getElementById("date").value,
-        time: document.getElementById("time").value,
-        duration: document.getElementById("duration").value
+        agentName: agentName.value,
+        address: address.value,
+        city: city.value,
+        state: state.value,
+        date: date.value,
+        time: time.value,
+        duration: duration.value
       };
 
-      // 🔐 SINGLE SOURCE OF TRUTH
       localStorage.setItem("rg_pending_request", JSON.stringify(request));
       localStorage.setItem("rg_assignment_status", "pending");
 
-      // 🔁 RETURN TO DASHBOARD
       window.location.href = "agent-dashboard.html";
     });
   </script>
