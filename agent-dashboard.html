@@ -1,160 +1,186 @@
- .<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agent Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
+    :root{
+      --navy:#0a2540;
+      --bg:#ffffff;
+      --card:#f4f7fb;
+      --border:#e5e7eb;
+      --muted:#6b7280;
+      --danger:#b00020;
+      --ok:#0f766e;
+      --shadow: 0 16px 30px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+    body{margin:0;background:var(--bg);color:#0f172a}
+    .wrap{max-width:820px;margin:0 auto;padding:28px 16px 40px;text-align:center}
+    .logo{width:120px;margin:8px auto 6px;display:block}
+    h1{margin:10px 0 18px;font-size:32px}
+
+    .card{
+      max-width:520px;margin:0 auto;background:var(--card);
+      border:1px solid var(--border);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:18px;text-align:left
+    }
+    .row{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid rgba(229,231,235,.7)}
+    .row:last-child{border-bottom:none}
+    .label{color:var(--muted);font-weight:700}
+    .value{font-weight:700;text-align:right;word-break:break-word}
+
+    .status{
+      margin-top:12px;padding:10px 12px;border-radius:12px;
+      border:1px solid var(--border);background:#fff;
+      display:flex;justify-content:space-between;align-items:center;gap:10px
+    }
+    .pill{
+      padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;
+      background:#eef2ff;color:var(--navy);border:1px solid rgba(10,37,64,.18)
+    }
+    .status.accepted{
+      border-color:rgba(15,118,110,.25);background:rgba(15,118,110,.06)
+    }
+    .status.accepted .pill{
+      background:rgba(15,118,110,.12);color:var(--ok);border-color:rgba(15,118,110,.25)
     }
 
-    body {
-      background: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
+    .actions{max-width:520px;margin:14px auto 0;display:flex;flex-direction:column;gap:10px}
+    button{
+      width:100%;padding:14px 16px;border-radius:12px;border:none;
+      font-weight:800;font-size:16px;cursor:pointer
+    }
+    .btn-cancel{background:var(--danger);color:#fff}
+    .btn-home{background:#e5e7eb;color:#111827}
+
+    .observer{
+      max-width:520px;margin:14px auto 0;background:#fff;border:1px solid var(--border);
+      border-radius:var(--radius);padding:16px;display:flex;gap:14px;align-items:center
+    }
+    .avatar{
+      width:64px;height:64px;border-radius:50%;
+      background:#cbd5e1;display:flex;align-items:center;justify-content:center;
+      font-weight:900;color:#475569
+    }
+    .obs-meta{flex:1;text-align:left}
+    .obs-name{font-weight:900}
+    .obs-note{color:var(--muted);font-size:14px}
+
+    .empty{
+      max-width:520px;margin:0 auto;background:#fff;border:1px dashed var(--border);
+      border-radius:var(--radius);padding:22px;color:var(--muted);font-weight:700
     }
 
-    .page {
-      width: 100%;
-      max-width: 420px;
-      padding-top: 40px;
-      text-align: center;
-    }
-
-    .logo {
-      width: 180px;
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
-    .primary {
-      background: #0b1c33;
-      color: white;
-    }
-
-    .danger {
-      background: #b00020;
-      color: white;
-    }
-
-    .section {
-      margin-top: 30px;
-      text-align: left;
-    }
-
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 14px;
-      margin-top: 10px;
-      font-size: 14px;
-    }
-
-    .empty {
-      color: #777;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    .logout {
-      margin-top: 30px;
-      font-size: 14px;
-      cursor: pointer;
-      color: #555;
-      text-align: center;
-    }
+    .footer{margin-top:18px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+    .link{color:var(--navy);text-decoration:none;font-weight:800;font-size:14px;padding:8px 10px;border-radius:10px;border:1px solid rgba(10,37,64,.15)}
   </style>
 </head>
 
 <body>
-  <div class="page">
-    <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
+  <div class="wrap">
+    <img class="logo" src="logo.png" alt="Realtor Guard"/>
+    <h1>Agent Dashboard</h1>
 
-    <h2>Agent Dashboard</h2>
+    <div id="content"></div>
 
-    <!-- REQUEST BUTTON -->
-    <div id="requestSection">
-      <button class="primary" onclick="goToRequest()">Request Observer</button>
+    <div class="footer">
+      <a class="link" href="agent-request.html">Request Observer</a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="choose-role.html">Log out</a>
     </div>
-
-    <!-- PENDING REQUEST -->
-    <div id="pendingSection" style="display:none">
-      <h3>Pending Observer Request</h3>
-      <div class="card" id="pendingDetails"></div>
-      <button class="danger" onclick="cancelRequest()">Cancel Request</button>
-    </div>
-
-    <!-- UPCOMING -->
-    <div class="section">
-      <h3>Upcoming Showings</h3>
-      <div class="empty">No upcoming showings yet.</div>
-    </div>
-
-    <!-- PAST -->
-    <div class="section">
-      <h3>Past Showings</h3>
-      <div class="empty">No past showings yet.</div>
-    </div>
-
-    <div class="logout" onclick="logout()">Log out</div>
   </div>
 
   <script>
-    // AUTH GUARD
-    if (localStorage.getItem("rg_agent_logged_in") !== "true") {
-      window.location.href = "agent-auth.html";
-    }
+    const PENDING_KEY = "rg_pending_request";
+    const STATUS_KEY  = "rg_assignment_status";
+    const ASSIGNED_KEY = "rg_assigned_request";
 
-    const activeRequest = localStorage.getItem("rg_active_request");
+    function safeParse(v){try{return JSON.parse(v)}catch{return null}}
 
-    if (activeRequest) {
-      const data = JSON.parse(activeRequest);
-      document.getElementById("requestSection").style.display = "none";
-      document.getElementById("pendingSection").style.display = "block";
-
-      document.getElementById("pendingDetails").innerHTML = `
-        <strong>Address:</strong> ${data.address}<br/>
-        <strong>City:</strong> ${data.city}<br/>
-        <strong>State:</strong> ${data.state}<br/>
-        <strong>Date:</strong> ${data.date}<br/>
-        <strong>Time:</strong> ${data.time}<br/>
-        <strong>Duration:</strong> ${data.duration}<br/>
-        <strong>Status:</strong> ${data.status}
+    function renderEmpty(){
+      document.getElementById("content").innerHTML = `
+        <div class="empty">
+          No active requests.
+          <div style="margin-top:10px;color:#94a3b8">Create a request to get started.</div>
+        </div>
       `;
     }
 
-    function goToRequest() {
-      window.location.href = "agent-request.html";
+    function renderPending(req){
+      const addr = [req.address, req.city, req.state].filter(Boolean).join(", ");
+      document.getElementById("content").innerHTML = `
+        <div class="card">
+          <div class="row"><div class="label">Agent</div><div class="value">${req.agentName||"Agent"}</div></div>
+          <div class="row"><div class="label">Address</div><div class="value">${addr}</div></div>
+          <div class="row"><div class="label">Date</div><div class="value">${req.date}</div></div>
+          <div class="row"><div class="label">Time</div><div class="value">${req.time}</div></div>
+          <div class="row"><div class="label">Duration</div><div class="value">${req.duration}</div></div>
+
+          <div class="status">
+            <div>Waiting for an observer to accept.</div>
+            <div class="pill">PENDING</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-cancel" id="cancelBtn">Cancel Request</button>
+        </div>
+      `;
+      document.getElementById("cancelBtn").onclick = () => {
+        localStorage.removeItem(PENDING_KEY);
+        localStorage.removeItem(STATUS_KEY);
+        localStorage.removeItem(ASSIGNED_KEY);
+        renderEmpty();
+      };
     }
 
-    function cancelRequest() {
-      localStorage.removeItem("rg_active_request");
-      window.location.reload();
+    function renderAccepted(req, assigned){
+      const addr = [req.address, req.city, req.state].filter(Boolean).join(", ");
+      const name = assigned?.observerName || "Observer";
+      document.getElementById("content").innerHTML = `
+        <div class="card">
+          <div class="row"><div class="label">Address</div><div class="value">${addr}</div></div>
+          <div class="row"><div class="label">Date</div><div class="value">${req.date}</div></div>
+          <div class="row"><div class="label">Time</div><div class="value">${req.time}</div></div>
+          <div class="row"><div class="label">Duration</div><div class="value">${req.duration}</div></div>
+
+          <div class="status accepted">
+            <div>Observer has accepted your request.</div>
+            <div class="pill">ACCEPTED</div>
+          </div>
+        </div>
+
+        <div class="observer">
+          <div class="avatar">RG</div>
+          <div class="obs-meta">
+            <div class="obs-name">${name}</div>
+            <div class="obs-note">Observer profile loaded</div>
+          </div>
+        </div>
+      `;
     }
 
-    function logout() {
-      localStorage.removeItem("rg_agent_logged_in");
-      window.location.href = "agent-auth.html";
+    function init(){
+      const req = safeParse(localStorage.getItem(PENDING_KEY));
+      if(!req){ renderEmpty(); return; }
+
+      const status = localStorage.getItem(STATUS_KEY) || "pending";
+      if(status === "assigned"){
+        const assigned = safeParse(localStorage.getItem(ASSIGNED_KEY));
+        renderAccepted(req, assigned);
+      } else {
+        renderPending(req);
+      }
+
+      // lightweight auto-refresh
+      setTimeout(init, 1500);
     }
+
+    init();
   </script>
 </body>
 </html>
