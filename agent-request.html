@@ -1,55 +1,197 @@
-<script>
-  const timeSelect = document.getElementById("time");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Request an Observer | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  // Build start times: 8:00 AM – 8:00 PM, 30-minute increments
-  function buildTimes() {
-    const times = [];
-    let hour = 8;
-    let isPM = false;
-
-    while (!(hour === 9 && isPM)) {
-      ["00", "30"].forEach(min => {
-        const displayHour = hour === 12 ? 12 : hour;
-        const label = `${displayHour}:${min} ${isPM ? "PM" : "AM"}`;
-        times.push(label);
-      });
-
-      hour++;
-      if (hour === 12) isPM = true;
-      if (hour === 13) hour = 1;
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
     }
 
-    times.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = t;
-      timeSelect.appendChild(opt);
+    .page {
+      width: 100%;
+      max-width: 420px;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 160px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-size: 14px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    .btn-refresh {
+      background: #dcdcdc;
+      border: none;
+    }
+
+    .btn-submit {
+      background: #0b2343;
+      color: #ffffff;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- LOGO -->
+    <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
+
+    <h1>Request an Observer</h1>
+
+    <form id="requestForm">
+
+      <label>Agent Name</label>
+      <input id="agentName" required />
+
+      <label>Property Address</label>
+      <input id="address" required />
+
+      <label>City</label>
+      <input id="city" required />
+
+      <label>State</label>
+      <select id="state" required>
+        <option value="">Select State</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+        <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+        <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+        <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+        <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+        <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+        <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+        <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+        <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+        <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+        <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+        <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+        <option>WI</option><option>WY</option>
+      </select>
+
+      <label>Time Zone</label>
+      <select id="timezone" required>
+        <option value="">Select Time Zone</option>
+        <option>Eastern (ET)</option>
+        <option>Central (CT)</option>
+        <option>Mountain (MT)</option>
+        <option>Pacific (PT)</option>
+        <option>Alaska (AKT)</option>
+        <option>Hawaii (HT)</option>
+      </select>
+
+      <label>Date</label>
+      <input type="date" id="date" required />
+
+      <label>Start Time</label>
+      <select id="time" required></select>
+
+      <label>Duration</label>
+      <select id="duration" required></select>
+
+      <button type="button" class="btn btn-refresh" onclick="resetForm()">Refresh</button>
+      <button type="submit" class="btn btn-submit">Request Observer</button>
+
+    </form>
+  </div>
+
+  <script>
+    const timeSelect = document.getElementById("time");
+    const durationSelect = document.getElementById("duration");
+
+    // Build time dropdown (30 min increments, 12-hour)
+    function buildTimes() {
+      let hour = 8;
+      let isPM = false;
+
+      while (!(hour === 9 && isPM)) {
+        ["00", "30"].forEach(min => {
+          const label = `${hour}:${min} ${isPM ? "PM" : "AM"}`;
+          const opt = document.createElement("option");
+          opt.value = label;
+          opt.textContent = label;
+          timeSelect.appendChild(opt);
+        });
+
+        hour++;
+        if (hour === 12) isPM = true;
+        if (hour === 13) hour = 1;
+      }
+    }
+
+    // Duration dropdown (30 min increments)
+    function buildDurations() {
+      for (let i = 0.5; i <= 6; i += 0.5) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i === 1 ? "1 hour" : `${i} hours`;
+        durationSelect.appendChild(opt);
+      }
+    }
+
+    buildTimes();
+    buildDurations();
+
+    function resetForm() {
+      document.getElementById("requestForm").reset();
+    }
+
+    document.getElementById("requestForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const request = {
+        agentName: agentName.value,
+        address: address.value,
+        city: city.value,
+        state: state.value,
+        timezone: timezone.value,
+        date: date.value,
+        time: time.value,
+        duration: duration.value
+      };
+
+      localStorage.setItem("rg_pending_request", JSON.stringify(request));
+      localStorage.setItem("rg_assignment_status", "pending");
+
+      window.location.href = "agent-dashboard.html";
     });
-  }
-
-  buildTimes();
-
-  function resetForm() {
-    document.getElementById("requestForm").reset();
-  }
-
-  document.getElementById("requestForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const request = {
-      agentName: agentName.value,
-      address: address.value,
-      city: city.value,
-      state: state.value,
-      timezone: timezone.value,
-      date: date.value,
-      time: time.value,
-      duration: duration.value
-    };
-
-    localStorage.setItem("rg_pending_request", JSON.stringify(request));
-    localStorage.setItem("rg_assignment_status", "pending");
-
-    window.location.href = "agent-dashboard.html";
-  });
-</script>
+  </script>
+</body>
+</html>
