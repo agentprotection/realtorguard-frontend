@@ -1,193 +1,358 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Observer Dashboard | Realtor Guard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Observer Dashboard | Realtor Guard</title>
+  <style>
+    :root{
+      --navy:#0a2540;
+      --navy2:#0b2f55;
+      --bg:#ffffff;
+      --card:#f4f7fb;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --danger:#b00020;
+      --ok:#0f766e;
+      --shadow: 0 16px 30px rgba(0,0,0,0.08);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color:#111827;
+    }
+    .wrap{
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+      text-align:center;
+    }
+    .logo{
+      width: 120px;
+      height: auto;
+      margin: 10px auto 8px;
+      display:block;
+    }
+    h1{
+      margin: 10px 0 18px;
+      font-size: 32px;
+      letter-spacing: .2px;
+    }
 
-<style>
-* {
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-}
+    .card{
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      text-align:left;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(229,231,235,0.7);
+    }
+    .row:last-child{border-bottom:none;}
+    .label{
+      color: var(--muted);
+      font-weight: 600;
+      min-width: 110px;
+    }
+    .value{
+      text-align:right;
+      font-weight: 650;
+      color:#0b1220;
+      word-break: break-word;
+    }
 
-body {
-  margin: 0;
-  background: #ffffff;
-  display: flex;
-  justify-content: center;
-}
+    .fee{
+      margin-top: 14px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .fee strong{
+      color: var(--navy);
+      font-size: 16px;
+    }
+    .fee .amount{
+      font-weight: 800;
+      color: var(--navy2);
+      font-size: 18px;
+    }
 
-.page {
-  width: 100%;
-  max-width: 420px;
-  padding: 32px 20px 60px;
-  text-align: center;
-}
+    .status{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background:#fff;
+      color: var(--muted);
+      font-weight:600;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .status .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .3px;
+      background: #eef2ff;
+      color: var(--navy);
+      border: 1px solid rgba(10,37,64,0.18);
+      white-space: nowrap;
+    }
+    .status.assigned{
+      border-color: rgba(15,118,110,0.25);
+      background: rgba(15,118,110,0.06);
+      color:#0b3a35;
+    }
+    .status.assigned .pill{
+      background: rgba(15,118,110,0.12);
+      border-color: rgba(15,118,110,0.25);
+      color: var(--ok);
+    }
 
-.logo {
-  width: 180px;
-  margin: 0 auto 24px;
-}
+    .actions{
+      max-width: 520px;
+      margin: 14px auto 0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    button{
+      width:100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor:pointer;
+      font-weight:800;
+      font-size: 16px;
+      transition: transform .06s ease, opacity .15s ease;
+    }
+    button:active{transform: scale(0.99);}
+    .btn-accept{
+      background: var(--navy);
+      color:#fff;
+    }
+    .btn-decline{
+      background: #d1d5db;
+      color:#111827;
+    }
+    button[disabled]{
+      opacity:0.55;
+      cursor:not-allowed;
+    }
 
-h1 {
-  margin-bottom: 12px;
-}
+    .empty{
+      max-width: 520px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      color: var(--muted);
+      font-weight: 650;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+      text-align:center;
+    }
 
-.card {
-  background: #f7f9fc;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  text-align: left;
-}
+    .footer{
+      margin-top: 18px;
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .link{
+      color: var(--navy);
+      text-decoration:none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(10,37,64,0.15);
+      background:#fff;
+    }
 
-.card strong {
-  display: block;
-  margin-top: 6px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.accept {
-  background: #0b1f3a;
-  color: #fff;
-  margin-top: 12px;
-}
-
-.decline {
-  background: #ccc;
-  margin-top: 8px;
-}
-
-.start {
-  background: #198754;
-  color: #fff;
-  margin-top: 12px;
-}
-
-.logout {
-  margin-top: 32px;
-  font-size: 14px;
-  cursor: pointer;
-  color: #555;
-  text-align: center;
-}
-</style>
+    @media (max-width:480px){
+      h1{font-size:28px;}
+      .label{min-width: 90px;}
+      .value{max-width: 240px;}
+    }
+  </style>
 </head>
 
 <body>
-<div class="page">
+  <div class="wrap">
+    <img class="logo" src="logo.png" alt="Realtor Guard Logo" />
+    <h1>Observer Dashboard</h1>
 
-<img src="logo.png" class="logo" alt="Realtor Guard Logo" />
-<h1>Observer Dashboard</h1>
+    <!-- CONTENT AREA -->
+    <div id="content"></div>
 
-<div id="content"></div>
-
-<div class="logout" onclick="logout()">Log out</div>
-
-</div>
-
-<script>
-// AUTH GUARD
-if (localStorage.getItem("rg_observer_logged_in") !== "true") {
-  window.location.href = "observer-auth.html";
-}
-
-// MOCK PROFILE CHECK (replace later with real profile)
-const observerProfileComplete = localStorage.getItem("rg_observer_profile_complete") === "true";
-
-// ACTIVE ASSIGNMENT
-const activeAssignment = JSON.parse(localStorage.getItem("rg_active_assignment") || "null");
-
-// OPEN REQUEST (from agent)
-const openRequest = JSON.parse(localStorage.getItem("rg_active_request") || "null");
-
-const content = document.getElementById("content");
-
-// ---------- RENDER ----------
-if (activeAssignment) {
-  renderAssignment(activeAssignment);
-} else if (openRequest) {
-  renderRequest(openRequest);
-} else {
-  content.innerHTML = "<p>No open requests available.</p>";
-}
-
-// ---------- FUNCTIONS ----------
-function renderRequest(req) {
-  content.innerHTML = `
-    <div class="card">
-      <strong>Agent:</strong> ${req.agentName || "—"}
-      <strong>Address:</strong> ${req.address}, ${req.city}, ${req.state} ${req.zip}
-      <strong>Date:</strong> ${req.date}
-      <strong>Time:</strong> ${req.time}
-      <strong>Duration:</strong> ${req.duration}
+    <div class="footer">
+      <a class="link" href="observer-auth.html">Back to Observer Auth</a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="choose-role.html">Log out</a>
     </div>
+  </div>
 
-    <button class="accept" onclick="acceptRequest()">Accept Request</button>
-    <button class="decline" onclick="declineRequest()">Decline</button>
-  `;
-}
+  <script>
+    /**
+     * FRONTEND-ONLY MVP STORAGE (no backend yet)
+     *
+     * Expected keys:
+     * - "rg_pending_request" : JSON string of the agent request
+     * - "rg_assignment_status" : "pending" | "assigned"
+     *
+     * If your agent request file already saves to localStorage under a different key,
+     * tell me the key name and I will rewrite both cleanly to match.
+     */
 
-function renderAssignment(assign) {
-  content.innerHTML = `
-    <div class="card">
-      <strong>My Assignment</strong>
-      <strong>Agent:</strong> ${assign.agentName}
-      <strong>Address:</strong> ${assign.address}, ${assign.city}, ${assign.state} ${assign.zip}
-      <strong>Date:</strong> ${assign.date}
-      <strong>Time:</strong> ${assign.time}
-      <strong>Duration:</strong> ${assign.duration}
-    </div>
+    const PENDING_KEY = "rg_pending_request";
+    const STATUS_KEY  = "rg_assignment_status";
 
-    <button class="start" onclick="startNavigation()">Start Assignment</button>
-  `;
-}
+    // default fee (static for now, can calculate later)
+    const DEFAULT_FEE = 50;
 
-function acceptRequest() {
-  if (!observerProfileComplete) {
-    alert("You must complete your observer profile and agreement before accepting.");
-    return;
-  }
+    function safeParse(json) {
+      try { return JSON.parse(json); } catch { return null; }
+    }
 
-  const assignment = {
-    ...openRequest,
-    observerAccepted: true
-  };
+    function fmt(val) {
+      return (val === undefined || val === null || val === "") ? "—" : String(val);
+    }
 
-  localStorage.setItem("rg_active_assignment", JSON.stringify(assignment));
-  localStorage.removeItem("rg_active_request");
+    function renderEmpty() {
+      const el = document.getElementById("content");
+      el.innerHTML = `
+        <div class="empty">
+          No available assignments right now.
+          <div style="margin-top:10px; font-weight:600; color:#94a3b8;">
+            Check back soon.
+          </div>
+        </div>
+      `;
+    }
 
-  location.reload();
-}
+    function renderCard(req, status) {
+      const el = document.getElementById("content");
 
-function declineRequest() {
-  localStorage.removeItem("rg_active_request");
-  location.reload();
-}
+      const agentName = fmt(req.agentName || req.agent || req.name || "Agent");
+      const address   = fmt(req.address || req.propertyAddress || req.location);
+      const city      = fmt(req.city);
+      const state     = fmt(req.state);
+      const zip       = fmt(req.zip);
+      const date      = fmt(req.date);
+      const time      = fmt(req.time);
+      const duration  = fmt(req.duration || req.durationHours || req.length);
 
-function startNavigation() {
-  const a = activeAssignment;
-  const address = encodeURIComponent(
-    `${a.address}, ${a.city}, ${a.state} ${a.zip}`
-  );
-  window.open(`https://www.google.com/maps/search/?api=1&query=${address}`, "_blank");
-}
+      const fullAddress = [address, city, state, zip].filter(x => x && x !== "—").join(", ");
 
-function logout() {
-  localStorage.removeItem("rg_observer_logged_in");
-  window.location.href = "observer-auth.html";
-}
-</script>
+      const assigned = status === "assigned";
 
+      el.innerHTML = `
+        <div class="card" role="region" aria-label="Pending Assignment">
+          <div class="row">
+            <div class="label">Agent</div>
+            <div class="value">${agentName}</div>
+          </div>
+          <div class="row">
+            <div class="label">Address</div>
+            <div class="value">${fullAddress || address}</div>
+          </div>
+          <div class="row">
+            <div class="label">Date</div>
+            <div class="value">${date}</div>
+          </div>
+          <div class="row">
+            <div class="label">Time</div>
+            <div class="value">${time}</div>
+          </div>
+          <div class="row">
+            <div class="label">Duration</div>
+            <div class="value">${duration}</div>
+          </div>
+
+          <div class="fee" aria-label="Assignment Fee">
+            <strong>Assignment Fee</strong>
+            <div class="amount">$${DEFAULT_FEE}</div>
+          </div>
+
+          <div class="status ${assigned ? "assigned" : ""}" aria-label="Assignment Status">
+            <div>${assigned ? "This assignment is locked to you." : "Waiting for your decision."}</div>
+            <div class="pill">${assigned ? "ASSIGNED" : "PENDING"}</div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-accept" id="acceptBtn" ${assigned ? "disabled" : ""}>Accept Request</button>
+          <button class="btn-decline" id="declineBtn" ${assigned ? "disabled" : ""}>Decline</button>
+        </div>
+      `;
+
+      // bind buttons
+      const acceptBtn = document.getElementById("acceptBtn");
+      const declineBtn = document.getElementById("declineBtn");
+
+      if (!assigned) {
+        acceptBtn.addEventListener("click", () => {
+          // lock to observer (frontend-only)
+          localStorage.setItem(STATUS_KEY, "assigned");
+
+          // OPTIONAL: create a simple “assigned record” for future pages
+          localStorage.setItem("rg_assigned_request", JSON.stringify({
+            ...req,
+            assignmentFee: DEFAULT_FEE,
+            assignedAt: new Date().toISOString()
+          }));
+
+          renderCard(req, "assigned");
+        });
+
+        declineBtn.addEventListener("click", () => {
+          // remove from observer view
+          localStorage.removeItem(PENDING_KEY);
+          localStorage.removeItem(STATUS_KEY);
+
+          // mark declined record (optional)
+          localStorage.setItem("rg_last_declined", JSON.stringify({
+            ...req,
+            declinedAt: new Date().toISOString()
+          }));
+
+          renderEmpty();
+        });
+      }
+    }
+
+    function init() {
+      const req = safeParse(localStorage.getItem(PENDING_KEY));
+      if (!req) {
+        renderEmpty();
+        return;
+      }
+      const status = localStorage.getItem(STATUS_KEY) || "pending";
+      renderCard(req, status);
+    }
+
+    init();
+  </script>
 </body>
 </html>
