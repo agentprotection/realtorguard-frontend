@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Request Observer | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <style>
     * {
@@ -12,166 +12,123 @@
     }
 
     body {
+      margin: 0;
       background: #ffffff;
-      min-height: 100vh;
       display: flex;
       justify-content: center;
-      margin: 0;
+      min-height: 100vh;
     }
 
-    .page {
+    .container {
       width: 100%;
       max-width: 420px;
-      padding-top: 40px;
+      padding: 32px 16px 40px;
       text-align: center;
     }
 
     .logo {
-      width: 180px;
-      margin-bottom: 30px;
+      width: 120px;
+      margin-bottom: 16px;
     }
 
-    h2 {
+    h1 {
+      font-size: 26px;
       margin-bottom: 20px;
     }
 
-    input, select {
+    form {
+      background: #f4f7fb;
+      padding: 20px;
+      border-radius: 14px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input {
       width: 100%;
       padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
       font-size: 15px;
     }
 
     button {
       width: 100%;
+      margin-top: 24px;
       padding: 14px;
-      margin-top: 10px;
+      border-radius: 12px;
       border: none;
-      border-radius: 8px;
-      background: #0b1f3a;
+      background: #0a2540;
       color: white;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    .secondary {
-      background: #f0f0f0;
-      color: #333;
-    }
-
-    .back {
-      margin-top: 18px;
-      font-size: 14px;
-      color: #555;
-      text-decoration: underline;
-      cursor: pointer;
+    button:active {
+      transform: scale(0.98);
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
+  <div class="container">
     <img src="logo.png" class="logo" alt="Realtor Guard Logo" />
+    <h1>Request an Observer</h1>
 
-    <h2>Request an Observer</h2>
+    <form id="requestForm">
+      <label>Property Address</label>
+      <input id="address" required />
 
-    <input id="agentName" placeholder="Agent Name" />
-    <input id="address" placeholder="Property Address" />
-    <input id="city" placeholder="City" />
-    <input id="zip" placeholder="Zip Code" />
+      <label>City</label>
+      <input id="city" required />
 
-    <!-- US STATES ONLY -->
-    <select id="state">
-      <option value="">Select State</option>
-      <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
-      <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
-      <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
-      <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
-      <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
-      <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
-      <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
-      <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
-      <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
-      <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
-      <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
-      <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
-      <option>WI</option><option>WY</option>
-    </select>
+      <label>State</label>
+      <input id="state" required />
 
-    <!-- US TIME ZONES -->
-    <select id="timezone">
-      <option value="">Select Time Zone</option>
-      <option>Eastern (ET)</option>
-      <option>Central (CT)</option>
-      <option>Mountain (MT)</option>
-      <option>Pacific (PT)</option>
-    </select>
+      <label>Date</label>
+      <input type="date" id="date" required />
 
-    <!-- DATE PICKER (STANDARD) -->
-    <input type="date" id="date" />
+      <label>Time</label>
+      <input type="time" id="time" required />
 
-    <!-- TIME: 30 MIN INCREMENTS -->
-    <select id="time">
-      <option value="">Select Time</option>
-      <option>8:00 AM</option><option>8:30 AM</option>
-      <option>9:00 AM</option><option>9:30 AM</option>
-      <option>10:00 AM</option><option>10:30 AM</option>
-      <option>11:00 AM</option><option>11:30 AM</option>
-      <option>12:00 PM</option><option>12:30 PM</option>
-      <option>1:00 PM</option><option>1:30 PM</option>
-      <option>2:00 PM</option><option>2:30 PM</option>
-      <option>3:00 PM</option><option>3:30 PM</option>
-      <option>4:00 PM</option><option>4:30 PM</option>
-      <option>5:00 PM</option><option>5:30 PM</option>
-      <option>6:00 PM</option><option>6:30 PM</option>
-      <option>7:00 PM</option><option>7:30 PM</option>
-    </select>
+      <label>Duration (hours)</label>
+      <input id="duration" placeholder="e.g. 2" required />
 
-    <!-- DURATION: 30 MIN INCREMENTS -->
-    <select id="duration">
-      <option value="">Select Duration</option>
-      <option>30 minutes</option>
-      <option>1 hour</option>
-      <option>1.5 hours</option>
-      <option>2 hours</option>
-      <option>2.5 hours</option>
-      <option>3 hours</option>
-    </select>
-
-    <button onclick="submitRequest()">Submit Request</button>
-    <button class="secondary" onclick="resetForm()">Refresh Form</button>
-
-    <div class="back" onclick="goBack()">← Back to Dashboard</div>
+      <button type="submit">Submit Request</button>
+    </form>
   </div>
 
   <script>
-    function submitRequest() {
+    const form = document.getElementById("requestForm");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
       const request = {
-        agentName: agentName.value,
-        address: address.value,
-        city: city.value,
-        zip: zip.value,
-        state: state.value,
-        timezone: timezone.value,
-        date: date.value,
-        time: time.value,
-        duration: duration.value,
-        status: "Pending Observer"
+        agentName: "Agent",
+        address: document.getElementById("address").value,
+        city: document.getElementById("city").value,
+        state: document.getElementById("state").value,
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        duration: document.getElementById("duration").value
       };
 
-      localStorage.setItem("rg_active_request", JSON.stringify(request));
-      window.location.href = "agent-dashboard.html";
-    }
+      // 🔐 SINGLE SOURCE OF TRUTH
+      localStorage.setItem("rg_pending_request", JSON.stringify(request));
+      localStorage.setItem("rg_assignment_status", "pending");
 
-    function resetForm() {
-      document.querySelectorAll("input, select").forEach(el => el.value = "");
-    }
-
-    function goBack() {
+      // 🔁 RETURN TO DASHBOARD
       window.location.href = "agent-dashboard.html";
-    }
+    });
   </script>
 </body>
 </html>
