@@ -5,20 +5,23 @@
   <title>Create Agent Account | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Global API config -->
+  <script src="config.js"></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
       background: #f4f6f8;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      margin: 0;
     }
 
     .signup-container {
-      background: #ffffff;
-      padding: 30px;
+      background: #fff;
+      padding: 32px;
       width: 100%;
       max-width: 420px;
       border-radius: 8px;
@@ -27,103 +30,112 @@
 
     h2 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     input {
       width: 100%;
       padding: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 14px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #1f3a5f;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #162b45;
-    }
-
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
-      display: none;
     }
 
     .password-wrapper {
       position: relative;
     }
 
-    .password-wrapper input {
-      padding-right: 40px;
-    }
-
     .toggle-password {
       position: absolute;
-      top: 50%;
       right: 12px;
+      top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
       font-size: 18px;
       user-select: none;
     }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #1f3a5f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #162b46;
+    }
+
+    .error {
+      color: red;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .login-link {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .login-link a {
+      color: #1f3a5f;
+      text-decoration: none;
+    }
   </style>
 </head>
-
 <body>
+
   <div class="signup-container">
     <h2>Create Agent Account</h2>
 
-    <input type="text" id="name" placeholder="Full Name" required />
-    <input type="email" id="email" placeholder="Email" required />
+    <input type="text" id="name" placeholder="Full Name" />
+    <input type="email" id="email" placeholder="Email Address" />
 
     <div class="password-wrapper">
-      <input type="password" id="password" placeholder="Password" required />
-      <span id="togglePassword" class="toggle-password">👁️</span>
+      <input type="password" id="password" placeholder="Password" />
+      <span class="toggle-password" id="togglePassword">👁️</span>
     </div>
 
     <div class="password-wrapper">
-      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
-      <span id="toggleConfirmPassword" class="toggle-password">👁️</span>
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" />
+      <span class="toggle-password" id="toggleConfirmPassword">👁️</span>
     </div>
 
     <button id="signupBtn">Create Account</button>
 
-    <div id="error" class="error"></div>
-  </div>
+    <div class="error" id="errorMsg"></div>
 
-  <script src="config.js"></script>
+    <div class="login-link">
+      Already have an account? <a href="agent-login.html">Log in</a>
+    </div>
+  </div>
 
   <script>
     const signupBtn = document.getElementById("signupBtn");
-    const errorDiv = document.getElementById("error");
+    const errorMsg = document.getElementById("errorMsg");
 
     const passwordInput = document.getElementById("password");
     const confirmPasswordInput = document.getElementById("confirmPassword");
 
-    document.getElementById("togglePassword").addEventListener("click", () => {
+    document.getElementById("togglePassword").onclick = () => {
       passwordInput.type =
         passwordInput.type === "password" ? "text" : "password";
-    });
+    };
 
-    document.getElementById("toggleConfirmPassword").addEventListener("click", () => {
+    document.getElementById("toggleConfirmPassword").onclick = () => {
       confirmPasswordInput.type =
         confirmPasswordInput.type === "password" ? "text" : "password";
-    });
+    };
 
     signupBtn.addEventListener("click", async () => {
-      errorDiv.style.display = "none";
+      errorMsg.style.display = "none";
 
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -131,19 +143,19 @@
       const confirmPassword = confirmPasswordInput.value;
 
       if (!name || !email || !password || !confirmPassword) {
-        errorDiv.textContent = "All fields are required";
-        errorDiv.style.display = "block";
+        errorMsg.textContent = "All fields are required.";
+        errorMsg.style.display = "block";
         return;
       }
 
       if (password !== confirmPassword) {
-        errorDiv.textContent = "Passwords do not match";
-        errorDiv.style.display = "block";
+        errorMsg.textContent = "Passwords do not match.";
+        errorMsg.style.display = "block";
         return;
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -164,10 +176,11 @@
         window.location.href = "agent-login.html";
 
       } catch (err) {
-        errorDiv.textContent = err.message;
-        errorDiv.style.display = "block";
+        errorMsg.textContent = err.message;
+        errorMsg.style.display = "block";
       }
     });
   </script>
+
 </body>
 </html>
