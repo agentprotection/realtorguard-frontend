@@ -2,357 +2,180 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Observer Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root{
-      --navy:#0a2540;
-      --navy2:#0b2f55;
-      --bg:#ffffff;
-      --card:#f4f7fb;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --danger:#b00020;
-      --ok:#0f766e;
-      --shadow: 0 16px 30px rgba(0,0,0,0.08);
-      --radius: 14px;
-    }
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color:#111827;
-    }
-    .wrap{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 28px 16px 40px;
-      text-align:center;
-    }
-    .logo{
-      width: 120px;
-      height: auto;
-      margin: 10px auto 8px;
-      display:block;
-    }
-    h1{
-      margin: 10px 0 18px;
-      font-size: 32px;
-      letter-spacing: .2px;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
     }
 
-    .card{
-      max-width: 520px;
-      margin: 0 auto;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 18px 16px;
-      text-align:left;
-    }
-    .row{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(229,231,235,0.7);
-    }
-    .row:last-child{border-bottom:none;}
-    .label{
-      color: var(--muted);
-      font-weight: 600;
-      min-width: 110px;
-    }
-    .value{
-      text-align:right;
-      font-weight: 650;
-      color:#0b1220;
-      word-break: break-word;
-    }
-
-    .fee{
-      margin-top: 14px;
-      padding: 12px 12px;
-      border-radius: 12px;
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
       background: #ffffff;
-      border: 1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .fee strong{
-      color: var(--navy);
-      font-size: 16px;
-    }
-    .fee .amount{
-      font-weight: 800;
-      color: var(--navy2);
-      font-size: 18px;
-    }
-
-    .status{
-      margin-top: 12px;
-      padding: 10px 12px;
+      padding: 30px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background:#fff;
-      color: var(--muted);
-      font-weight:600;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-    }
-    .status .pill{
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 12px;
-      letter-spacing: .3px;
-      background: #eef2ff;
-      color: var(--navy);
-      border: 1px solid rgba(10,37,64,0.18);
-      white-space: nowrap;
-    }
-    .status.assigned{
-      border-color: rgba(15,118,110,0.25);
-      background: rgba(15,118,110,0.06);
-      color:#0b3a35;
-    }
-    .status.assigned .pill{
-      background: rgba(15,118,110,0.12);
-      border-color: rgba(15,118,110,0.25);
-      color: var(--ok);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
 
-    .actions{
-      max-width: 520px;
-      margin: 14px auto 0;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
-    button{
-      width:100%;
-      padding: 14px 16px;
-      border-radius: 12px;
-      border: none;
-      cursor:pointer;
-      font-weight:800;
-      font-size: 16px;
-      transition: transform .06s ease, opacity .15s ease;
-    }
-    button:active{transform: scale(0.99);}
-    .btn-accept{
-      background: var(--navy);
-      color:#fff;
-    }
-    .btn-decline{
-      background: #d1d5db;
-      color:#111827;
-    }
-    button[disabled]{
-      opacity:0.55;
-      cursor:not-allowed;
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
     }
 
-    .empty{
-      max-width: 520px;
-      margin: 0 auto;
-      background: #fff;
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 22px 18px;
-      color: var(--muted);
-      font-weight: 650;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.05);
-      text-align:center;
+    .sub {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
     }
 
-    .footer{
-      margin-top: 18px;
-      display:flex;
-      justify-content:center;
-      gap: 10px;
-      flex-wrap:wrap;
-    }
-    .link{
-      color: var(--navy);
-      text-decoration:none;
-      font-weight: 700;
-      font-size: 14px;
-      padding: 8px 10px;
+    .assignment {
+      border: 1px solid #ddd;
       border-radius: 10px;
-      border: 1px solid rgba(10,37,64,0.15);
-      background:#fff;
+      padding: 20px;
+      margin-bottom: 20px;
     }
 
-    @media (max-width:480px){
-      h1{font-size:28px;}
-      .label{min-width: 90px;}
-      .value{max-width: 240px;}
+    .assignment h3 {
+      margin: 0 0 10px;
+    }
+
+    .meta {
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    button {
+      padding: 10px 18px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .accept {
+      background: #0f766e;
+      color: white;
+    }
+
+    .decline {
+      background: #b91c1c;
+      color: white;
+    }
+
+    .logout {
+      margin-top: 30px;
+      width: 100%;
+      background: #0b1f3a;
+      color: white;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
     }
   </style>
+
+  <script>
+    // 🔐 AUTH GUARD — OBSERVER ONLY
+    const token = localStorage.getItem("authToken");
+    const role = localStorage.getItem("userRole");
+
+    if (!token || role !== "observer") {
+      localStorage.clear();
+      window.location.replace("observer-login.html");
+    }
+  </script>
 </head>
 
 <body>
-  <div class="wrap">
-    <img class="logo" src="logo.png" alt="Realtor Guard Logo" />
+  <div class="container">
     <h1>Observer Dashboard</h1>
+    <p class="sub">Available assignments waiting for acceptance</p>
 
-    <!-- CONTENT AREA -->
-    <div id="content"></div>
+    <div id="assignments"></div>
 
-    <div class="footer">
-      <a class="link" href="observer-auth.html">Back to Observer Auth</a>
-      <a class="link" href="index.html">Home</a>
-      <a class="link" href="choose-role.html">Log out</a>
-    </div>
+    <button class="logout" onclick="logout()">Log Out</button>
   </div>
 
   <script>
-    /**
-     * FRONTEND-ONLY MVP STORAGE (no backend yet)
-     *
-     * Expected keys:
-     * - "rg_pending_request" : JSON string of the agent request
-     * - "rg_assignment_status" : "pending" | "assigned"
-     *
-     * If your agent request file already saves to localStorage under a different key,
-     * tell me the key name and I will rewrite both cleanly to match.
-     */
-
-    const PENDING_KEY = "rg_pending_request";
-    const STATUS_KEY  = "rg_assignment_status";
-
-    // default fee (static for now, can calculate later)
-    const DEFAULT_FEE = 50;
-
-    function safeParse(json) {
-      try { return JSON.parse(json); } catch { return null; }
-    }
-
-    function fmt(val) {
-      return (val === undefined || val === null || val === "") ? "—" : String(val);
-    }
-
-    function renderEmpty() {
-      const el = document.getElementById("content");
-      el.innerHTML = `
-        <div class="empty">
-          No available assignments right now.
-          <div style="margin-top:10px; font-weight:600; color:#94a3b8;">
-            Check back soon.
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCard(req, status) {
-      const el = document.getElementById("content");
-
-      const agentName = fmt(req.agentName || req.agent || req.name || "Agent");
-      const address   = fmt(req.address || req.propertyAddress || req.location);
-      const city      = fmt(req.city);
-      const state     = fmt(req.state);
-      const zip       = fmt(req.zip);
-      const date      = fmt(req.date);
-      const time      = fmt(req.time);
-      const duration  = fmt(req.duration || req.durationHours || req.length);
-
-      const fullAddress = [address, city, state, zip].filter(x => x && x !== "—").join(", ");
-
-      const assigned = status === "assigned";
-
-      el.innerHTML = `
-        <div class="card" role="region" aria-label="Pending Assignment">
-          <div class="row">
-            <div class="label">Agent</div>
-            <div class="value">${agentName}</div>
-          </div>
-          <div class="row">
-            <div class="label">Address</div>
-            <div class="value">${fullAddress || address}</div>
-          </div>
-          <div class="row">
-            <div class="label">Date</div>
-            <div class="value">${date}</div>
-          </div>
-          <div class="row">
-            <div class="label">Time</div>
-            <div class="value">${time}</div>
-          </div>
-          <div class="row">
-            <div class="label">Duration</div>
-            <div class="value">${duration}</div>
-          </div>
-
-          <div class="fee" aria-label="Assignment Fee">
-            <strong>Assignment Fee</strong>
-            <div class="amount">$${DEFAULT_FEE}</div>
-          </div>
-
-          <div class="status ${assigned ? "assigned" : ""}" aria-label="Assignment Status">
-            <div>${assigned ? "This assignment is locked to you." : "Waiting for your decision."}</div>
-            <div class="pill">${assigned ? "ASSIGNED" : "PENDING"}</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn-accept" id="acceptBtn" ${assigned ? "disabled" : ""}>Accept Request</button>
-          <button class="btn-decline" id="declineBtn" ${assigned ? "disabled" : ""}>Decline</button>
-        </div>
-      `;
-
-      // bind buttons
-      const acceptBtn = document.getElementById("acceptBtn");
-      const declineBtn = document.getElementById("declineBtn");
-
-      if (!assigned) {
-        acceptBtn.addEventListener("click", () => {
-          // lock to observer (frontend-only)
-          localStorage.setItem(STATUS_KEY, "assigned");
-
-          // OPTIONAL: create a simple “assigned record” for future pages
-          localStorage.setItem("rg_assigned_request", JSON.stringify({
-            ...req,
-            assignmentFee: DEFAULT_FEE,
-            assignedAt: new Date().toISOString()
-          }));
-
-          renderCard(req, "assigned");
-        });
-
-        declineBtn.addEventListener("click", () => {
-          // remove from observer view
-          localStorage.removeItem(PENDING_KEY);
-          localStorage.removeItem(STATUS_KEY);
-
-          // mark declined record (optional)
-          localStorage.setItem("rg_last_declined", JSON.stringify({
-            ...req,
-            declinedAt: new Date().toISOString()
-          }));
-
-          renderEmpty();
-        });
+    // 🧪 MOCK ASSIGNMENTS (REPLACE WITH BACKEND LATER)
+    const mockAssignments = [
+      {
+        id: 1,
+        property: "123 Main St, Dallas TX",
+        agent: "Sarah Johnson",
+        date: "Jan 12, 2026",
+        time: "3:00 PM",
+        fee: "$75"
+      },
+      {
+        id: 2,
+        property: "890 Oak Ave, Austin TX",
+        agent: "Michael Brown",
+        date: "Jan 14, 2026",
+        time: "11:30 AM",
+        fee: "$90"
       }
-    }
+    ];
 
-    function init() {
-      const req = safeParse(localStorage.getItem(PENDING_KEY));
-      if (!req) {
-        renderEmpty();
+    const container = document.getElementById("assignments");
+
+    function renderAssignments() {
+      container.innerHTML = "";
+
+      if (mockAssignments.length === 0) {
+        container.innerHTML = `<p class="empty">No available assignments.</p>`;
         return;
       }
-      const status = localStorage.getItem(STATUS_KEY) || "pending";
-      renderCard(req, status);
+
+      mockAssignments.forEach((job, index) => {
+        const div = document.createElement("div");
+        div.className = "assignment";
+
+        div.innerHTML = `
+          <h3>${job.property}</h3>
+          <p class="meta">
+            Agent: <strong>${job.agent}</strong><br />
+            Date: ${job.date} at ${job.time}<br />
+            Fee: <strong>${job.fee}</strong>
+          </p>
+          <div class="actions">
+            <button class="accept" onclick="acceptAssignment(${index})">Accept</button>
+            <button class="decline" onclick="declineAssignment(${index})">Decline</button>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
     }
 
-    init();
+    function acceptAssignment(index) {
+      alert("Assignment accepted!");
+      mockAssignments.splice(index, 1);
+      renderAssignments();
+    }
+
+    function declineAssignment(index) {
+      alert("Assignment declined.");
+      mockAssignments.splice(index, 1);
+      renderAssignments();
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.replace("observer-login.html");
+    }
+
+    renderAssignments();
   </script>
 </body>
 </html>
