@@ -2,45 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Sign Up | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Observer Account | Realtor Guard</title>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fc;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
     }
 
-    .container {
+    .card {
+      background: #fff;
       width: 100%;
-      max-width: 380px;
-      background: #ffffff;
-      padding: 30px 25px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      max-width: 420px;
+      padding: 32px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    h2 {
       text-align: center;
-    }
-
-    img {
-      width: 90px;
-      margin-bottom: 15px;
-    }
-
-    h1 {
-      margin-bottom: 20px;
       color: #0b2c4f;
+      margin-bottom: 24px;
     }
 
     input {
       width: 100%;
       padding: 14px;
-      margin: 10px 0;
+      margin-bottom: 16px;
       font-size: 16px;
-      border-radius: 6px;
+      border-radius: 10px;
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
@@ -51,85 +47,86 @@
 
     .eye {
       position: absolute;
-      right: 12px;
+      right: 14px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
-      width: 22px;
-      height: 22px;
-    }
-
-    .eye::before {
-      content: "👁";
       font-size: 18px;
+      opacity: 0.6;
     }
 
     button {
       width: 100%;
       padding: 16px;
-      margin-top: 15px;
       font-size: 18px;
-      background: #0b2c4f;
-      color: white;
+      border-radius: 12px;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      background: #0b2c4f;
+      color: #fff;
       font-weight: bold;
+      cursor: pointer;
     }
 
     button:hover {
-      background: #09325c;
+      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
-    <img src="images/logo.png" alt="Realtor Guard Logo" />
+  <div class="card">
+    <h2>Create Observer Account</h2>
 
-    <h1>Observer Sign Up</h1>
-
-    <input type="text" id="name" placeholder="Full Name" required />
-    <input type="email" id="email" placeholder="Email Address" required />
+    <input id="email" type="email" placeholder="Email" />
 
     <div class="password-box">
-      <input type="password" id="password" placeholder="Password" required />
-      <span class="eye" onclick="togglePassword('password')"></span>
+      <input id="password" type="password" placeholder="Password" />
+      <span class="eye" onclick="togglePassword()">👁</span>
     </div>
 
-    <div class="password-box">
-      <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
-      <span class="eye" onclick="togglePassword('confirmPassword')"></span>
-    </div>
+    <input id="confirm" type="password" placeholder="Confirm Password" />
 
     <button onclick="createAccount()">Create Account</button>
   </div>
 
   <script>
-    function togglePassword(id) {
-      const field = document.getElementById(id);
-      field.type = field.type === "password" ? "text" : "password";
+    function togglePassword() {
+      const p = document.getElementById("password");
+      p.type = p.type === "password" ? "text" : "password";
     }
 
     function createAccount() {
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
       const password = document.getElementById("password").value;
-      const confirm = document.getElementById("confirmPassword").value;
+      const confirm = document.getElementById("confirm").value;
 
-      if (!name || !email || !password || !confirm) {
-        alert("Please fill out all fields");
+      if (!email || !password || password !== confirm) {
+        alert("Please enter valid information");
         return;
       }
 
-      if (password !== confirm) {
-        alert("Passwords do not match");
+      const users =
+        JSON.parse(localStorage.getItem("observerUsers")) || [];
+
+      if (users.find(u => u.email === email)) {
+        alert("Account already exists");
         return;
       }
 
-      // TEMP FLOW — backend auth wiring comes next
-      window.location.href = "observer-dashboard.html";
+      users.push({
+        email: email,
+        password: password,
+        createdAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("observerUsers", JSON.stringify(users));
+      localStorage.setItem(
+        "observerSession",
+        JSON.stringify({ email })
+      );
+
+      window.location.href = "observer-profile.html";
     }
   </script>
 
