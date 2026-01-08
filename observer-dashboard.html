@@ -2,180 +2,457 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observer Dashboard | Realtor Guard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: #f4f6f8;
+      color: #111;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .sub {
-      text-align: center;
-      color: #666;
-      margin-bottom: 30px;
-    }
-
-    .assignment {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-
-    .assignment h3 {
-      margin: 0 0 10px;
-    }
-
-    .meta {
-      color: #555;
-      margin-bottom: 15px;
-    }
-
-    .actions {
+    .topbar {
+      background: #0b2c4f;
+      color: #fff;
+      padding: 14px 16px;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
     }
 
-    button {
-      padding: 10px 18px;
-      font-size: 15px;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .topbar .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    .btn {
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 16px;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    .accept {
-      background: #0f766e;
-      color: white;
+    .btn-logout {
+      background: #ffffff;
+      color: #0b2c4f;
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 10px;
+      font-weight: bold;
     }
 
-    .decline {
-      background: #b91c1c;
-      color: white;
+    .container {
+      max-width: 960px;
+      margin: 18px auto;
+      padding: 0 14px 40px;
     }
 
-    .logout {
-      margin-top: 30px;
-      width: 100%;
-      background: #0b1f3a;
-      color: white;
+    .section {
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .section h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      color: #0b2c4f;
+    }
+
+    .section p.sub {
+      margin: 0 0 14px 0;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 780px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      border: 1px solid #e2e2e2;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 0 0 10px 0;
+      color: #111;
+    }
+
+    .meta {
+      margin: 6px 0;
+      font-size: 16px;
+      color: #222;
+      line-height: 1.35;
+    }
+
+    .meta strong {
+      color: #111;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn-accept {
+      background: #0b7a6f;
+      color: #fff;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .btn-cancel {
+      background: #b11b1b;
+      color: #fff;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .badge-available {
+      background: #e8f3ff;
+      color: #0b2c4f;
+      border: 1px solid #cfe6ff;
+    }
+
+    .badge-accepted {
+      background: #e9fff6;
+      color: #0b7a6f;
+      border: 1px solid #bff3dd;
     }
 
     .empty {
-      text-align: center;
-      color: #777;
+      background: #fafafa;
+      border: 1px dashed #ddd;
+      padding: 16px;
+      border-radius: 14px;
+      color: #666;
+      font-size: 14px;
     }
   </style>
-
-  <script>
-    // 🔐 AUTH GUARD — OBSERVER ONLY
-    const token = localStorage.getItem("authToken");
-    const role = localStorage.getItem("userRole");
-
-    if (!token || role !== "observer") {
-      localStorage.clear();
-      window.location.replace("observer-login.html");
-    }
-  </script>
 </head>
 
 <body>
+  <script>
+    // ✅ AUTH GUARD: Block direct URL access
+    const session = JSON.parse(localStorage.getItem("observerSession"));
+    if (!session || !session.email) {
+      window.location.href = "observer-login.html";
+    }
+  </script>
+
+  <div class="topbar">
+    <div class="brand">
+      <img src="images/logo.png" alt="Realtor Guard" />
+      <div>Observer Dashboard</div>
+    </div>
+
+    <div class="right">
+      <div id="who"></div>
+      <button class="btn btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
   <div class="container">
-    <h1>Observer Dashboard</h1>
-    <p class="sub">Available assignments waiting for acceptance</p>
 
-    <div id="assignments"></div>
+    <div class="section">
+      <h2>Available Requests</h2>
+      <p class="sub">Click <strong>Accept</strong> to take an assignment. If you accept and later cannot complete it, you can <strong>Cancel Assignment</strong> and it will repost.</p>
+      <div id="availableGrid" class="grid"></div>
+      <div id="availableEmpty" class="empty" style="display:none;">No requests available right now.</div>
+    </div>
 
-    <button class="logout" onclick="logout()">Log Out</button>
+    <div class="section">
+      <h2>Your Accepted Assignment</h2>
+      <p class="sub">If you accepted an assignment, it appears here. You can cancel if needed and it will repost.</p>
+      <div id="acceptedGrid" class="grid"></div>
+      <div id="acceptedEmpty" class="empty" style="display:none;">You have no accepted assignment.</div>
+    </div>
+
   </div>
 
   <script>
-    // 🧪 MOCK ASSIGNMENTS (REPLACE WITH BACKEND LATER)
-    const mockAssignments = [
+    // Show logged-in user
+    document.getElementById("who").textContent = session.name ? session.name : session.email;
+
+    // Demo requests (until backend wires agent requests)
+    // Fields required by you: agent name, property address, city, state, date, time, duration, fee
+    const demoRequests = [
       {
-        id: 1,
-        property: "123 Main St, Dallas TX",
-        agent: "Sarah Johnson",
+        id: "req_1001",
+        agentName: "Sarah Johnson",
+        propertyAddress: "120 Main St",
+        city: "Dallas",
+        state: "TX",
         date: "Jan 12, 2026",
         time: "3:00 PM",
-        fee: "$75"
+        duration: "2 hours",
+        fee: 75
       },
       {
-        id: 2,
-        property: "890 Oak Ave, Austin TX",
-        agent: "Michael Brown",
+        id: "req_1002",
+        agentName: "Michael Brown",
+        propertyAddress: "890 Oak Ave",
+        city: "Austin",
+        state: "TX",
         date: "Jan 14, 2026",
         time: "11:30 AM",
-        fee: "$90"
+        duration: "1.5 hours",
+        fee: 90
       }
     ];
 
-    const container = document.getElementById("assignments");
+    // Storage keys
+    const KEY_AVAILABLE = "availableRequests";
+    const KEY_ACCEPTED = "acceptedRequest";
 
-    function renderAssignments() {
-      container.innerHTML = "";
-
-      if (mockAssignments.length === 0) {
-        container.innerHTML = `<p class="empty">No available assignments.</p>`;
-        return;
+    // Initialize available requests if none exist
+    function initRequests() {
+      const existing = JSON.parse(localStorage.getItem(KEY_AVAILABLE));
+      if (!existing || !Array.isArray(existing) || existing.length === 0) {
+        localStorage.setItem(KEY_AVAILABLE, JSON.stringify(demoRequests));
       }
-
-      mockAssignments.forEach((job, index) => {
-        const div = document.createElement("div");
-        div.className = "assignment";
-
-        div.innerHTML = `
-          <h3>${job.property}</h3>
-          <p class="meta">
-            Agent: <strong>${job.agent}</strong><br />
-            Date: ${job.date} at ${job.time}<br />
-            Fee: <strong>${job.fee}</strong>
-          </p>
-          <div class="actions">
-            <button class="accept" onclick="acceptAssignment(${index})">Accept</button>
-            <button class="decline" onclick="declineAssignment(${index})">Decline</button>
-          </div>
-        `;
-
-        container.appendChild(div);
-      });
+      if (!localStorage.getItem(KEY_ACCEPTED)) {
+        localStorage.setItem(KEY_ACCEPTED, JSON.stringify(null));
+      }
     }
 
-    function acceptAssignment(index) {
-      alert("Assignment accepted!");
-      mockAssignments.splice(index, 1);
-      renderAssignments();
+    function loadAvailable() {
+      return JSON.parse(localStorage.getItem(KEY_AVAILABLE)) || [];
     }
 
-    function declineAssignment(index) {
-      alert("Assignment declined.");
-      mockAssignments.splice(index, 1);
-      renderAssignments();
+    function loadAccepted() {
+      return JSON.parse(localStorage.getItem(KEY_ACCEPTED));
+    }
+
+    function saveAvailable(list) {
+      localStorage.setItem(KEY_AVAILABLE, JSON.stringify(list));
+    }
+
+    function saveAccepted(req) {
+      localStorage.setItem(KEY_ACCEPTED, JSON.stringify(req));
     }
 
     function logout() {
-      localStorage.clear();
-      window.location.replace("observer-login.html");
+      localStorage.removeItem("observerSession");
+      window.location.href = "observer-login.html";
     }
 
-    renderAssignments();
+    function acceptRequest(requestId) {
+      const accepted = loadAccepted();
+      if (accepted) {
+        alert("You already accepted an assignment. Cancel it first if you need to accept a different one.");
+        return;
+      }
+
+      const available = loadAvailable();
+      const req = available.find(r => r.id === requestId);
+
+      if (!req) {
+        alert("Request not found.");
+        return;
+      }
+
+      // Lock assignment to observer
+      const remaining = available.filter(r => r.id !== requestId);
+      saveAvailable(remaining);
+
+      // Attach observer profile basics (for now, name/email only; later photo/phone/rating)
+      const observerSummary = {
+        observerId: session.id || null,
+        name: session.name || null,
+        email: session.email || null,
+        rating: session.rating || null
+      };
+
+      const acceptedPayload = {
+        ...req,
+        acceptedAt: new Date().toISOString(),
+        observer: observerSummary,
+        status: "accepted"
+      };
+
+      saveAccepted(acceptedPayload);
+      render();
+    }
+
+    function cancelAccepted() {
+      const accepted = loadAccepted();
+      if (!accepted) return;
+
+      // Repost: put back into available list
+      const available = loadAvailable();
+
+      const reposted = {
+        id: accepted.id,
+        agentName: accepted.agentName,
+        propertyAddress: accepted.propertyAddress,
+        city: accepted.city,
+        state: accepted.state,
+        date: accepted.date,
+        time: accepted.time,
+        duration: accepted.duration,
+        fee: accepted.fee
+      };
+
+      // Prevent duplicates
+      const alreadyThere = available.some(r => r.id === reposted.id);
+      if (!alreadyThere) {
+        available.unshift(reposted);
+      }
+
+      saveAvailable(available);
+      saveAccepted(null);
+
+      alert("Assignment canceled. The request has been reposted to the available list.");
+      render();
+    }
+
+    function formatMoney(n) {
+      return "$" + Number(n).toFixed(0);
+    }
+
+    function requestCard(req, mode) {
+      // mode: "available" or "accepted"
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("div");
+      title.className = "title";
+      title.textContent = `${req.propertyAddress}, ${req.city} ${req.state}`;
+
+      const agent = document.createElement("div");
+      agent.className = "meta";
+      agent.innerHTML = `<strong>Agent:</strong> ${req.agentName}`;
+
+      const date = document.createElement("div");
+      date.className = "meta";
+      date.innerHTML = `<strong>Date:</strong> ${req.date}`;
+
+      const time = document.createElement("div");
+      time.className = "meta";
+      time.innerHTML = `<strong>Time:</strong> ${req.time}`;
+
+      const duration = document.createElement("div");
+      duration.className = "meta";
+      duration.innerHTML = `<strong>Duration:</strong> ${req.duration}`;
+
+      const fee = document.createElement("div");
+      fee.className = "meta";
+      fee.innerHTML = `<strong>Fee:</strong> ${formatMoney(req.fee)}`;
+
+      const badge = document.createElement("span");
+      badge.className = "badge " + (mode === "accepted" ? "badge-accepted" : "badge-available");
+      badge.textContent = mode === "accepted" ? "ACCEPTED" : "AVAILABLE";
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      if (mode === "available") {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-accept";
+        btn.textContent = "Accept";
+        btn.onclick = () => acceptRequest(req.id);
+        row.appendChild(btn);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-cancel";
+        btn.textContent = "Cancel Assignment";
+        btn.onclick = cancelAccepted;
+        row.appendChild(btn);
+      }
+
+      card.appendChild(title);
+      card.appendChild(agent);
+      card.appendChild(date);
+      card.appendChild(time);
+      card.appendChild(duration);
+      card.appendChild(fee);
+      card.appendChild(badge);
+      card.appendChild(row);
+
+      return card;
+    }
+
+    function render() {
+      const availableGrid = document.getElementById("availableGrid");
+      const acceptedGrid = document.getElementById("acceptedGrid");
+      const availableEmpty = document.getElementById("availableEmpty");
+      const acceptedEmpty = document.getElementById("acceptedEmpty");
+
+      availableGrid.innerHTML = "";
+      acceptedGrid.innerHTML = "";
+
+      const available = loadAvailable();
+      const accepted = loadAccepted();
+
+      if (!available || available.length === 0) {
+        availableEmpty.style.display = "block";
+      } else {
+        availableEmpty.style.display = "none";
+        available.forEach(req => availableGrid.appendChild(requestCard(req, "available")));
+      }
+
+      if (!accepted) {
+        acceptedEmpty.style.display = "block";
+      } else {
+        acceptedEmpty.style.display = "none";
+        acceptedGrid.appendChild(requestCard(accepted, "accepted"));
+      }
+    }
+
+    initRequests();
+    render();
   </script>
+
 </body>
 </html>
