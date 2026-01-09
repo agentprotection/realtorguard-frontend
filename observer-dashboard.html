@@ -10,449 +10,176 @@
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: #f4f6f8;
-      color: #111;
     }
 
-    .topbar {
+    header {
       background: #0b2c4f;
       color: #fff;
-      padding: 14px 16px;
+      padding: 16px 24px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 12px;
-    }
-
-    .brand {
-      display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: bold;
-      font-size: 16px;
     }
 
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      object-fit: cover;
-      background: #fff;
+    header h1 {
+      margin: 0;
+      font-size: 20px;
     }
 
-    .topbar .right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .email {
       font-size: 14px;
-      opacity: 0.95;
+      opacity: 0.9;
+      margin-right: 16px;
     }
 
-    .btn {
+    .logout {
+      background: #ffffff;
+      color: #0b2c4f;
       border: none;
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-size: 16px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
       cursor: pointer;
-      font-weight: bold;
     }
 
-    .btn-logout {
-      background: #ffffff;
-      color: #0b2c4f;
-      padding: 10px 12px;
-      font-size: 14px;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-
-    .container {
-      max-width: 960px;
-      margin: 18px auto;
-      padding: 0 14px 40px;
-    }
-
-    .section {
-      background: #ffffff;
-      border-radius: 14px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-      padding: 16px;
-      margin-top: 16px;
-    }
-
-    .section h2 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      color: #0b2c4f;
-    }
-
-    .section p.sub {
-      margin: 0 0 14px 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    @media (min-width: 780px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-      }
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 16px;
     }
 
     .card {
-      border: 1px solid #e2e2e2;
-      border-radius: 14px;
-      padding: 16px;
-      background: #fff;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
-    .title {
-      font-size: 22px;
-      font-weight: 900;
-      margin: 0 0 10px 0;
-      color: #111;
-    }
-
-    .meta {
-      margin: 6px 0;
-      font-size: 16px;
-      color: #222;
-      line-height: 1.35;
-    }
-
-    .meta strong {
-      color: #111;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
-    }
-
-    .btn-accept {
-      background: #0b7a6f;
-      color: #fff;
-      flex: 1;
-      min-width: 160px;
-    }
-
-    .btn-cancel {
-      background: #b11b1b;
-      color: #fff;
-      flex: 1;
-      min-width: 160px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .badge-available {
-      background: #e8f3ff;
+    .card h2 {
+      margin-top: 0;
       color: #0b2c4f;
-      border: 1px solid #cfe6ff;
     }
 
-    .badge-accepted {
-      background: #e9fff6;
-      color: #0b7a6f;
-      border: 1px solid #bff3dd;
+    .assignment {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .assignment strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .accept {
+      background: #0f766e;
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
     }
 
     .empty {
-      background: #fafafa;
-      border: 1px dashed #ddd;
-      padding: 16px;
-      border-radius: 14px;
+      text-align: center;
       color: #666;
-      font-size: 14px;
+      padding: 40px 0;
     }
   </style>
 </head>
 
 <body>
-  <script>
-    // ✅ AUTH GUARD: Block direct URL access
-    const session = JSON.parse(localStorage.getItem("observerSession"));
-    if (!session || !session.email) {
-      window.location.href = "observer-login.html";
-    }
-  </script>
 
-  <div class="topbar">
-    <div class="brand">
-      <img src="images/logo.png" alt="Realtor Guard" />
-      <div>Observer Dashboard</div>
-    </div>
-
-    <div class="right">
-      <div id="who"></div>
-      <button class="btn btn-logout" onclick="logout()">Logout</button>
-    </div>
+<header>
+  <h1>Observer Dashboard</h1>
+  <div>
+    <span class="email" id="observerEmail"></span>
+    <button class="logout" onclick="logout()">Logout</button>
   </div>
+</header>
 
-  <div class="container">
-
-    <div class="section">
-      <h2>Available Requests</h2>
-      <p class="sub">Click <strong>Accept</strong> to take an assignment. If you accept and later cannot complete it, you can <strong>Cancel Assignment</strong> and it will repost.</p>
-      <div id="availableGrid" class="grid"></div>
-      <div id="availableEmpty" class="empty" style="display:none;">No requests available right now.</div>
-    </div>
-
-    <div class="section">
-      <h2>Your Accepted Assignment</h2>
-      <p class="sub">If you accepted an assignment, it appears here. You can cancel if needed and it will repost.</p>
-      <div id="acceptedGrid" class="grid"></div>
-      <div id="acceptedEmpty" class="empty" style="display:none;">You have no accepted assignment.</div>
-    </div>
-
+<main>
+  <div class="card">
+    <h2>Available Requests</h2>
+    <div id="assignments"></div>
   </div>
+</main>
 
-  <script>
-    // Show logged-in user
-    document.getElementById("who").textContent = session.name ? session.name : session.email;
+<script>
+  /* -------------------------
+     AUTH GUARD
+  -------------------------- */
+  const session = JSON.parse(localStorage.getItem("observerSession"));
+  if (!session || !session.email) {
+    window.location.href = "observer-login.html";
+  }
 
-    // Demo requests (until backend wires agent requests)
-    // Fields required by you: agent name, property address, city, state, date, time, duration, fee
-    const demoRequests = [
-      {
-        id: "req_1001",
-        agentName: "Sarah Johnson",
-        propertyAddress: "120 Main St",
-        city: "Dallas",
-        state: "TX",
-        date: "Jan 12, 2026",
-        time: "3:00 PM",
-        duration: "2 hours",
-        fee: 75
-      },
-      {
-        id: "req_1002",
-        agentName: "Michael Brown",
-        propertyAddress: "890 Oak Ave",
-        city: "Austin",
-        state: "TX",
-        date: "Jan 14, 2026",
-        time: "11:30 AM",
-        duration: "1.5 hours",
-        fee: 90
-      }
-    ];
+  document.getElementById("observerEmail").textContent = session.email;
 
-    // Storage keys
-    const KEY_AVAILABLE = "availableRequests";
-    const KEY_ACCEPTED = "acceptedRequest";
+  /* -------------------------
+     VERIFICATION GUARD
+  -------------------------- */
+  const verification = JSON.parse(localStorage.getItem("observerVerification"));
 
-    // Initialize available requests if none exist
-    function initRequests() {
-      const existing = JSON.parse(localStorage.getItem(KEY_AVAILABLE));
-      if (!existing || !Array.isArray(existing) || existing.length === 0) {
-        localStorage.setItem(KEY_AVAILABLE, JSON.stringify(demoRequests));
-      }
-      if (!localStorage.getItem(KEY_ACCEPTED)) {
-        localStorage.setItem(KEY_ACCEPTED, JSON.stringify(null));
-      }
+  if (!verification) {
+    window.location.href = "observer-verification.html";
+  }
+
+  if (verification.status === "pending") {
+    window.location.href = "observer-pending.html";
+  }
+
+  if (verification.status !== "approved") {
+    alert("Your account is not approved.");
+    logout();
+  }
+
+  /* -------------------------
+     ASSIGNMENTS (MOCK)
+  -------------------------- */
+  const assignments = [
+    {
+      address: "120 Main St, Dallas TX",
+      agent: "Sarah Johnson",
+      date: "Jan 12, 2026",
+      time: "3:00 PM",
+      duration: "2 hours",
+      fee: "$75"
     }
+  ];
 
-    function loadAvailable() {
-      return JSON.parse(localStorage.getItem(KEY_AVAILABLE)) || [];
-    }
+  const container = document.getElementById("assignments");
 
-    function loadAccepted() {
-      return JSON.parse(localStorage.getItem(KEY_ACCEPTED));
-    }
+  if (assignments.length === 0) {
+    container.innerHTML = `<div class="empty">No assignments available.</div>`;
+  } else {
+    assignments.forEach(a => {
+      const div = document.createElement("div");
+      div.className = "assignment";
+      div.innerHTML = `
+        <strong>${a.address}</strong>
+        Agent: ${a.agent}<br />
+        Date: ${a.date}<br />
+        Time: ${a.time}<br />
+        Duration: ${a.duration}<br />
+        Fee: ${a.fee}<br />
+        <button class="accept">Accept</button>
+      `;
+      container.appendChild(div);
+    });
+  }
 
-    function saveAvailable(list) {
-      localStorage.setItem(KEY_AVAILABLE, JSON.stringify(list));
-    }
-
-    function saveAccepted(req) {
-      localStorage.setItem(KEY_ACCEPTED, JSON.stringify(req));
-    }
-
-    function logout() {
-      localStorage.removeItem("observerSession");
-      window.location.href = "observer-login.html";
-    }
-
-    function acceptRequest(requestId) {
-      const accepted = loadAccepted();
-      if (accepted) {
-        alert("You already accepted an assignment. Cancel it first if you need to accept a different one.");
-        return;
-      }
-
-      const available = loadAvailable();
-      const req = available.find(r => r.id === requestId);
-
-      if (!req) {
-        alert("Request not found.");
-        return;
-      }
-
-      // Lock assignment to observer
-      const remaining = available.filter(r => r.id !== requestId);
-      saveAvailable(remaining);
-
-      // Attach observer profile basics (for now, name/email only; later photo/phone/rating)
-      const observerSummary = {
-        observerId: session.id || null,
-        name: session.name || null,
-        email: session.email || null,
-        rating: session.rating || null
-      };
-
-      const acceptedPayload = {
-        ...req,
-        acceptedAt: new Date().toISOString(),
-        observer: observerSummary,
-        status: "accepted"
-      };
-
-      saveAccepted(acceptedPayload);
-      render();
-    }
-
-    function cancelAccepted() {
-      const accepted = loadAccepted();
-      if (!accepted) return;
-
-      // Repost: put back into available list
-      const available = loadAvailable();
-
-      const reposted = {
-        id: accepted.id,
-        agentName: accepted.agentName,
-        propertyAddress: accepted.propertyAddress,
-        city: accepted.city,
-        state: accepted.state,
-        date: accepted.date,
-        time: accepted.time,
-        duration: accepted.duration,
-        fee: accepted.fee
-      };
-
-      // Prevent duplicates
-      const alreadyThere = available.some(r => r.id === reposted.id);
-      if (!alreadyThere) {
-        available.unshift(reposted);
-      }
-
-      saveAvailable(available);
-      saveAccepted(null);
-
-      alert("Assignment canceled. The request has been reposted to the available list.");
-      render();
-    }
-
-    function formatMoney(n) {
-      return "$" + Number(n).toFixed(0);
-    }
-
-    function requestCard(req, mode) {
-      // mode: "available" or "accepted"
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const title = document.createElement("div");
-      title.className = "title";
-      title.textContent = `${req.propertyAddress}, ${req.city} ${req.state}`;
-
-      const agent = document.createElement("div");
-      agent.className = "meta";
-      agent.innerHTML = `<strong>Agent:</strong> ${req.agentName}`;
-
-      const date = document.createElement("div");
-      date.className = "meta";
-      date.innerHTML = `<strong>Date:</strong> ${req.date}`;
-
-      const time = document.createElement("div");
-      time.className = "meta";
-      time.innerHTML = `<strong>Time:</strong> ${req.time}`;
-
-      const duration = document.createElement("div");
-      duration.className = "meta";
-      duration.innerHTML = `<strong>Duration:</strong> ${req.duration}`;
-
-      const fee = document.createElement("div");
-      fee.className = "meta";
-      fee.innerHTML = `<strong>Fee:</strong> ${formatMoney(req.fee)}`;
-
-      const badge = document.createElement("span");
-      badge.className = "badge " + (mode === "accepted" ? "badge-accepted" : "badge-available");
-      badge.textContent = mode === "accepted" ? "ACCEPTED" : "AVAILABLE";
-
-      const row = document.createElement("div");
-      row.className = "row";
-
-      if (mode === "available") {
-        const btn = document.createElement("button");
-        btn.className = "btn btn-accept";
-        btn.textContent = "Accept";
-        btn.onclick = () => acceptRequest(req.id);
-        row.appendChild(btn);
-      } else {
-        const btn = document.createElement("button");
-        btn.className = "btn btn-cancel";
-        btn.textContent = "Cancel Assignment";
-        btn.onclick = cancelAccepted;
-        row.appendChild(btn);
-      }
-
-      card.appendChild(title);
-      card.appendChild(agent);
-      card.appendChild(date);
-      card.appendChild(time);
-      card.appendChild(duration);
-      card.appendChild(fee);
-      card.appendChild(badge);
-      card.appendChild(row);
-
-      return card;
-    }
-
-    function render() {
-      const availableGrid = document.getElementById("availableGrid");
-      const acceptedGrid = document.getElementById("acceptedGrid");
-      const availableEmpty = document.getElementById("availableEmpty");
-      const acceptedEmpty = document.getElementById("acceptedEmpty");
-
-      availableGrid.innerHTML = "";
-      acceptedGrid.innerHTML = "";
-
-      const available = loadAvailable();
-      const accepted = loadAccepted();
-
-      if (!available || available.length === 0) {
-        availableEmpty.style.display = "block";
-      } else {
-        availableEmpty.style.display = "none";
-        available.forEach(req => availableGrid.appendChild(requestCard(req, "available")));
-      }
-
-      if (!accepted) {
-        acceptedEmpty.style.display = "block";
-      } else {
-        acceptedEmpty.style.display = "none";
-        acceptedGrid.appendChild(requestCard(accepted, "accepted"));
-      }
-    }
-
-    initRequests();
-    render();
-  </script>
+  /* -------------------------
+     LOGOUT
+  -------------------------- */
+  function logout() {
+    localStorage.removeItem("observerSession");
+    window.location.href = "observer-login.html";
+  }
+</script>
 
 </body>
 </html>
