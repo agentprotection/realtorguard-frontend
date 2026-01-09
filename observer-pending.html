@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification Pending | Realtor Guard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 480px;
+      padding: 36px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #0b2c4f;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .status {
+      background: #fff3cd;
+      color: #856404;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
+      margin-bottom: 24px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #777;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 14px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      background: #0b2c4f;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Verification Pending</h1>
+
+    <div class="status">
+      Background Check In Progress
+    </div>
+
+    <p>
+      Thank you for submitting your information.  
+      Your identity and background verification are currently under review.
+    </p>
+
+    <p>
+      This process is required before you can accept assignments and helps keep
+      Realtors and Observers safe.
+    </p>
+
+    <p class="small">
+      You will be notified once your account has been approved.
+    </p>
+
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    const session = JSON.parse(localStorage.getItem("observerSession"));
+    const verification = JSON.parse(localStorage.getItem("observerVerification"));
+
+    if (!session || !session.email) {
+      window.location.href = "observer-login.html";
+    }
+
+    if (!verification || verification.status !== "pending") {
+      window.location.href = "observer-verification.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("observerSession");
+      window.location.href = "observer-login.html";
+    }
+  </script>
+
+</body>
+</html>
