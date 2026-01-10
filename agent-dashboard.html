@@ -3,192 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Dashboard | Realtor Guard</title>
+  <title>Agent Dashboard</title>
 
   <style>
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
     }
 
-    .dashboard {
-      background: #ffffff;
-      width: 100%;
-      max-width: 520px;
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    .container {
+      max-width: 420px;
+      margin: auto;
+      padding: 24px;
       text-align: center;
     }
 
-    .logo {
-      width: 160px;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-
-    h1 {
+    h2 {
       margin-bottom: 8px;
-      color: #0b2c4f;
     }
 
-    p.subtitle {
-      margin-bottom: 24px;
+    p {
       color: #555;
-      font-size: 14px;
-    }
-
-    form {
-      text-align: left;
+      margin-bottom: 24px;
     }
 
     label {
-      font-size: 13px;
-      font-weight: bold;
       display: block;
-      margin: 14px 0 6px;
-      color: #333;
+      text-align: left;
+      margin-top: 12px;
+      font-size: 14px;
     }
 
-    input, select {
+    input {
       width: 100%;
       padding: 12px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      margin-top: 6px;
+      font-size: 16px;
       box-sizing: border-box;
-    }
-
-    .row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .row > div {
-      flex: 1;
+      border: 1px solid #ccc;
     }
 
     button {
       width: 100%;
-      margin-top: 20px;
       padding: 14px;
+      margin-top: 24px;
       font-size: 16px;
-      font-weight: bold;
+      background-color: #0a2540;
+      color: #ffffff;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
     }
 
-    .submit-btn {
-      background: #0b2c4f;
-      color: #fff;
-    }
-
-    .submit-btn:hover {
-      background: #083058;
-    }
-
-    .refresh-btn {
-      background: #e9eef3;
-      color: #0b2c4f;
-      margin-top: 12px;
-    }
-
-    footer {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #777;
-      text-align: center;
+    button:hover {
+      background-color: #081d33;
     }
   </style>
 </head>
+
 <body>
+  <div class="container">
+    <h2>Agent Request</h2>
+    <p>Submit a request for an observer to attend your showing</p>
 
-  <div class="dashboard">
-    <!-- LOGO -->
-    <img src="logo.png" alt="Realtor Guard Logo" class="logo" onclick="window.location.href='index.html'"/>
+    <form id="agentRequestForm">
+      <label for="agentName">Agent Full Name</label>
+      <input type="text" id="agentName" required />
 
-    <h1>Agent Request</h1>
-    <p class="subtitle">Submit a request for an observer to attend your showing</p>
+      <label for="propertyAddress">Property Address</label>
+      <input type="text" id="propertyAddress" required />
 
-    <form id="requestForm">
-      <label>Agent Full Name</label>
-      <input type="text" required />
+      <label for="city">City</label>
+      <input type="text" id="city" required />
 
-      <label>Property Address</label>
-      <input type="text" required />
+      <label for="state">State</label>
+      <input type="text" id="state" required />
 
-      <div class="row">
-        <div>
-          <label>City</label>
-          <input type="text" required />
-        </div>
-        <div>
-          <label>State</label>
-          <select required>
-            <option value="">Select</option>
-            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
-            <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
-            <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
-            <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
-            <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
-            <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
-            <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
-            <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
-            <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
-            <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
-            <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
-            <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
-            <option>WI</option><option>WY</option>
-          </select>
-        </div>
-      </div>
-
-      <label>ZIP Code</label>
-      <input type="text" required />
-
-      <label>Date</label>
-      <input type="date" required />
-
-      <div class="row">
-        <div>
-          <label>Time</label>
-          <input type="time" step="1800" required />
-        </div>
-        <div>
-          <label>Duration</label>
-          <select required>
-            <option value="">Select</option>
-            <option>30 Minutes</option>
-            <option>1 Hour</option>
-            <option>1.5 Hours</option>
-            <option>2 Hours</option>
-          </select>
-        </div>
-      </div>
-
-      <label>Time Zone</label>
-      <select required>
-        <option value="">Select</option>
-        <option>Eastern</option>
-        <option>Central</option>
-        <option>Mountain</option>
-        <option>Pacific</option>
-      </select>
-
-      <button type="submit" class="submit-btn">Submit Request</button>
-      <button type="button" class="refresh-btn" onclick="location.reload()">Refresh Status</button>
+      <button type="submit">Submit Request</button>
     </form>
-
-    <footer>
-      © Realtor Guard — Safety. Accountability. Trust.
-    </footer>
   </div>
 
+  <script>
+    document
+      .getElementById("agentRequestForm")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const requestId = "req_" + Date.now();
+
+        const requestData = {
+          id: requestId,
+          agentName: document.getElementById("agentName").value,
+          propertyAddress: document.getElementById("propertyAddress").value,
+          city: document.getElementById("city").value,
+          state: document.getElementById("state").value,
+          status: "pending"
+        };
+
+        localStorage.setItem("activeRequest", JSON.stringify(requestData));
+
+        window.location.href =
+          "agent-request-status.html?requestId=" + requestId;
+      });
+  </script>
 </body>
 </html>
