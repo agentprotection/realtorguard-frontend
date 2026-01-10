@@ -2,122 +2,171 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Request Status | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Request Status</title>
 
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f6f8fb;
+      display: flex;
+      justify-content: center;
     }
 
-    .container {
+    .page {
+      width: 100%;
       max-width: 420px;
-      margin: auto;
       padding: 24px;
-      text-align: center;
     }
 
-    h2 {
+    .logo {
+      display: flex;
+      justify-content: center;
       margin-bottom: 24px;
     }
 
-    .status-box {
-      border: 1px solid #ccc;
+    .logo img {
+      width: 160px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
       padding: 16px;
-      font-size: 16px;
-      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    .row {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .row strong {
+      display: inline-block;
+      width: 120px;
+    }
+
+    .status {
+      text-align: center;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
     }
 
     .pending {
-      color: #555;
+      background: #fff7cc;
+      color: #7a5b00;
     }
 
     .accepted {
-      color: green;
+      background: #e6f8ec;
+      color: #1e7f3f;
     }
 
     .canceled {
-      color: red;
+      background: #fdeaea;
+      color: #9f1c1c;
     }
 
-    .observer-card {
-      border: 1px solid #ddd;
-      padding: 16px;
-      margin-top: 20px;
-      text-align: left;
-      display: none;
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
-    .observer-card h3 {
-      margin-top: 0;
+    .cancel-btn {
+      background: #d9534f;
+      color: #fff;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h2>Request Status</h2>
+  <div class="page">
 
-    <div id="statusBox" class="status-box"></div>
-
-    <div id="observerCard" class="observer-card">
-      <h3>Observer Assigned</h3>
-      <p><strong>Name:</strong> <span id="observerName"></span></p>
-      <p><strong>Rating:</strong> <span id="observerRating"></span></p>
-      <p><strong>Contact:</strong> <span id="observerContact"></span></p>
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
     </div>
+
+    <h1>Request Status</h1>
+
+    <div id="statusBox" class="status pending">
+      Waiting for an observer to accept your request.
+    </div>
+
+    <div class="card" id="requestCard"></div>
+
+    <button id="cancelBtn" class="cancel-btn" style="display:none;">
+      Cancel Request
+    </button>
+
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const requestId = params.get("requestId");
-
-    const storedRequest = JSON.parse(
-      localStorage.getItem("activeRequest")
-    );
-
+    const request = JSON.parse(localStorage.getItem("activeRequest"));
     const statusBox = document.getElementById("statusBox");
-    const observerCard = document.getElementById("observerCard");
+    const requestCard = document.getElementById("requestCard");
+    const cancelBtn = document.getElementById("cancelBtn");
 
-    function renderStatus() {
-      if (!storedRequest || storedRequest.id !== requestId) {
-        statusBox.textContent = "No active request found.";
-        statusBox.className = "status-box canceled";
-        return;
+    if (!request) {
+      statusBox.textContent = "No active request found.";
+      statusBox.className = "status canceled";
+    } else {
+      render();
+    }
+
+    function render() {
+      requestCard.innerHTML = `
+        <div class="row"><strong>Agent:</strong> ${request.agentName}</div>
+        <div class="row"><strong>Property:</strong> ${request.propertyAddress}</div>
+        <div class="row"><strong>City:</strong> ${request.city}</div>
+        <div class="row"><strong>State:</strong> ${request.state}</div>
+        <div class="row"><strong>ZIP:</strong> ${request.zip}</div>
+        <div class="row"><strong>Date:</strong> ${request.showingDate}</div>
+        <div class="row"><strong>Time:</strong> ${request.showingTime}</div>
+        <div class="row"><strong>Time Zone:</strong> ${request.timezone}</div>
+        <div class="row"><strong>Duration:</strong> ${request.durationMinutes} minutes</div>
+        <div class="row"><strong>Agent Proxy:</strong> Provided at check-in</div>
+      `;
+
+      if (request.status === "pending") {
+        statusBox.textContent = "Pending – waiting for observer acceptance.";
+        statusBox.className = "status pending";
+        cancelBtn.style.display = "block";
       }
 
-      if (storedRequest.status === "pending") {
-        statusBox.textContent =
-          "Waiting for an observer to accept your request.";
-        statusBox.className = "status-box pending";
-        observerCard.style.display = "none";
+      if (request.status === "accepted") {
+        statusBox.textContent = "Accepted – observer assigned.";
+        statusBox.className = "status accepted";
+        cancelBtn.style.display = "block";
       }
 
-      if (storedRequest.status === "accepted") {
-        statusBox.textContent = "Observer assigned to your request.";
-        statusBox.className = "status-box accepted";
-
-        document.getElementById("observerName").textContent =
-          storedRequest.observer?.name || "Observer";
-        document.getElementById("observerRating").textContent =
-          storedRequest.observer?.rating || "N/A";
-        document.getElementById("observerContact").textContent =
-          storedRequest.observer?.contact || "Provided at check-in";
-
-        observerCard.style.display = "block";
-      }
-
-      if (storedRequest.status === "canceled") {
-        statusBox.textContent =
-          "Observer canceled. Your request has been reposted.";
-        statusBox.className = "status-box canceled";
-        observerCard.style.display = "none";
+      if (request.status === "canceled") {
+        statusBox.textContent = "Canceled – request has been reposted.";
+        statusBox.className = "status canceled";
+        cancelBtn.style.display = "none";
       }
     }
 
-    renderStatus();
+    cancelBtn.addEventListener("click", () => {
+      if (!confirm("Cancel this request?")) return;
+      request.status = "canceled";
+      localStorage.setItem("activeRequest", JSON.stringify(request));
+      render();
+    });
   </script>
+
 </body>
 </html>
