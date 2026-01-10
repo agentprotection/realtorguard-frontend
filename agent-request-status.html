@@ -12,94 +12,112 @@
       background: #ffffff;
     }
 
-    /* LOGO */
-    .app-logo {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-
-    .app-logo img {
-      max-width: 200px;
-      height: auto;
-    }
-
-    /* CONTAINER */
-    .app-container {
-      max-width: 360px;
-      margin: 0 auto;
-      padding: 0 12px 32px;
-    }
-
-    /* INFO BOXES */
-    .info-box {
-      border: 1px solid #ccc;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 15px;
-    }
-
-    /* STATUS */
-    .status {
+    .container {
+      max-width: 420px;
+      margin: auto;
+      padding: 24px;
       text-align: center;
-      font-weight: bold;
-      margin: 20px 0;
     }
 
-    /* BUTTON */
-    button {
-      width: 100%;
-      height: 46px;
+    h2 {
+      margin-bottom: 24px;
+    }
+
+    .status-box {
+      border: 1px solid #ccc;
+      padding: 16px;
       font-size: 16px;
-      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .pending {
+      color: #555;
+    }
+
+    .accepted {
+      color: green;
+    }
+
+    .canceled {
+      color: red;
+    }
+
+    .observer-card {
+      border: 1px solid #ddd;
+      padding: 16px;
+      margin-top: 20px;
+      text-align: left;
+      display: none;
+    }
+
+    .observer-card h3 {
+      margin-top: 0;
     }
   </style>
 </head>
 
 <body>
+  <div class="container">
+    <h2>Request Status</h2>
 
-  <!-- LOGO -->
-  <div class="app-logo">
-    <img src="./logo.png" alt="Realtor Guard Logo">
-  </div>
+    <div id="statusBox" class="status-box"></div>
 
-  <!-- CONTENT -->
-  <div class="app-container">
-
-    <div class="info-box" id="agent"></div>
-    <div class="info-box" id="address"></div>
-    <div class="info-box" id="location"></div>
-    <div class="info-box" id="date"></div>
-    <div class="info-box" id="time"></div>
-    <div class="info-box" id="duration"></div>
-
-    <div class="status">
-      Waiting for observer acceptance
+    <div id="observerCard" class="observer-card">
+      <h3>Observer Assigned</h3>
+      <p><strong>Name:</strong> <span id="observerName"></span></p>
+      <p><strong>Rating:</strong> <span id="observerRating"></span></p>
+      <p><strong>Contact:</strong> <span id="observerContact"></span></p>
     </div>
-
-    <!-- CANCEL -->
-    <button onclick="cancelRequest()">Cancel Request</button>
-
   </div>
 
   <script>
-    const request = JSON.parse(localStorage.getItem("activeRequest"));
+    const params = new URLSearchParams(window.location.search);
+    const requestId = params.get("requestId");
 
-    if (request) {
-      document.getElementById("agent").innerText = request.agent;
-      document.getElementById("address").innerText = request.address;
-      document.getElementById("location").innerText =
-        request.city + ", " + request.state + " " + request.zip;
-      document.getElementById("date").innerText = request.date;
-      document.getElementById("time").innerText = request.time;
-      document.getElementById("duration").innerText = request.duration;
+    const storedRequest = JSON.parse(
+      localStorage.getItem("activeRequest")
+    );
+
+    const statusBox = document.getElementById("statusBox");
+    const observerCard = document.getElementById("observerCard");
+
+    function renderStatus() {
+      if (!storedRequest || storedRequest.id !== requestId) {
+        statusBox.textContent = "No active request found.";
+        statusBox.className = "status-box canceled";
+        return;
+      }
+
+      if (storedRequest.status === "pending") {
+        statusBox.textContent =
+          "Waiting for an observer to accept your request.";
+        statusBox.className = "status-box pending";
+        observerCard.style.display = "none";
+      }
+
+      if (storedRequest.status === "accepted") {
+        statusBox.textContent = "Observer assigned to your request.";
+        statusBox.className = "status-box accepted";
+
+        document.getElementById("observerName").textContent =
+          storedRequest.observer?.name || "Observer";
+        document.getElementById("observerRating").textContent =
+          storedRequest.observer?.rating || "N/A";
+        document.getElementById("observerContact").textContent =
+          storedRequest.observer?.contact || "Provided at check-in";
+
+        observerCard.style.display = "block";
+      }
+
+      if (storedRequest.status === "canceled") {
+        statusBox.textContent =
+          "Observer canceled. Your request has been reposted.";
+        statusBox.className = "status-box canceled";
+        observerCard.style.display = "none";
+      }
     }
 
-    function cancelRequest() {
-      localStorage.removeItem("activeRequest");
-      window.location.href = "agent-dashboard.html";
-    }
+    renderStatus();
   </script>
-
 </body>
 </html>
