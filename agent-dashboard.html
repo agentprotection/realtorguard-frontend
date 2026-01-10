@@ -1,120 +1,319 @@
-<form id="agentRequestForm">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Dashboard | Realtor Guard</title>
 
-  <label>Agent Full Name</label>
-  <input type="text" id="agentName" required />
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#e2e8f0;
+      --primary:#0a2540;
+      --primaryHover:#081d33;
+      --shadow: 0 10px 30px rgba(2,6,23,.10);
+      --radius: 16px;
+    }
 
-  <label>Property Address</label>
-  <input type="text" id="propertyAddress" required />
+    *{ box-sizing:border-box; }
 
-  <label>City</label>
-  <input type="text" id="city" required />
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-  <label>State</label>
-  <select id="state" required>
-    <option value="">Select State</option>
-    <option value="AL">Alabama</option>
-    <option value="AK">Alaska</option>
-    <option value="AZ">Arizona</option>
-    <option value="AR">Arkansas</option>
-    <option value="CA">California</option>
-    <option value="CO">Colorado</option>
-    <option value="CT">Connecticut</option>
-    <option value="DE">Delaware</option>
-    <option value="FL">Florida</option>
-    <option value="GA">Georgia</option>
-    <option value="HI">Hawaii</option>
-    <option value="ID">Idaho</option>
-    <option value="IL">Illinois</option>
-    <option value="IN">Indiana</option>
-    <option value="IA">Iowa</option>
-    <option value="KS">Kansas</option>
-    <option value="KY">Kentucky</option>
-    <option value="LA">Louisiana</option>
-    <option value="ME">Maine</option>
-    <option value="MD">Maryland</option>
-    <option value="MA">Massachusetts</option>
-    <option value="MI">Michigan</option>
-    <option value="MN">Minnesota</option>
-    <option value="MS">Mississippi</option>
-    <option value="MO">Missouri</option>
-    <option value="MT">Montana</option>
-    <option value="NE">Nebraska</option>
-    <option value="NV">Nevada</option>
-    <option value="NH">New Hampshire</option>
-    <option value="NJ">New Jersey</option>
-    <option value="NM">New Mexico</option>
-    <option value="NY">New York</option>
-    <option value="NC">North Carolina</option>
-    <option value="ND">North Dakota</option>
-    <option value="OH">Ohio</option>
-    <option value="OK">Oklahoma</option>
-    <option value="OR">Oregon</option>
-    <option value="PA">Pennsylvania</option>
-    <option value="RI">Rhode Island</option>
-    <option value="SC">South Carolina</option>
-    <option value="SD">South Dakota</option>
-    <option value="TN">Tennessee</option>
-    <option value="TX">Texas</option>
-    <option value="UT">Utah</option>
-    <option value="VT">Vermont</option>
-    <option value="VA">Virginia</option>
-    <option value="WA">Washington</option>
-    <option value="WV">West Virginia</option>
-    <option value="WI">Wisconsin</option>
-    <option value="WY">Wyoming</option>
-  </select>
+    .page{
+      min-height:100vh;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:28px 16px 60px;
+    }
 
-  <label>ZIP Code</label>
-  <input type="text" id="zip" pattern="[0-9]{5}" required />
+    .wrap{
+      width:100%;
+      max-width:720px;
+    }
 
-  <label>Showing Date</label>
-  <input type="date" id="showingDate" required />
+    .brand{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin: 8px 0 18px;
+    }
 
-  <label>Showing Time</label>
-  <select id="showingTime" required>
-    <option value="">Select Time</option>
-    <option value="08:00 AM">8:00 AM</option>
-    <option value="08:30 AM">8:30 AM</option>
-    <option value="09:00 AM">9:00 AM</option>
-    <option value="09:30 AM">9:30 AM</option>
-    <option value="10:00 AM">10:00 AM</option>
-    <option value="10:30 AM">10:30 AM</option>
-    <option value="11:00 AM">11:00 AM</option>
-    <option value="11:30 AM">11:30 AM</option>
-    <option value="12:00 PM">12:00 PM</option>
-    <option value="12:30 PM">12:30 PM</option>
-    <option value="01:00 PM">1:00 PM</option>
-    <option value="01:30 PM">1:30 PM</option>
-    <option value="02:00 PM">2:00 PM</option>
-    <option value="02:30 PM">2:30 PM</option>
-    <option value="03:00 PM">3:00 PM</option>
-    <option value="03:30 PM">3:30 PM</option>
-    <option value="04:00 PM">4:00 PM</option>
-    <option value="04:30 PM">4:30 PM</option>
-    <option value="05:00 PM">5:00 PM</option>
-    <option value="05:30 PM">5:30 PM</option>
-    <option value="06:00 PM">6:00 PM</option>
-  </select>
+    .brand img{
+      width:180px;
+      height:auto;
+      display:block;
+    }
 
-  <label>Time Zone</label>
-  <select id="timezone" required>
-    <option value="EST">Eastern (EST)</option>
-    <option value="CST">Central (CST)</option>
-    <option value="MST">Mountain (MST)</option>
-    <option value="PST">Pacific (PST)</option>
-  </select>
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
 
-  <label>Showing Duration</label>
-  <select id="duration" required>
-    <option value="30">30 Minutes</option>
-    <option value="60">60 Minutes</option>
-    <option value="90">90 Minutes</option>
-    <option value="120">120 Minutes</option>
-  </select>
+    .title{
+      text-align:center;
+      margin: 0 0 6px;
+      font-size: 28px;
+      letter-spacing:.2px;
+    }
 
-  <button type="submit">Request Observer</button>
-  <button type="reset" style="margin-top:10px;background:#ccc;color:#000;">
-    Refresh Form
-  </button>
+    .subtitle{
+      text-align:center;
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height:1.4;
+    }
 
-</form>
+    form{
+      margin-top: 6px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field.full{
+      grid-column: 1 / -1;
+    }
+
+    label{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing:.2px;
+    }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus, select:focus{
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148,163,184,.25);
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      margin-top: 16px;
+    }
+
+    button{
+      appearance:none;
+      border:none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor:pointer;
+      width:100%;
+    }
+
+    .primary{
+      background: var(--primary);
+      color:#fff;
+    }
+    .primary:hover{ background: var(--primaryHover); }
+
+    .secondary{
+      background:#e5e7eb;
+      color:#111827;
+    }
+    .secondary:hover{ background:#d1d5db; }
+
+    .hint{
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align:center;
+    }
+
+    @media (max-width: 640px){
+      .grid{ grid-template-columns: 1fr; }
+      .brand img{ width:160px; }
+      .title{ font-size:24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="wrap">
+
+      <!-- Centered Brand Logo -->
+      <div class="brand">
+        <img src="logo.png" alt="Realtor Guard Logo" />
+      </div>
+
+      <div class="card">
+        <h1 class="title">Request an Observer</h1>
+        <p class="subtitle">Enter your showing details. Requests use 12-hour time and 30-minute increments.</p>
+
+        <form id="agentRequestForm">
+          <div class="grid">
+
+            <div class="field full">
+              <label for="agentName">Agent Full Name</label>
+              <input type="text" id="agentName" placeholder="e.g., Marvin Harris" required />
+            </div>
+
+            <div class="field full">
+              <label for="propertyAddress">Property Address</label>
+              <input type="text" id="propertyAddress" placeholder="Street address + unit (if any)" required />
+            </div>
+
+            <div class="field">
+              <label for="city">City</label>
+              <input type="text" id="city" placeholder="City" required />
+            </div>
+
+            <div class="field">
+              <label for="state">State</label>
+              <select id="state" required>
+                <option value="">Select State</option>
+                <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option>
+                <option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option>
+                <option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option>
+                <option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option>
+                <option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option>
+                <option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="zip">ZIP Code</label>
+              <input type="text" id="zip" inputmode="numeric" pattern="\\d{5}" maxlength="5" placeholder="5-digit ZIP" required />
+            </div>
+
+            <div class="field">
+              <label for="showingDate">Showing Date</label>
+              <input type="date" id="showingDate" required />
+            </div>
+
+            <div class="field">
+              <label for="showingTime">Showing Time</label>
+              <select id="showingTime" required>
+                <option value="">Select Time</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="timezone">Time Zone</label>
+              <select id="timezone" required>
+                <option value="ET">Eastern (ET)</option>
+                <option value="CT">Central (CT)</option>
+                <option value="MT">Mountain (MT)</option>
+                <option value="PT">Pacific (PT)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="duration">Showing Duration</label>
+              <select id="duration" required>
+                <option value="30">30 minutes</option>
+                <option value="60">60 minutes</option>
+                <option value="90">90 minutes</option>
+                <option value="120">120 minutes</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="submit">Request Observer</button>
+            <button class="secondary" type="reset">Refresh Form</button>
+          </div>
+
+          <div class="hint">After submit, you’ll be redirected to your request status screen.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Build 30-minute time options in 12-hour format (no military time)
+    (function buildTimes(){
+      const select = document.getElementById("showingTime");
+      const startHour = 6;   // 6:00 AM
+      const endHour = 20;    // 8:00 PM
+
+      function fmt(h, m){
+        const ampm = h >= 12 ? "PM" : "AM";
+        let hr = h % 12;
+        if (hr === 0) hr = 12;
+        const mm = m === 0 ? "00" : "30";
+        return `${hr}:${mm} ${ampm}`;
+      }
+
+      for (let h = startHour; h <= endHour; h++){
+        for (let m of [0, 30]){
+          // allow 8:00 PM but not 8:30 PM (since endHour=20)
+          if (h === endHour && m === 30) continue;
+          const opt = document.createElement("option");
+          opt.value = fmt(h, m);
+          opt.textContent = fmt(h, m);
+          select.appendChild(opt);
+        }
+      }
+    })();
+
+    document.getElementById("agentRequestForm").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const requestId = "req_" + Date.now();
+
+      const requestData = {
+        id: requestId,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+        agentName: document.getElementById("agentName").value.trim(),
+        propertyAddress: document.getElementById("propertyAddress").value.trim(),
+        city: document.getElementById("city").value.trim(),
+        state: document.getElementById("state").value,
+        zip: document.getElementById("zip").value.trim(),
+        showingDate: document.getElementById("showingDate").value,
+        showingTime: document.getElementById("showingTime").value,
+        timezone: document.getElementById("timezone").value,
+        durationMinutes: Number(document.getElementById("duration").value)
+      };
+
+      localStorage.setItem("activeRequest", JSON.stringify(requestData));
+
+      window.location.href = "agent-request-status.html?requestId=" + requestId;
+    });
+  </script>
+</body>
+</html>
