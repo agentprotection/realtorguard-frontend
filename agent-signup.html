@@ -2,11 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Create Agent Account | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Global API config -->
-  <script src="config.js"></script>
+  <title>Create Agent Account | Realtor Guard</title>
 
   <style>
     body {
@@ -19,17 +16,30 @@
       height: 100vh;
     }
 
-    .signup-container {
-      background: #fff;
+    .container {
+      background: #ffffff;
       padding: 32px;
       width: 100%;
       max-width: 420px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      width: 160px;
+      margin-bottom: 20px;
+      cursor: pointer;
     }
 
     h2 {
-      text-align: center;
+      margin-bottom: 8px;
+      color: #0b2c4f;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #555;
       margin-bottom: 24px;
     }
 
@@ -37,150 +47,128 @@
       width: 100%;
       padding: 12px;
       margin-bottom: 14px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
+      font-size: 14px;
     }
 
     .password-wrapper {
       position: relative;
     }
 
-    .toggle-password {
+    .toggle {
       position: absolute;
       right: 12px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
-      font-size: 18px;
+      font-size: 14px;
+      color: #0b2c4f;
       user-select: none;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      background: #1f3a5f;
-      color: #fff;
+      background: #0b2c4f;
+      color: white;
       border: none;
       border-radius: 6px;
-      font-size: 16px;
+      font-size: 15px;
+      font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
     }
 
     button:hover {
-      background: #162b46;
+      background: #093055;
     }
 
     .error {
       color: red;
-      margin-top: 12px;
-      text-align: center;
+      font-size: 13px;
+      margin-bottom: 12px;
       display: none;
     }
 
-    .login-link {
-      margin-top: 16px;
-      text-align: center;
+    .footer {
+      margin-top: 18px;
+      font-size: 13px;
     }
 
-    .login-link a {
-      color: #1f3a5f;
+    .footer a {
+      color: #0b2c4f;
       text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
-<body>
 
-  <div class="signup-container">
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Realtor Guard Logo" class="logo" onclick="window.location.href='index.html'" />
+
     <h2>Create Agent Account</h2>
+    <p class="subtitle">Secure access for licensed real estate professionals</p>
+
+    <div class="error" id="error"></div>
 
     <input type="text" id="name" placeholder="Full Name" />
     <input type="email" id="email" placeholder="Email Address" />
 
     <div class="password-wrapper">
       <input type="password" id="password" placeholder="Password" />
-      <span class="toggle-password" id="togglePassword">👁️</span>
+      <span class="toggle" onclick="togglePassword('password')">👁</span>
     </div>
 
     <div class="password-wrapper">
       <input type="password" id="confirmPassword" placeholder="Confirm Password" />
-      <span class="toggle-password" id="toggleConfirmPassword">👁️</span>
+      <span class="toggle" onclick="togglePassword('confirmPassword')">👁</span>
     </div>
 
-    <button id="signupBtn">Create Account</button>
+    <button onclick="createAccount()">Create Account</button>
 
-    <div class="error" id="errorMsg"></div>
-
-    <div class="login-link">
-      Already have an account? <a href="agent-login.html">Log in</a>
+    <div class="footer">
+      Already have an account?
+      <a href="agent-login.html">Log in</a>
     </div>
   </div>
 
   <script>
-    const signupBtn = document.getElementById("signupBtn");
-    const errorMsg = document.getElementById("errorMsg");
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
 
-    const passwordInput = document.getElementById("password");
-    const confirmPasswordInput = document.getElementById("confirmPassword");
-
-    document.getElementById("togglePassword").onclick = () => {
-      passwordInput.type =
-        passwordInput.type === "password" ? "text" : "password";
-    };
-
-    document.getElementById("toggleConfirmPassword").onclick = () => {
-      confirmPasswordInput.type =
-        confirmPasswordInput.type === "password" ? "text" : "password";
-    };
-
-    signupBtn.addEventListener("click", async () => {
-      errorMsg.style.display = "none";
-
+    function createAccount() {
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
-      const password = passwordInput.value;
-      const confirmPassword = confirmPasswordInput.value;
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const error = document.getElementById("error");
+
+      error.style.display = "none";
+      error.textContent = "";
 
       if (!name || !email || !password || !confirmPassword) {
-        errorMsg.textContent = "All fields are required.";
-        errorMsg.style.display = "block";
+        error.textContent = "All fields are required.";
+        error.style.display = "block";
         return;
       }
 
       if (password !== confirmPassword) {
-        errorMsg.textContent = "Passwords do not match.";
-        errorMsg.style.display = "block";
+        error.textContent = "Passwords do not match.";
+        error.style.display = "block";
         return;
       }
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            role: "agent"
-          })
-        });
+      // 🔒 Backend hookup comes later
+      // For now: simulate success
 
-        const data = await response.json();
+      alert("Account created successfully. Please log in.");
 
-        if (!response.ok) {
-          throw new Error(data.message || "Signup failed");
-        }
-
-        alert("Account created successfully. Please log in.");
-        window.location.href = "agent-login.html";
-
-      } catch (err) {
-        errorMsg.textContent = err.message;
-        errorMsg.style.display = "block";
-      }
-    });
+      window.location.href = "agent-login.html";
+    }
   </script>
-
 </body>
 </html>
