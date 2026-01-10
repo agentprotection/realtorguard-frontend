@@ -23,150 +23,158 @@
     .logo {
       display: flex;
       justify-content: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .logo img {
       width: 160px;
     }
 
-    h1 {
+    .status {
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: bold;
       text-align: center;
-      font-size: 22px;
       margin-bottom: 16px;
+    }
+
+    .status.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status.accepted {
+      background: #d4edda;
+      color: #155724;
     }
 
     .card {
-      background: #fff;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
       border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
     }
 
     .row {
-      margin-bottom: 8px;
-      font-size: 14px;
+      margin-bottom: 10px;
     }
 
-    .row strong {
-      display: inline-block;
-      width: 120px;
-    }
-
-    .status {
-      text-align: center;
+    .label {
       font-weight: bold;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 16px;
     }
 
-    .pending {
-      background: #fff7cc;
-      color: #7a5b00;
-    }
-
-    .accepted {
-      background: #e6f8ec;
-      color: #1e7f3f;
-    }
-
-    .canceled {
-      background: #fdeaea;
-      color: #9f1c1c;
+    .observer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
     }
 
     button {
       width: 100%;
+      margin-top: 16px;
       padding: 12px;
-      font-size: 16px;
-      border: none;
       border-radius: 8px;
+      border: none;
+      font-size: 15px;
       cursor: pointer;
     }
 
-    .cancel-btn {
-      background: #d9534f;
-      color: #fff;
+    .cancel {
+      background: #dc3545;
+      color: white;
     }
   </style>
 </head>
 
 <body>
+
   <div class="page">
 
     <div class="logo">
       <img src="logo.png" alt="Realtor Guard" />
     </div>
 
-    <h1>Request Status</h1>
-
-    <div id="statusBox" class="status pending">
-      Waiting for an observer to accept your request.
+    <div id="statusBanner" class="status pending">
+      Pending – waiting for observer acceptance.
     </div>
 
-    <div class="card" id="requestCard"></div>
+    <div class="card">
 
-    <button id="cancelBtn" class="cancel-btn" style="display:none;">
-      Cancel Request
-    </button>
+      <div class="row"><span class="label">Agent:</span> <span id="agentName"></span></div>
+      <div class="row"><span class="label">Property:</span> <span id="property"></span></div>
+      <div class="row"><span class="label">City:</span> <span id="city"></span></div>
+      <div class="row"><span class="label">State:</span> <span id="state"></span></div>
+      <div class="row"><span class="label">ZIP:</span> <span id="zip"></span></div>
+      <div class="row"><span class="label">Date:</span> <span id="date"></span></div>
+      <div class="row"><span class="label">Time:</span> <span id="time"></span></div>
+      <div class="row"><span class="label">Time Zone:</span> <span id="timezone"></span></div>
+      <div class="row"><span class="label">Duration:</span> <span id="duration"></span> minutes</div>
 
+      <div id="observerSection" class="observer" style="display:none;">
+        <div class="row"><span class="label">Observer:</span> <span id="observerName"></span></div>
+        <div class="row"><span class="label">Agent Proxy:</span> <span id="observerProxy"></span></div>
+      </div>
+
+      <button id="cancelBtn" class="cancel" onclick="cancelRequest()">
+        Cancel Request
+      </button>
+
+    </div>
   </div>
 
-  <script>
-    const request = JSON.parse(localStorage.getItem("activeRequest"));
-    const statusBox = document.getElementById("statusBox");
-    const requestCard = document.getElementById("requestCard");
-    const cancelBtn = document.getElementById("cancelBtn");
+<script>
+function loadRequest() {
+  const request = JSON.parse(localStorage.getItem("activeRequest"));
 
-    if (!request) {
-      statusBox.textContent = "No active request found.";
-      statusBox.className = "status canceled";
-    } else {
-      render();
-    }
+  if (!request) {
+    window.location.href = "agent-dashboard.html";
+    return;
+  }
 
-    function render() {
-      requestCard.innerHTML = `
-        <div class="row"><strong>Agent:</strong> ${request.agentName}</div>
-        <div class="row"><strong>Property:</strong> ${request.propertyAddress}</div>
-        <div class="row"><strong>City:</strong> ${request.city}</div>
-        <div class="row"><strong>State:</strong> ${request.state}</div>
-        <div class="row"><strong>ZIP:</strong> ${request.zip}</div>
-        <div class="row"><strong>Date:</strong> ${request.showingDate}</div>
-        <div class="row"><strong>Time:</strong> ${request.showingTime}</div>
-        <div class="row"><strong>Time Zone:</strong> ${request.timezone}</div>
-        <div class="row"><strong>Duration:</strong> ${request.durationMinutes} minutes</div>
-        <div class="row"><strong>Agent Proxy:</strong> Provided at check-in</div>
-      `;
+  // Populate fields
+  agentName.textContent = request.agentName;
+  property.textContent = request.propertyAddress;
+  city.textContent = request.city;
+  state.textContent = request.state;
+  zip.textContent = request.zip;
+  date.textContent = request.showingDate;
+  time.textContent = request.showingTime;
+  timezone.textContent = request.timezone;
+  duration.textContent = request.durationMinutes || "—";
 
-      if (request.status === "pending") {
-        statusBox.textContent = "Pending – waiting for observer acceptance.";
-        statusBox.className = "status pending";
-        cancelBtn.style.display = "block";
-      }
+  const banner = document.getElementById("statusBanner");
+  const observerSection = document.getElementById("observerSection");
+  const cancelBtn = document.getElementById("cancelBtn");
 
-      if (request.status === "accepted") {
-        statusBox.textContent = "Accepted – observer assigned.";
-        statusBox.className = "status accepted";
-        cancelBtn.style.display = "block";
-      }
+  if (request.status === "pending") {
+    banner.textContent = "Pending – waiting for observer acceptance.";
+    banner.className = "status pending";
+    observerSection.style.display = "none";
+    cancelBtn.style.display = "block";
+  }
 
-      if (request.status === "canceled") {
-        statusBox.textContent = "Canceled – request has been reposted.";
-        statusBox.className = "status canceled";
-        cancelBtn.style.display = "none";
-      }
-    }
+  if (request.status === "accepted") {
+    banner.textContent = "Accepted – observer assigned.";
+    banner.className = "status accepted";
 
-    cancelBtn.addEventListener("click", () => {
-      if (!confirm("Cancel this request?")) return;
-      request.status = "canceled";
-      localStorage.setItem("activeRequest", JSON.stringify(request));
-      render();
-    });
-  </script>
+    observerName.textContent = request.observer.name;
+    observerProxy.textContent = request.observer.proxy;
+
+    observerSection.style.display = "block";
+    cancelBtn.style.display = "none";
+  }
+}
+
+function cancelRequest() {
+  if (!confirm("Cancel this request?")) return;
+  localStorage.removeItem("activeRequest");
+  window.location.href = "agent-dashboard.html";
+}
+
+// Auto-refresh every 3 seconds for observer acceptance
+setInterval(loadRequest, 3000);
+loadRequest();
+</script>
 
 </body>
 </html>
