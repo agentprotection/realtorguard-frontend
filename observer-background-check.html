@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Background Check | Realtor Guard</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:#f6f8fb;
+      display:flex;
+      justify-content:center;
+    }
+    .page{
+      width:100%;
+      max-width:480px;
+      padding:24px;
+    }
+    .logo{
+      display:flex;
+      justify-content:center;
+      margin:18px 0 18px;
+    }
+    .logo img{
+      width:170px;
+      height:auto;
+    }
+    h1{
+      text-align:center;
+      font-size:22px;
+      margin:0 0 10px;
+    }
+    .subtitle{
+      text-align:center;
+      font-size:14px;
+      color:#555;
+      margin:0 0 18px;
+    }
+    .card{
+      background:#fff;
+      border:1px solid #d9d9d9;
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+    .banner{
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:14px;
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      color:#6b5200;
+      font-weight:700;
+      text-align:center;
+    }
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      margin:10px 0;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .label{
+      font-weight:700;
+      min-width:140px;
+    }
+    .value{
+      color:#111;
+      flex:1;
+      word-break:break-word;
+    }
+    .notice{
+      margin-top:14px;
+      font-size:13px;
+      color:#333;
+      line-height:1.4;
+      padding-top:12px;
+      border-top:1px solid #eee;
+    }
+    .notice strong{
+      color:#000;
+    }
+    .btn{
+      width:100%;
+      margin-top:14px;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btnPrimary{
+      background:#0d6efd;
+      color:#fff;
+    }
+    .btnSecondary{
+      background:#f1f3f5;
+      color:#111;
+    }
+    .small{
+      font-size:12px;
+      color:#666;
+      margin-top:10px;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
+    </div>
+
+    <h1>Background Check Required</h1>
+    <p class="subtitle">Next step: complete identity verification with our screening partner.</p>
+
+    <div class="card">
+      <div class="banner">Realtor Guard does NOT collect or store SSNs.</div>
+
+      <div class="row">
+        <div class="label">Screening Partner:</div>
+        <div class="value" id="providerName">Background Check Partner</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Phone Number:</div>
+        <div class="value" id="providerPhone">1-800-000-0000</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Reference ID:</div>
+        <div class="value" id="referenceId">RG-OBS-XXXXXX</div>
+      </div>
+
+      <div class="notice">
+        <p style="margin:0 0 10px;">
+          <strong>What to do now:</strong> Call the screening partner directly and provide your
+          <strong>Reference ID</strong>. They will complete identity and safety screening with you.
+        </p>
+        <p style="margin:0 0 10px;">
+          <strong>Important:</strong> Your Social Security Number (SSN), if required, is provided
+          <strong>only</strong> to the screening partner. Realtor Guard never sees or stores SSNs.
+        </p>
+        <p style="margin:0;">
+          Once completed, the screening partner will notify Realtor Guard with an <strong>approval</strong> or
+          <strong>decline</strong> result. You’ll be able to log in when your status is approved.
+        </p>
+      </div>
+
+      <button class="btn btnPrimary" id="copyBtn">Copy Reference ID</button>
+      <button class="btn btnSecondary" id="backBtn">Back to Login</button>
+
+      <div class="small">
+        Tip: If you already completed your screening, wait for approval confirmation.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ----- CONFIG (Edit these later when you choose a provider) -----
+    const PROVIDER = {
+      name: "Background Check Partner",
+      phone: "1-800-000-0000"
+    };
+
+    // ----- Load reference ID from URL or localStorage -----
+    // URL example: observer-background-check.html?ref=RG-OBS-123456
+    const params = new URLSearchParams(window.location.search);
+    const refFromUrl = params.get("ref");
+
+    const savedApplication = JSON.parse(localStorage.getItem("observerApplication") || "null");
+    const refFromStorage = savedApplication && savedApplication.referenceId ? savedApplication.referenceId : null;
+
+    const referenceId = refFromUrl || refFromStorage || "RG-OBS-XXXXXX";
+
+    document.getElementById("providerName").textContent = PROVIDER.name;
+    document.getElementById("providerPhone").textContent = PROVIDER.phone;
+    document.getElementById("referenceId").textContent = referenceId;
+
+    // ----- Buttons -----
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(referenceId);
+        document.getElementById("copyBtn").textContent = "Copied ✅";
+        setTimeout(() => (document.getElementById("copyBtn").textContent = "Copy Reference ID"), 1500);
+      } catch (e) {
+        alert("Copy failed. Please select and copy the Reference ID manually: " + referenceId);
+      }
+    });
+
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "observer-login.html";
+    });
+  </script>
+</body>
+</html>
