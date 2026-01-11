@@ -3,132 +3,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Observer Account | Realtor Guard</title>
+  <title>Observer Application | Realtor Guard</title>
 
   <style>
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
+      background: #f6f8fb;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo img {
+      width: 160px;
     }
 
     .card {
-      background: #fff;
-      width: 100%;
-      max-width: 420px;
-      padding: 32px;
+      background: #ffffff;
       border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      padding: 22px;
+      border: 1px solid #ddd;
     }
 
-    h2 {
+    h1 {
       text-align: center;
-      color: #0b2c4f;
-      margin-bottom: 24px;
+      font-size: 22px;
+      margin-bottom: 10px;
     }
 
-    input {
-      width: 100%;
-      padding: 14px;
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
       margin-bottom: 16px;
-      font-size: 16px;
+    }
+
+    .notice {
+      background: #eef4ff;
+      border: 1px solid #cfdcff;
       border-radius: 10px;
+      padding: 14px;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
+      font-size: 15px;
       box-sizing: border-box;
     }
 
-    .password-box {
-      position: relative;
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
-    .eye {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 18px;
-      opacity: 0.6;
+    .checkbox {
+      margin-top: 16px;
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .checkbox input {
+      margin-top: 3px;
     }
 
     button {
       width: 100%;
-      padding: 16px;
-      font-size: 18px;
-      border-radius: 12px;
-      border: none;
-      background: #0b2c4f;
+      margin-top: 22px;
+      padding: 14px;
+      background: #0b2d52;
       color: #fff;
-      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
-
-  <div class="card">
-    <h2>Create Observer Account</h2>
-
-    <input id="email" type="email" placeholder="Email" />
-
-    <div class="password-box">
-      <input id="password" type="password" placeholder="Password" />
-      <span class="eye" onclick="togglePassword()">👁</span>
+  <div class="page">
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
     </div>
 
-    <input id="confirm" type="password" placeholder="Confirm Password" />
+    <div class="card">
+      <h1>Observer Application</h1>
+      <div class="subtitle">
+        Create your account and submit for verification
+      </div>
 
-    <button onclick="createAccount()">Create Account</button>
+      <div class="notice">
+        Realtor Guard verifies all observers to help protect agents.
+        <br /><br />
+        <strong>We do not collect or store Social Security Numbers.</strong>
+        After submitting this application, you will be instructed to contact
+        our third-party screening partner directly to complete verification.
+      </div>
+
+      <!-- ACCOUNT -->
+      <label>Email Address</label>
+      <input id="email" type="email" required />
+
+      <label>Create Password</label>
+      <input id="password" type="password" required />
+
+      <!-- PROFILE -->
+      <label>Full Legal Name</label>
+      <input id="name" type="text" required />
+
+      <label>Phone Number</label>
+      <input id="phone" type="tel" required />
+
+      <div class="row">
+        <div>
+          <label>City</label>
+          <input id="city" type="text" required />
+        </div>
+        <div>
+          <label>State</label>
+          <input id="state" type="text" required />
+        </div>
+      </div>
+
+      <label>Street Address</label>
+      <input id="address" type="text" required />
+
+      <label>ZIP Code</label>
+      <input id="zip" type="text" required />
+
+      <div class="checkbox">
+        <input id="consent" type="checkbox" required />
+        <div>
+          I authorize Realtor Guard to conduct background verification through
+          a third-party provider and understand approval is required before
+          accessing the platform.
+        </div>
+      </div>
+
+      <button onclick="submitApplication()">
+        Submit Application
+      </button>
+    </div>
   </div>
 
   <script>
-    function togglePassword() {
-      const p = document.getElementById("password");
-      p.type = p.type === "password" ? "text" : "password";
-    }
-
-    function createAccount() {
-      const email = document.getElementById("email").value.trim().toLowerCase();
-      const password = document.getElementById("password").value;
-      const confirm = document.getElementById("confirm").value;
-
-      if (!email || !password || password !== confirm) {
-        alert("Please enter valid information");
-        return;
-      }
-
-      const users =
-        JSON.parse(localStorage.getItem("observerUsers")) || [];
-
-      if (users.find(u => u.email === email)) {
-        alert("Account already exists");
-        return;
-      }
-
-      users.push({
-        email: email,
-        password: password,
+    function submitApplication() {
+      const observer = {
+        email: document.getElementById("email").value.trim().toLowerCase(),
+        password: document.getElementById("password").value,
+        name: document.getElementById("name").value,
+        phone: document.getElementById("phone").value,
+        address: document.getElementById("address").value,
+        city: document.getElementById("city").value,
+        state: document.getElementById("state").value,
+        zip: document.getElementById("zip").value,
+        status: "pending_verification",
         createdAt: new Date().toISOString()
-      });
+      };
 
-      localStorage.setItem("observerUsers", JSON.stringify(users));
-      localStorage.setItem(
-        "observerSession",
-        JSON.stringify({ email })
-      );
+      if (!observer.email || !observer.password || !observer.name) {
+        alert("Please complete all required fields.");
+        return;
+      }
 
-      window.location.href = "observer-profile.html";
+      if (!document.getElementById("consent").checked) {
+        alert("You must authorize verification to continue.");
+        return;
+      }
+
+      localStorage.setItem("observerAccount", JSON.stringify(observer));
+      window.location.href = "observer-background-check.html";
     }
   </script>
-
 </body>
 </html>
