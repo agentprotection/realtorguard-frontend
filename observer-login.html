@@ -8,17 +8,17 @@
   <style>
     * {
       box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff;
-      color: #000000;
       min-height: 100vh;
+      background: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
+      color: #000;
     }
 
     .container {
@@ -29,91 +29,84 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 32px;
       font-size: 32px;
-      font-weight: 600;
-    }
-
-    .error {
-      display: none;
-      background: #fde8e8;
-      color: #7a1c1c;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-size: 14px;
+      margin-bottom: 32px;
     }
 
     label {
       display: block;
       margin-bottom: 6px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     input {
       width: 100%;
       padding: 14px;
       font-size: 16px;
-      border: 1px solid #cfd6dd;
       border-radius: 8px;
+      border: 1px solid #ccc;
       margin-bottom: 20px;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #2563eb;
     }
 
     .password-wrapper {
       position: relative;
     }
 
-    .toggle-password {
+    .toggle {
       position: absolute;
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 14px;
-      color: #2563eb;
       cursor: pointer;
+      color: #2563eb;
       user-select: none;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      color: #ffffff;
       background: #2563eb;
+      color: #fff;
+      font-size: 18px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #1e4fd8;
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error {
+      display: none;
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #fde8e8;
+      color: #991b1b;
+      font-size: 14px;
     }
 
     .forgot {
-      text-align: center;
       margin-top: 16px;
-      font-size: 14px;
+      text-align: center;
     }
 
     .forgot a {
       color: #2563eb;
       text-decoration: none;
+      font-size: 14px;
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="container">
     <h1>Observer Login</h1>
 
-    <div class="error" id="errorBox"></div>
+    <div id="errorBox" class="error"></div>
 
     <form id="loginForm">
       <label for="email">Email</label>
@@ -132,10 +125,10 @@
           placeholder="Enter your password"
           required
         />
-        <span class="toggle-password" id="togglePassword">Show</span>
+        <span id="togglePassword" class="toggle">Show</span>
       </div>
 
-      <button type="submit">Log In</button>
+      <button id="loginBtn" type="submit">Log In</button>
     </form>
 
     <div class="forgot">
@@ -144,26 +137,25 @@
   </div>
 
   <script>
-    const BACKEND_URL = "https://realtor-guard-production.up.railway.app/login/observer";
+    const BACKEND_URL =
+      "https://realtor-guard-production.up.railway.app/login/observer";
 
     const form = document.getElementById("loginForm");
     const errorBox = document.getElementById("errorBox");
     const passwordInput = document.getElementById("password");
     const togglePassword = document.getElementById("togglePassword");
+    const loginBtn = document.getElementById("loginBtn");
 
     togglePassword.addEventListener("click", () => {
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        togglePassword.textContent = "Hide";
-      } else {
-        passwordInput.type = "password";
-        togglePassword.textContent = "Show";
-      }
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+      togglePassword.textContent = isHidden ? "Hide" : "Show";
     });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorBox.style.display = "none";
+      loginBtn.disabled = true;
 
       const email = document.getElementById("email").value.trim();
       const password = passwordInput.value;
@@ -172,10 +164,16 @@
         const response = await fetch(BACKEND_URL, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
         });
+
+        const contentType = response.headers.get("content-type");
+
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error("Server did not return JSON");
+        }
 
         const data = await response.json();
 
@@ -183,16 +181,17 @@
           throw new Error(data.message || "Login failed");
         }
 
+        // SUCCESS
         localStorage.setItem("observerToken", data.token);
         window.location.href = "observer-dashboard.html";
 
       } catch (err) {
-        errorBox.textContent = err.message || "Unable to connect to server";
+        errorBox.textContent = err.message;
         errorBox.style.display = "block";
+      } finally {
+        loginBtn.disabled = false;
       }
     });
   </script>
-
 </body>
 </html>
-    
