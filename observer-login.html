@@ -15,10 +15,10 @@
       font-family: Arial, Helvetica, sans-serif;
       background: #ffffff;
       color: #000000;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
     }
 
     .container {
@@ -36,11 +36,11 @@
 
     .error {
       display: none;
-      background: #f8d7da;
-      color: #721c24;
+      background: #fde8e8;
+      color: #7a1c1c;
       padding: 12px;
       border-radius: 6px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       text-align: center;
       font-size: 14px;
     }
@@ -48,21 +48,20 @@
     label {
       display: block;
       margin-bottom: 6px;
-      font-size: 14px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     input {
       width: 100%;
       padding: 14px;
       font-size: 16px;
-      border: 1px solid #9ca3af;
+      border: 1px solid #cfd6dd;
       border-radius: 8px;
       margin-bottom: 20px;
-      outline: none;
     }
 
     input:focus {
+      outline: none;
       border-color: #2563eb;
     }
 
@@ -76,29 +75,30 @@
       top: 50%;
       transform: translateY(-50%);
       font-size: 14px;
-      cursor: pointer;
       color: #2563eb;
+      cursor: pointer;
       user-select: none;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      font-size: 18px;
-      background: #2563eb;
+      font-size: 16px;
+      font-weight: 600;
       color: #ffffff;
+      background: #2563eb;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #1d4ed8;
+      background: #1e4fd8;
     }
 
     .forgot {
-      margin-top: 16px;
       text-align: center;
+      margin-top: 16px;
       font-size: 14px;
     }
 
@@ -106,18 +106,14 @@
       color: #2563eb;
       text-decoration: none;
     }
-
-    .forgot a:hover {
-      text-decoration: underline;
-    }
   </style>
 </head>
-
 <body>
+
   <div class="container">
     <h1>Observer Login</h1>
 
-    <div id="error" class="error"></div>
+    <div class="error" id="errorBox"></div>
 
     <form id="loginForm">
       <label for="email">Email</label>
@@ -148,20 +144,20 @@
   </div>
 
   <script>
-    const BACKEND_URL = "https://YOUR-RAILWAY-BACKEND-URL/login/observer";
+    const BACKEND_URL = "https://realtor-guard-production.up.railway.app/login/observer";
 
     const form = document.getElementById("loginForm");
-    const errorBox = document.getElementById("error");
+    const errorBox = document.getElementById("errorBox");
     const passwordInput = document.getElementById("password");
-    const toggle = document.getElementById("togglePassword");
+    const togglePassword = document.getElementById("togglePassword");
 
-    toggle.addEventListener("click", () => {
+    togglePassword.addEventListener("click", () => {
       if (passwordInput.type === "password") {
         passwordInput.type = "text";
-        toggle.textContent = "Hide";
+        togglePassword.textContent = "Hide";
       } else {
         passwordInput.type = "password";
-        toggle.textContent = "Show";
+        togglePassword.textContent = "Show";
       }
     });
 
@@ -173,7 +169,7 @@
       const password = passwordInput.value;
 
       try {
-        const res = await fetch(BACKEND_URL, {
+        const response = await fetch(BACKEND_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -181,27 +177,22 @@
           body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json();
+        const data = await response.json();
 
-        if (!res.ok) {
-          throw new Error(data.message || "Invalid login credentials");
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
         }
 
-        // Optional: block unapproved observers
-        if (data.observer && data.observer.status !== "approved") {
-          throw new Error("Your account is not approved yet.");
-        }
-
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("observer", JSON.stringify(data.observer));
-
+        localStorage.setItem("observerToken", data.token);
         window.location.href = "observer-dashboard.html";
 
       } catch (err) {
-        errorBox.textContent = err.message;
+        errorBox.textContent = err.message || "Unable to connect to server";
         errorBox.style.display = "block";
       }
     });
   </script>
+
 </body>
 </html>
+    
