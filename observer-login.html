@@ -8,125 +8,153 @@
   <style>
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #ffffff;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      justify-content: center;
+      height: 100vh;
     }
 
-    .card {
-      background: #fff;
+    .login-card {
+      background: #111827;
+      padding: 32px;
+      border-radius: 12px;
       width: 100%;
-      max-width: 420px;
-      padding: 28px;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      max-width: 380px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
 
     h1 {
       text-align: center;
       margin-bottom: 24px;
-      color: #0b5ed7;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      display: block;
     }
 
     input {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
       margin-bottom: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 15px;
+      font-size: 14px;
     }
 
-    .password-box {
+    .password-wrapper {
       position: relative;
     }
 
-    .eye {
+    .eye-toggle {
       position: absolute;
-      right: 14px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
       font-size: 14px;
-      color: #555;
-      user-select: none;
+      color: #9ca3af;
     }
 
     button {
       width: 100%;
-      padding: 14px;
-      background: #0b5ed7;
-      color: #fff;
+      padding: 12px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
       font-size: 16px;
       cursor: pointer;
-      margin-top: 8px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .error {
+      background: #7f1d1d;
+      color: #fecaca;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: center;
+      font-size: 14px;
     }
 
     .links {
-      margin-top: 16px;
       text-align: center;
+      margin-top: 16px;
       font-size: 14px;
     }
 
     .links a {
-      color: #0b5ed7;
+      color: #93c5fd;
       text-decoration: none;
     }
 
-    .error {
-      color: #dc3545;
-      text-align: center;
-      margin-top: 12px;
-      font-size: 14px;
+    .links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="card">
+  <div class="login-card">
     <h1>Observer Login</h1>
 
-    <input id="email" type="email" placeholder="Email address" />
+    <div id="errorBox" class="error"></div>
 
-    <div class="password-box">
-      <input id="password" type="password" placeholder="Password" />
-      <span class="eye" onclick="togglePassword()">👁️</span>
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="you@example.com" required />
+
+    <label for="password">Password</label>
+    <div class="password-wrapper">
+      <input type="password" id="password" placeholder="••••••••" required />
+      <span class="eye-toggle" id="togglePassword">Show</span>
     </div>
 
-    <button onclick="login()">Login</button>
+    <button id="loginBtn">Log In</button>
 
     <div class="links">
-      <a href="observer-forgot-password.html">Forgot password?</a>
+      <a href="#">Forgot password?</a>
     </div>
-
-    <div id="error" class="error"></div>
   </div>
 
   <script>
-    function togglePassword() {
-      const password = document.getElementById("password");
-      password.type = password.type === "password" ? "text" : "password";
-    }
+    const loginBtn = document.getElementById("loginBtn");
+    const errorBox = document.getElementById("errorBox");
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
 
-    async function login() {
+    togglePassword.addEventListener("click", () => {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        togglePassword.textContent = "Hide";
+      } else {
+        passwordInput.type = "password";
+        togglePassword.textContent = "Show";
+      }
+    });
+
+    loginBtn.addEventListener("click", async () => {
+      errorBox.style.display = "none";
+      errorBox.textContent = "";
+
       const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const error = document.getElementById("error");
-
-      error.textContent = "";
+      const password = passwordInput.value;
 
       if (!email || !password) {
-        error.textContent = "Please enter email and password.";
+        showError("Please enter both email and password.");
         return;
       }
 
       try {
-        // 🔐 Replace URL with backend endpoint
         const res = await fetch("/api/observer/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -136,22 +164,26 @@
         const data = await res.json();
 
         if (!res.ok) {
-          error.textContent = data.message || "Invalid email or password.";
+          showError(data.message || "Invalid email or password.");
           return;
         }
 
-        // 🧠 STATUS HANDLING (LOCKED LOGIC)
-        if (data.status === "approved") {
-          window.location.href = "observer-dashboard.html";
-        } else if (data.status === "pending") {
-          window.location.href = "observer-pending.html";
-        } else {
-          error.textContent = "Your account is not approved.";
+        if (!data.observer || data.observer.status !== "approved") {
+          showError("Your account is not approved yet.");
+          return;
         }
 
+        localStorage.setItem("observerToken", data.token);
+        window.location.href = "/observer-dashboard.html";
+
       } catch (err) {
-        error.textContent = "Server error. Please try again.";
+        showError("Server error. Please try again.");
       }
+    });
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
     }
   </script>
 
