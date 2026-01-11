@@ -18,17 +18,17 @@
 
     .card {
       background: #ffffff;
-      border-radius: 16px;
-      padding: 32px;
+      border-radius: 14px;
+      padding: 28px;
       width: 100%;
       max-width: 420px;
       text-align: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border: 1px solid #ddd;
     }
 
     img {
       width: 160px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -38,12 +38,12 @@
 
     button {
       width: 100%;
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 16px;
       font-size: 16px;
       border-radius: 10px;
-      border: none;
       cursor: pointer;
+      border: none;
     }
 
     .agent {
@@ -52,9 +52,9 @@
     }
 
     .observer {
-      background: #ffffff;
-      color: #0b2d52;
+      background: white;
       border: 2px solid #0b2d52;
+      color: #0b2d52;
     }
   </style>
 </head>
@@ -62,7 +62,6 @@
 <body>
   <div class="card">
     <img src="logo.png" alt="Realtor Guard" />
-
     <h1>Who are you?</h1>
 
     <button class="agent" onclick="location.href='agent-login.html'">
