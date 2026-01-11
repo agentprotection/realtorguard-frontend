@@ -2,184 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Dashboard | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
-    }
-
-    header {
-      background: #0b2c4f;
-      color: #fff;
-      padding: 16px 24px;
+      background: #f6f8fb;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      justify-content: center;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 20px;
+    .page {
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
     }
 
-    .email {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-right: 16px;
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
     }
 
-    .logout {
-      background: #ffffff;
-      color: #0b2c4f;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
+    .logo img {
+      width: 160px;
     }
 
-    main {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 16px;
+    h1 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 16px;
     }
 
     .card {
-      background: #ffffff;
-      padding: 24px;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-
-    .card h2 {
-      margin-top: 0;
-      color: #0b2c4f;
-    }
-
-    .assignment {
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
       padding: 16px;
       margin-bottom: 16px;
     }
 
-    .assignment strong {
-      display: block;
-      margin-bottom: 6px;
+    .row {
+      margin-bottom: 10px;
     }
 
-    .accept {
-      background: #0f766e;
-      color: #ffffff;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
+    .label {
       font-weight: bold;
+    }
+
+    .status {
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .accepted {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
       cursor: pointer;
       margin-top: 12px;
     }
 
-    .empty {
-      text-align: center;
-      color: #666;
-      padding: 40px 0;
+    .accept {
+      background: #007bff;
+      color: white;
+    }
+
+    .cancel {
+      background: #dc3545;
+      color: white;
     }
   </style>
 </head>
 
 <body>
+  <div class="page">
 
-<header>
-  <h1>Observer Dashboard</h1>
-  <div>
-    <span class="email" id="observerEmail"></span>
-    <button class="logout" onclick="logout()">Logout</button>
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard" />
+    </div>
+
+    <h1>Observer Dashboard</h1>
+
+    <!-- STATUS BANNER -->
+    <div id="statusBanner" class="status pending">
+      Pending assignment
+    </div>
+
+    <!-- REQUEST CARD -->
+    <div class="card">
+      <div class="row"><span class="label">Agent:</span> Marvin Harris</div>
+      <div class="row"><span class="label">Property:</span> 4600 PEEK TRL APT 114</div>
+      <div class="row"><span class="label">City:</span> Chesapeake</div>
+      <div class="row"><span class="label">State:</span> VA</div>
+      <div class="row"><span class="label">Date:</span> 2026-01-23</div>
+      <div class="row"><span class="label">Time:</span> 8:00 AM (ET)</div>
+
+      <!-- ACTION BUTTON -->
+      <button id="actionBtn" class="accept">Accept Assignment</button>
+    </div>
+
   </div>
-</header>
 
-<main>
-  <div class="card">
-    <h2>Available Requests</h2>
-    <div id="assignments"></div>
-  </div>
-</main>
+  <script>
+    let status = "pending"; // pending | accepted
 
-<script>
-  /* -------------------------
-     AUTH GUARD
-  -------------------------- */
-  const session = JSON.parse(localStorage.getItem("observerSession"));
-  if (!session || !session.email) {
-    window.location.href = "observer-login.html";
-  }
+    const banner = document.getElementById("statusBanner");
+    const button = document.getElementById("actionBtn");
 
-  document.getElementById("observerEmail").textContent = session.email;
-
-  /* -------------------------
-     VERIFICATION GUARD
-  -------------------------- */
-  const verification = JSON.parse(localStorage.getItem("observerVerification"));
-
-  if (!verification) {
-    window.location.href = "observer-verification.html";
-  }
-
-  if (verification.status === "pending") {
-    window.location.href = "observer-pending.html";
-  }
-
-  if (verification.status !== "approved") {
-    alert("Your account is not approved.");
-    logout();
-  }
-
-  /* -------------------------
-     ASSIGNMENTS (MOCK)
-  -------------------------- */
-  const assignments = [
-    {
-      address: "120 Main St, Dallas TX",
-      agent: "Sarah Johnson",
-      date: "Jan 12, 2026",
-      time: "3:00 PM",
-      duration: "2 hours",
-      fee: "$75"
+    function render() {
+      if (status === "pending") {
+        banner.textContent = "Pending assignment";
+        banner.className = "status pending";
+        button.textContent = "Accept Assignment";
+        button.className = "accept";
+      } else {
+        banner.textContent = "Accepted assignment";
+        banner.className = "status accepted";
+        button.textContent = "Cancel Assignment";
+        button.className = "cancel";
+      }
     }
-  ];
 
-  const container = document.getElementById("assignments");
-
-  if (assignments.length === 0) {
-    container.innerHTML = `<div class="empty">No assignments available.</div>`;
-  } else {
-    assignments.forEach(a => {
-      const div = document.createElement("div");
-      div.className = "assignment";
-      div.innerHTML = `
-        <strong>${a.address}</strong>
-        Agent: ${a.agent}<br />
-        Date: ${a.date}<br />
-        Time: ${a.time}<br />
-        Duration: ${a.duration}<br />
-        Fee: ${a.fee}<br />
-        <button class="accept">Accept</button>
-      `;
-      container.appendChild(div);
+    button.addEventListener("click", () => {
+      status = status === "pending" ? "accepted" : "pending";
+      render();
     });
-  }
 
-  /* -------------------------
-     LOGOUT
-  -------------------------- */
-  function logout() {
-    localStorage.removeItem("observerSession");
-    window.location.href = "observer-login.html";
-  }
-</script>
+    render();
+  </script>
 
 </body>
 </html>
