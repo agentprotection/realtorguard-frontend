@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Login | Realtor Guard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
@@ -20,7 +20,7 @@
       background: #fff;
       width: 100%;
       max-width: 420px;
-      padding: 32px;
+      padding: 28px;
       border-radius: 14px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
@@ -28,7 +28,7 @@
     h1 {
       text-align: center;
       margin-bottom: 24px;
-      color: #0b2c4f;
+      color: #0b5ed7;
     }
 
     input {
@@ -37,7 +37,7 @@
       margin-bottom: 16px;
       border-radius: 10px;
       border: 1px solid #ccc;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     .password-box {
@@ -50,87 +50,110 @@
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
-      font-size: 18px;
+      font-size: 14px;
+      color: #555;
       user-select: none;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      background: #0b2c4f;
+      background: #0b5ed7;
       color: #fff;
       border: none;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: bold;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
+      margin-top: 8px;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .link {
+    .links {
+      margin-top: 16px;
       text-align: center;
-      margin-top: 18px;
+      font-size: 14px;
     }
 
-    .link a {
-      color: #0b2c4f;
+    .links a {
+      color: #0b5ed7;
       text-decoration: none;
-      font-weight: bold;
+    }
+
+    .error {
+      color: #dc3545;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 14px;
     }
   </style>
 </head>
-
 <body>
+
   <div class="card">
     <h1>Observer Login</h1>
 
-    <input type="email" id="email" placeholder="Email address" />
+    <input id="email" type="email" placeholder="Email address" />
 
     <div class="password-box">
-      <input type="password" id="password" placeholder="Password" />
-      <span class="eye" onclick="togglePassword()">👁</span>
+      <input id="password" type="password" placeholder="Password" />
+      <span class="eye" onclick="togglePassword()">👁️</span>
     </div>
 
     <button onclick="login()">Login</button>
 
-    <div class="link">
-      Need an account?
-      <a href="observer-signup.html">Create one</a>
+    <div class="links">
+      <a href="observer-forgot-password.html">Forgot password?</a>
     </div>
+
+    <div id="error" class="error"></div>
   </div>
 
   <script>
     function togglePassword() {
-      const field = document.getElementById("password");
-      field.type = field.type === "password" ? "text" : "password";
+      const password = document.getElementById("password");
+      password.type = password.type === "password" ? "text" : "password";
     }
 
-    function login() {
-      const email = document.getElementById("email").value.trim().toLowerCase();
-      const password = document.getElementById("password").value;
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      error.textContent = "";
 
       if (!email || !password) {
-        alert("Please enter email and password");
+        error.textContent = "Please enter email and password.";
         return;
       }
 
-      const observers = JSON.parse(localStorage.getItem("observers")) || [];
+      try {
+        // 🔐 Replace URL with backend endpoint
+        const res = await fetch("/api/observer/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-      const match = observers.find(
-        o => o.email.toLowerCase() === email && o.password === password
-      );
+        const data = await res.json();
 
-      if (!match) {
-        alert("Invalid email or password");
-        return;
+        if (!res.ok) {
+          error.textContent = data.message || "Invalid email or password.";
+          return;
+        }
+
+        // 🧠 STATUS HANDLING (LOCKED LOGIC)
+        if (data.status === "approved") {
+          window.location.href = "observer-dashboard.html";
+        } else if (data.status === "pending") {
+          window.location.href = "observer-pending.html";
+        } else {
+          error.textContent = "Your account is not approved.";
+        }
+
+      } catch (err) {
+        error.textContent = "Server error. Please try again.";
       }
-
-      localStorage.setItem("observerSession", JSON.stringify(match));
-      window.location.href = "observer-dashboard.html";
     }
   </script>
+
 </body>
 </html>
