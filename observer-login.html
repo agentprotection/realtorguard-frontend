@@ -13,11 +13,11 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff; /* ALL WHITE */
+      background: #ffffff;
       color: #000000;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       min-height: 100vh;
     }
 
@@ -29,21 +29,19 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
       font-size: 32px;
       font-weight: 600;
-      color: #000000;
     }
 
     .error {
       display: none;
-      margin-bottom: 16px;
+      background: #f8d7da;
+      color: #721c24;
       padding: 12px;
-      border: 1px solid #dc2626;
-      background: #fee2e2;
-      color: #7f1d1d;
-      text-align: center;
       border-radius: 6px;
+      margin-bottom: 16px;
+      text-align: center;
       font-size: 14px;
     }
 
@@ -51,28 +49,21 @@
       display: block;
       margin-bottom: 6px;
       font-size: 14px;
-      font-weight: 500;
-      color: #000000;
+      font-weight: 600;
     }
 
     input {
       width: 100%;
       padding: 14px;
-      margin-bottom: 18px;
       font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #9ca3af; /* GREY OUTLINE */
-      background: #ffffff;       /* WHITE INPUT */
-      color: #000000;            /* BLACK TEXT */
+      border: 1px solid #9ca3af;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      outline: none;
     }
 
     input:focus {
-      outline: none;
-      border-color: #6b7280;
-    }
-
-    input::placeholder {
-      color: #6b7280;
+      border-color: #2563eb;
     }
 
     .password-wrapper {
@@ -81,12 +72,12 @@
 
     .toggle-password {
       position: absolute;
-      right: 12px;
+      right: 14px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 14px;
-      color: #374151;
       cursor: pointer;
+      color: #2563eb;
       user-select: none;
     }
 
@@ -94,10 +85,10 @@
       width: 100%;
       padding: 14px;
       font-size: 18px;
-      border-radius: 6px;
-      border: none;
       background: #2563eb;
       color: #ffffff;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
     }
 
@@ -126,9 +117,7 @@
   <div class="container">
     <h1>Observer Login</h1>
 
-    <div id="error" class="error">
-      Server error. Please try again.
-    </div>
+    <div id="error" class="error"></div>
 
     <form id="loginForm">
       <label for="email">Email</label>
@@ -147,7 +136,7 @@
           placeholder="Enter your password"
           required
         />
-        <span class="toggle-password" onclick="togglePassword()">Show</span>
+        <span class="toggle-password" id="togglePassword">Show</span>
       </div>
 
       <button type="submit">Log In</button>
@@ -159,27 +148,59 @@
   </div>
 
   <script>
-    function togglePassword() {
-      const input = document.getElementById("password");
-      const toggle = document.querySelector(".toggle-password");
+    const BACKEND_URL = "https://YOUR-RAILWAY-BACKEND-URL/login/observer";
 
-      if (input.type === "password") {
-        input.type = "text";
+    const form = document.getElementById("loginForm");
+    const errorBox = document.getElementById("error");
+    const passwordInput = document.getElementById("password");
+    const toggle = document.getElementById("togglePassword");
+
+    toggle.addEventListener("click", () => {
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
         toggle.textContent = "Hide";
       } else {
-        input.type = "password";
+        passwordInput.type = "password";
         toggle.textContent = "Show";
       }
-    }
+    });
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const errorBox = document.getElementById("error");
       errorBox.style.display = "none";
 
-      // TEMP: backend wiring handled separately
-      errorBox.style.display = "block";
+      const email = document.getElementById("email").value.trim();
+      const password = passwordInput.value;
+
+      try {
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Invalid login credentials");
+        }
+
+        // Optional: block unapproved observers
+        if (data.observer && data.observer.status !== "approved") {
+          throw new Error("Your account is not approved yet.");
+        }
+
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("observer", JSON.stringify(data.observer));
+
+        window.location.href = "observer-dashboard.html";
+
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = "block";
+      }
     });
   </script>
 </body>
