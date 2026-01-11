@@ -9,178 +9,180 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f6f8;
+      background: #f6f8fb;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      width: 170px;
     }
 
     .card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 480px;
-      padding: 32px;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 6px;
-      color: #0b2c4f;
+      font-size: 22px;
+      margin-bottom: 8px;
     }
 
-    p {
+    .subtitle {
       text-align: center;
       font-size: 14px;
-      color: #666;
-      margin-bottom: 24px;
+      color: #555;
+      margin-bottom: 16px;
+    }
+
+    .disclaimer {
+      background: #eef4ff;
+      border: 1px solid #cfdcff;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .row {
+      margin-bottom: 12px;
     }
 
     label {
-      font-size: 13px;
-      font-weight: bold;
-      color: #333;
       display: block;
-      margin-bottom: 6px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      font-size: 13px;
     }
 
-    input {
+    input, select {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 16px;
-      border-radius: 8px;
+      padding: 10px;
+      border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 14px;
     }
 
-    input:focus {
-      outline: none;
-      border-color: #0b2c4f;
-    }
-
-    .checkbox {
-      display: flex;
-      align-items: center;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .checkbox input {
-      width: auto;
-      margin-right: 10px;
-    }
-
     button {
       width: 100%;
+      margin-top: 18px;
       padding: 14px;
       border: none;
-      border-radius: 10px;
-      background: #0b7a6b;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
+      border-radius: 8px;
+      background: #1f4ed8;
+      color: #fff;
+      font-size: 15px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #096456;
+      background: #173bb3;
     }
 
     .note {
-      margin-top: 16px;
+      margin-top: 12px;
       font-size: 12px;
-      color: #777;
+      color: #666;
       text-align: center;
     }
   </style>
 </head>
 
 <body>
+  <div class="page">
 
-  <div class="card">
-    <h1>Observer Verification</h1>
-    <p>
-      Before accepting assignments, we must verify your identity
-      and complete a background review.
-    </p>
-
-    <label>Full Legal Name</label>
-    <input id="fullName" placeholder="John Michael Doe" />
-
-    <label>Date of Birth</label>
-    <input id="dob" type="date" />
-
-    <label>Home Address</label>
-    <input id="address" placeholder="123 Main St, City, State ZIP" />
-
-    <label>Phone Number</label>
-    <input id="phone" placeholder="(555) 555-5555" />
-
-    <label>Last 4 Digits of SSN</label>
-    <input id="ssn4" maxlength="4" placeholder="1234" />
-
-    <div class="checkbox">
-      <input id="consent" type="checkbox" />
-      <span>
-        I authorize Realtor Guard to conduct a background check.
-      </span>
+    <div class="logo">
+      <img src="logo.png" alt="Realtor Guard">
     </div>
 
-    <button onclick="submitVerification()">Submit for Review</button>
+    <div class="card">
+      <h1>Observer Verification</h1>
+      <div class="subtitle">
+        Complete verification to become an approved Realtor Guard observer
+      </div>
 
-    <div class="note">
-      Verification typically completes within 24–48 hours.
+      <div class="disclaimer">
+        <strong>Important Notice:</strong><br><br>
+        Realtor Guard does <strong>not</strong> collect or store Social Security Numbers.
+        Background checks are completed directly with our third-party screening provider.
+        After submitting this form, you will be guided to contact the provider yourself
+        to complete identity verification and authorize approval status.
+      </div>
+
+      <form action="observer-background-check.html">
+
+        <div class="row">
+          <label>Full Legal Name</label>
+          <input type="text" required>
+        </div>
+
+        <div class="row">
+          <label>Street Address</label>
+          <input type="text" required>
+        </div>
+
+        <div class="row">
+          <label>City</label>
+          <input type="text" required>
+        </div>
+
+        <div class="row">
+          <label>State</label>
+          <input type="text" required>
+        </div>
+
+        <div class="row">
+          <label>ZIP Code</label>
+          <input type="text" required>
+        </div>
+
+        <div class="row">
+          <label>Phone Number</label>
+          <input type="tel" required>
+        </div>
+
+        <div class="row">
+          <label>Email Address</label>
+          <input type="email" required>
+        </div>
+
+        <div class="row">
+          <label>Create Password</label>
+          <input type="password" required>
+        </div>
+
+        <div class="row">
+          <label>Confirm Password</label>
+          <input type="password" required>
+        </div>
+
+        <button type="submit">
+          Submit Verification
+        </button>
+
+        <div class="note">
+          Approval is required before login access is granted.
+        </div>
+
+      </form>
     </div>
+
   </div>
-
-  <script>
-    const session = JSON.parse(localStorage.getItem("observerSession"));
-
-    if (!session || !session.email) {
-      window.location.href = "observer-login.html";
-    }
-
-    function submitVerification() {
-      const fullName = document.getElementById("fullName").value.trim();
-      const dob = document.getElementById("dob").value;
-      const address = document.getElementById("address").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const ssn4 = document.getElementById("ssn4").value.trim();
-      const consent = document.getElementById("consent").checked;
-
-      if (
-        !fullName ||
-        !dob ||
-        !address ||
-        !phone ||
-        ssn4.length !== 4 ||
-        !consent
-      ) {
-        alert("Please complete all fields and provide consent.");
-        return;
-      }
-
-      const verification = {
-        email: session.email,
-        fullName,
-        dob,
-        address,
-        phone,
-        ssn4,
-        status: "pending",
-        submittedAt: new Date().toISOString()
-      };
-
-      localStorage.setItem(
-        "observerVerification",
-        JSON.stringify(verification)
-      );
-
-      window.location.href = "observer-pending.html";
-    }
-  </script>
-
 </body>
 </html>
