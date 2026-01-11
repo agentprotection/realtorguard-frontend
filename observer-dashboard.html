@@ -20,133 +20,155 @@
       padding: 24px;
     }
 
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-
-    .logo img {
-      width: 160px;
-    }
-
     h1 {
       text-align: center;
-      font-size: 22px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .card {
-      background: #fff;
+      background: #ffffff;
       border: 1px solid #ddd;
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 16px;
     }
 
-    .row {
-      margin-bottom: 10px;
+    .card p {
+      margin: 6px 0;
+      font-size: 14px;
     }
 
-    .label {
+    .fee {
       font-weight: bold;
+      color: #1a7f37;
     }
 
     .status {
-      text-align: center;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 16px;
       font-weight: bold;
-    }
-
-    .pending {
-      background: #fff3cd;
-      color: #856404;
+      margin-top: 8px;
     }
 
     .accepted {
-      background: #d4edda;
-      color: #155724;
+      color: green;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      font-size: 15px;
-      cursor: pointer;
       margin-top: 12px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
     }
 
-    .accept {
-      background: #007bff;
+    .accept-btn {
+      background: #0b5ed7;
       color: white;
     }
 
-    .cancel {
+    .cancel-btn {
       background: #dc3545;
       color: white;
     }
   </style>
 </head>
-
 <body>
+
   <div class="page">
-
-    <div class="logo">
-      <img src="logo.png" alt="Realtor Guard" />
-    </div>
-
-    <h1>Observer Dashboard</h1>
-
-    <!-- STATUS BANNER -->
-    <div id="statusBanner" class="status pending">
-      Pending assignment
-    </div>
-
-    <!-- REQUEST CARD -->
-    <div class="card">
-      <div class="row"><span class="label">Agent:</span> Marvin Harris</div>
-      <div class="row"><span class="label">Property:</span> 4600 PEEK TRL APT 114</div>
-      <div class="row"><span class="label">City:</span> Chesapeake</div>
-      <div class="row"><span class="label">State:</span> VA</div>
-      <div class="row"><span class="label">Date:</span> 2026-01-23</div>
-      <div class="row"><span class="label">Time:</span> 8:00 AM (ET)</div>
-
-      <!-- ACTION BUTTON -->
-      <button id="actionBtn" class="accept">Accept Assignment</button>
-    </div>
-
+    <h1>Available Assignments</h1>
+    <div id="assignmentList"></div>
   </div>
 
   <script>
-    let status = "pending"; // pending | accepted
+    // MOCK OBSERVER PROFILE (replace with backend session data)
+    const observerProfile = {
+      state: "VA",
+      city: "Richmond",
+      zip: "23220"
+    };
 
-    const banner = document.getElementById("statusBanner");
-    const button = document.getElementById("actionBtn");
-
-    function render() {
-      if (status === "pending") {
-        banner.textContent = "Pending assignment";
-        banner.className = "status pending";
-        button.textContent = "Accept Assignment";
-        button.className = "accept";
-      } else {
-        banner.textContent = "Accepted assignment";
-        banner.className = "status accepted";
-        button.textContent = "Cancel Assignment";
-        button.className = "cancel";
+    // MOCK ASSIGNMENTS (replace with API response)
+    const assignments = [
+      {
+        id: 1,
+        address: "123 Main St",
+        city: "Richmond",
+        state: "VA",
+        zip: "23220",
+        agentName: "John Smith",
+        duration: "30 minutes",
+        fee: "$45.00",
+        status: "pending"
+      },
+      {
+        id: 2,
+        address: "88 Bay Ave",
+        city: "Norfolk",
+        state: "VA",
+        zip: "23510",
+        agentName: "Sarah Johnson",
+        duration: "1 hour",
+        fee: "$70.00",
+        status: "pending"
       }
+    ];
+
+    const list = document.getElementById("assignmentList");
+
+    function renderAssignments() {
+      list.innerHTML = "";
+
+      const localAssignments = assignments.filter(a =>
+        a.state === observerProfile.state &&
+        a.city === observerProfile.city &&
+        a.zip === observerProfile.zip
+      );
+
+      if (localAssignments.length === 0) {
+        list.innerHTML = "<p>No assignments available in your area.</p>";
+        return;
+      }
+
+      localAssignments.forEach(a => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <p><strong>Address:</strong> ${a.address}</p>
+          <p><strong>Location:</strong> ${a.city}, ${a.state} ${a.zip}</p>
+          <p><strong>Agent:</strong> ${a.agentName}</p>
+          <p><strong>Duration:</strong> ${a.duration}</p>
+          <p class="fee">Observer Fee: ${a.fee}</p>
+          <p class="status ${a.status === "accepted" ? "accepted" : ""}">
+            Status: ${a.status}
+          </p>
+        `;
+
+        const btn = document.createElement("button");
+
+        if (a.status === "pending") {
+          btn.textContent = "Accept Assignment";
+          btn.className = "accept-btn";
+          btn.onclick = () => {
+            a.status = "accepted";
+            renderAssignments();
+          };
+        } else {
+          btn.textContent = "Cancel Assignment";
+          btn.className = "cancel-btn";
+          btn.onclick = () => {
+            a.status = "pending";
+            renderAssignments();
+          };
+        }
+
+        card.appendChild(btn);
+        list.appendChild(card);
+      });
     }
 
-    button.addEventListener("click", () => {
-      status = status === "pending" ? "accepted" : "pending";
-      render();
-    });
-
-    render();
+    renderAssignments();
   </script>
 
 </body>
