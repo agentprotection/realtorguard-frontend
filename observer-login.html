@@ -1,138 +1,328 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Observer Login | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observer Login | Realtor Guard</title>
 
   <style>
     * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
+    :root{
+      --navy:#0b2d5b;
+      --navy2:#123c73;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#cbd5e1;
+      --bg:#ffffff;
+      --soft:#f8fafc;
+      --danger-bg:#fde8e8;
+      --danger:#991b1b;
+      --shadow: 0 12px 30px rgba(2,6,23,.08);
+      --radius:16px;
+    }
+
+    body{
+      margin:0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #000;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 420px;
-      padding: 32px;
+    .wrap{
+      width:100%;
+      max-width:520px;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 32px;
-      font-size: 32px;
-      font-weight: 600;
+    .card{
+      background: var(--bg);
+      border: 1px solid #eef2f7;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 34px 28px;
     }
 
-    .error {
-      display: none;
-      background: #fdeaea;
-      color: #b00020;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
+    h1{
+      text-align:center;
+      font-size:56px;
+      line-height:1.05;
+      margin:0 0 22px;
+      letter-spacing:-.5px;
+      font-weight:800;
+      color:#000;
     }
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    input {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .toggle {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #2563eb;
-      font-weight: 600;
-    }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
+    .error{
+      display:none;
+      background: var(--danger-bg);
+      color: var(--danger);
+      padding: 16px 18px;
+      border-radius: 14px;
+      margin: 0 0 18px;
       font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
+      text-align:center;
+      border: 1px solid rgba(153,27,27,.15);
     }
 
-    .forgot {
-      text-align: center;
-      margin-top: 24px;
-      color: #2563eb;
-      font-weight: 600;
-      cursor: pointer;
+    label{
+      display:block;
+      font-size:34px;
+      font-weight:800;
+      color:#000;
+      margin: 18px 0 10px;
+    }
+
+    input{
+      width:100%;
+      padding: 18px 18px;
+      font-size:34px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      outline:none;
+      background: #fff;
+    }
+
+    input:focus{
+      border-color: var(--navy2);
+      box-shadow: 0 0 0 3px rgba(18,60,115,.12);
+    }
+
+    .pw-row{
+      position:relative;
+    }
+
+    .eye-btn{
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      padding:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: var(--navy2);
+      font-weight:700;
+      font-size:20px;
+      user-select:none;
+    }
+
+    .eye-btn:focus{
+      outline: 3px solid rgba(18,60,115,.18);
+      border-radius: 12px;
+    }
+
+    .btn{
+      width:100%;
+      margin-top: 22px;
+      padding: 22px 18px;
+      font-size:34px;
+      border:none;
+      border-radius: 16px;
+      background: var(--navy2);
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+      transition: transform .05s ease;
+    }
+
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{ opacity:.65; cursor:not-allowed; }
+
+    .links{
+      text-align:center;
+      margin-top: 18px;
+      font-size:30px;
+    }
+
+    .links a{
+      color: var(--navy2);
+      text-decoration:none;
+      font-weight:800;
+    }
+
+    .hint{
+      margin-top: 18px;
+      font-size: 16px;
+      color: var(--muted);
+      text-align:center;
+      line-height:1.4;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Observer Login</h1>
+  <div class="wrap">
+    <div class="card">
+      <h1>Observer Login</h1>
 
-    <div id="errorBox" class="error"></div>
+      <div id="errorBox" class="error"></div>
 
-    <form id="loginForm">
-      <label>Email</label>
-      <input type="email" required />
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" required />
 
-      <label>Password</label>
-      <div class="password-wrapper">
-        <input id="password" type="password" required />
-        <span id="togglePassword" class="toggle">Show</span>
+        <label for="password">Password</label>
+        <div class="pw-row">
+          <input id="password" type="password" autocomplete="current-password" required />
+          <button id="togglePw" class="eye-btn" type="button" aria-label="Show password">👁</button>
+        </div>
+
+        <button id="loginBtn" class="btn" type="submit">Log In</button>
+      </form>
+
+      <div class="links">
+        <a href="observer-signup.html">New observer? Create account</a>
       </div>
 
-      <button type="submit">Log In</button>
-    </form>
+      <div class="links" style="margin-top:10px;">
+        <a href="observer-auth.html">Forgot password?</a>
+      </div>
 
-    <div class="forgot">Forgot password?</div>
+      <div class="hint" id="hintBox"></div>
+    </div>
   </div>
 
   <script>
-    const form = document.getElementById("loginForm");
-    const errorBox = document.getElementById("errorBox");
-    const passwordInput = document.getElementById("password");
-    const toggle = document.getElementById("togglePassword");
+    // -------- Helpers --------
+    function showError(msg){
+      const box = document.getElementById("errorBox");
+      box.textContent = msg;
+      box.style.display = "block";
+    }
+    function clearError(){
+      const box = document.getElementById("errorBox");
+      box.textContent = "";
+      box.style.display = "none";
+    }
 
-    toggle.addEventListener("click", () => {
-      const hidden = passwordInput.type === "password";
-      passwordInput.type = hidden ? "text" : "password";
-      toggle.textContent = hidden ? "Hide" : "Show";
+    // Try to pull API base URL from config.js without guessing one variable name
+    function getApiBaseUrl(){
+      // Common patterns you may already have:
+      // window.APP_CONFIG = { API_BASE_URL: "https://xxxx.up.railway.app" }
+      // window.APP_CONFIG = { apiBaseUrl: "..." }
+      // window.API_BASE_URL = "..."
+      // window.BACKEND_URL = "..."
+      const c = window.APP_CONFIG || {};
+      return (
+        c.API_BASE_URL ||
+        c.apiBaseUrl ||
+        window.API_BASE_URL ||
+        window.BACKEND_URL ||
+        ""
+      );
+    }
+
+    function joinUrl(base, path){
+      const b = (base || "").replace(/\/+$/,"");
+      const p = (path || "").replace(/^\/+/,"");
+      return b ? (b + "/" + p) : ("/" + p);
+    }
+
+    // -------- Eye toggle --------
+    const pw = document.getElementById("password");
+    const togglePw = document.getElementById("togglePw");
+    togglePw.addEventListener("click", () => {
+      const isHidden = pw.type === "password";
+      pw.type = isHidden ? "text" : "password";
+      togglePw.textContent = isHidden ? "🙈" : "👁";
+      togglePw.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
     });
 
-    form.addEventListener("submit", (e) => {
+    // -------- Login wiring --------
+    const form = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const hintBox = document.getElementById("hintBox");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      errorBox.style.display = "block";
-      errorBox.textContent = "Login service not connected yet (UI test mode).";
+      clearError();
+      loginBtn.disabled = true;
+
+      const email = document.getElementById("email").value.trim();
+      const password = pw.value;
+
+      const API_BASE_URL = getApiBaseUrl();
+
+      // If API_BASE_URL is blank, you will hit GitHub Pages (HTML) and get "not JSON" errors.
+      if (!API_BASE_URL) {
+        showError("Backend URL not set. Configure API base URL in config.js (Railway) then refresh.");
+        hintBox.textContent = "Fix: open config.js and set window.APP_CONFIG.API_BASE_URL to your Railway backend URL (https://....up.railway.app).";
+        loginBtn.disabled = false;
+        return;
+      }
+
+      // Try a small set of likely endpoints (so we don’t get stuck guessing one).
+      const candidates = [
+        "/api/observer/login",
+        "/api/observers/login",
+        "/api/auth/observer/login",
+        "/api/auth/login"
+      ];
+
+      try {
+        let lastErr = "Login failed.";
+        for (const path of candidates) {
+          const url = joinUrl(API_BASE_URL, path);
+
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, role: "observer" })
+          });
+
+          const ct = (res.headers.get("content-type") || "").toLowerCase();
+
+          // If we hit GitHub pages or a 404 HTML page, content-type won't be JSON.
+          if (!ct.includes("application/json")) {
+            lastErr = "Server did not return JSON (wrong backend URL or endpoint).";
+            continue;
+          }
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            lastErr = data.message || "Login failed.";
+            continue;
+          }
+
+          // SUCCESS: save token if provided
+          if (data.token) localStorage.setItem("observerToken", data.token);
+
+          // Handle approval status if backend provides it
+          const status = (data.status || data.approvalStatus || "").toLowerCase();
+
+          if (status === "declined" || status === "rejected") {
+            showError("Your observer account was declined. Access is locked.");
+            loginBtn.disabled = true;
+            return;
+          }
+
+          if (status === "pending") {
+            window.location.href = "observer-pending.html";
+            return;
+          }
+
+          // default approved/unknown = go dashboard
+          window.location.href = "observer-dashboard.html";
+          return;
+        }
+
+        showError(lastErr);
+        hintBox.textContent = "If this keeps happening: confirm your exact Railway endpoint path for observer login (I’ll lock it to one URL).";
+
+      } catch (err) {
+        showError(err && err.message ? err.message : "Network error.");
+      } finally {
+        if (!loginBtn.disabled) loginBtn.disabled = false;
+      }
     });
   </script>
 </body>
