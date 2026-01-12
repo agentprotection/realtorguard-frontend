@@ -6,117 +6,141 @@
   <title>Realtor Guard</title>
 
   <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #d9e0ea;
+      --navy: #0b2a5b;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+    }
+
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
+      margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #333;
     }
 
-    .container {
+    .page {
       width: 100%;
-      max-width: 420px;
+      max-width: 520px;
       padding: 32px 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      box-shadow: var(--shadow);
       text-align: center;
     }
 
     .logo {
-      width: 180px;
-      max-width: 70%;
-      margin-bottom: 24px;
-      cursor: pointer;
+      width: 160px;
+      margin-bottom: 22px;
     }
 
     h1 {
-      font-size: 22px;
-      color: #0b2c4f;
-      margin-bottom: 12px;
+      font-size: 26px;
+      margin-bottom: 10px;
+      color: var(--navy);
     }
 
-    .disclaimer {
-      font-size: 14px;
-      color: #666;
-      line-height: 1.6;
+    p {
+      font-size: 15px;
+      color: var(--muted);
       margin-bottom: 28px;
     }
 
-    .links {
+    .actions {
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
 
-    .link {
+    .btn {
       display: block;
+      width: 100%;
       padding: 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
+      border-radius: 12px;
       font-size: 15px;
-      border: 2px solid #0b2c4f;
-      color: #0b2c4f;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .link.primary {
-      background: #0b2c4f;
+    .btn-primary {
+      background: var(--navy);
       color: #ffffff;
+      border: none;
     }
 
-    .link:hover {
-      transform: translateY(-1px);
+    .btn-primary:hover {
       opacity: 0.95;
     }
 
+    .btn-outline {
+      background: #ffffff;
+      color: var(--navy);
+      border: 2px solid var(--navy);
+    }
+
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+
+    .divider {
+      margin: 26px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
     footer {
-      margin-top: 28px;
+      margin-top: 18px;
       font-size: 12px;
-      color: #999;
+      color: var(--muted);
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="page">
+    <div class="card">
+      <img src="logo.png" alt="Realtor Guard Logo" class="logo" />
 
-    <!-- LOGO -->
-    <img
-      src="logo.png"
-      alt="Realtor Guard Logo"
-      class="logo"
-      onclick="window.location.href='index.html'"
-    />
+      <h1>Welcome to Realtor Guard</h1>
+      <p>Select how you want to continue</p>
 
-    <!-- BRAND MESSAGE -->
-    <h1>Welcome to Realtor Guard</h1>
+      <div class="actions">
+        <!-- AGENT FLOW -->
+        <a href="agent-login.html" class="btn btn-primary">Agent Login</a>
+        <a href="agent-signup.html" class="btn btn-outline">New Agent Signup</a>
 
-    <p class="disclaimer">
-      Realtor Guard is a safety-first platform designed to protect real estate
-      professionals during showings while creating paid opportunities for verified observers.
-      Please choose the option that best describes you to continue.
-    </p>
+        <div class="divider">— Observers —</div>
 
-    <!-- NAVIGATION LINKS -->
-    <div class="links">
-      <a href="agent-signup.html" class="link primary">New Agent</a>
-      <a href="agent-login.html" class="link">Agent Login</a>
-      <a href="observer-signup.html" class="link primary">New Observer</a>
-      <a href="observer-login.html" class="link">Observer Login</a>
+        <!-- OBSERVER FLOW -->
+        <a href="observer-login.html" class="btn btn-primary">Observer Login</a>
+        <a href="observer-verification.html" class="btn btn-outline">
+          New Observer (Signup & Verification)
+        </a>
+      </div>
+
+      <footer>
+        © Realtor Guard. All rights reserved.
+      </footer>
     </div>
-
-    <footer>
-      © Realtor Guard — Safety. Accountability. Trust.
-    </footer>
-
   </div>
 </body>
 </html>
