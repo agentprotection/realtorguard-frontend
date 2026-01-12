@@ -2,207 +2,166 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Observer Signup | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observer Application | Realtor Guard</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f6f8fb;
+      min-height: 100vh;
+      background: #ffffff;
       display: flex;
       justify-content: center;
+      align-items: center;
+      color: #000;
     }
 
-    .page {
+    .container {
       width: 100%;
-      max-width: 520px;
-      padding: 24px;
-    }
-
-    .logo {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .logo img {
-      width: 160px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 22px;
-      border: 1px solid #ddd;
+      max-width: 420px;
+      padding: 32px;
     }
 
     h1 {
       text-align: center;
-      font-size: 22px;
-      margin-bottom: 10px;
+      font-size: 32px;
+      margin-bottom: 28px;
+      font-weight: 600;
     }
 
-    .subtitle {
+    .error {
+      display: none;
+      background: #fdeaea;
+      color: #b00020;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
       text-align: center;
       font-size: 14px;
-      color: #555;
-      margin-bottom: 16px;
-    }
-
-    .notice {
-      background: #eef4ff;
-      border: 1px solid #cfdcff;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 13px;
-      color: #333;
-      margin-bottom: 18px;
-      line-height: 1.4;
     }
 
     label {
       display: block;
-      font-weight: bold;
-      margin-top: 12px;
-      font-size: 13px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 15px;
-      box-sizing: border-box;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .checkbox {
-      margin-top: 16px;
+      margin-bottom: 6px;
+      font-weight: 600;
       font-size: 14px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
     }
 
-    .checkbox input {
-      margin-top: 3px;
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #cfd6dd;
+      margin-bottom: 18px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #2563eb;
+      font-weight: 600;
+      font-size: 14px;
+      user-select: none;
     }
 
     button {
       width: 100%;
-      margin-top: 22px;
-      padding: 14px;
-      background: #0b2d52;
-      color: #fff;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #2563eb;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
+      border-radius: 12px;
       cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
-    <div class="logo">
-      <img src="logo.png" alt="Realtor Guard" />
-    </div>
+  <div class="container">
+    <h1>Observer Signup</h1>
 
-    <div class="card">
-      <h1>Observer Application</h1>
-      <div class="subtitle">
-        Create your account and submit for verification
-      </div>
+    <div id="errorBox" class="error"></div>
 
-      <div class="notice">
-        Realtor Guard verifies all observers to help protect agents.
-        <br /><br />
-        <strong>We do not collect or store Social Security Numbers.</strong>
-        After submitting this application, you will be instructed to contact
-        our third-party screening partner directly to complete verification.
-      </div>
-
-      <!-- ACCOUNT -->
-      <label>Email Address</label>
+    <form id="signupForm">
+      <label>Email</label>
       <input id="email" type="email" required />
 
-      <label>Create Password</label>
-      <input id="password" type="password" required />
-
-      <!-- PROFILE -->
-      <label>Full Legal Name</label>
-      <input id="name" type="text" required />
-
-      <label>Phone Number</label>
-      <input id="phone" type="tel" required />
-
-      <div class="row">
-        <div>
-          <label>City</label>
-          <input id="city" type="text" required />
-        </div>
-        <div>
-          <label>State</label>
-          <input id="state" type="text" required />
-        </div>
+      <label>Password</label>
+      <div class="password-wrapper">
+        <input id="password" type="password" required />
+        <span id="togglePassword" class="toggle">Show</span>
       </div>
 
-      <label>Street Address</label>
-      <input id="address" type="text" required />
-
-      <label>ZIP Code</label>
-      <input id="zip" type="text" required />
-
-      <div class="checkbox">
-        <input id="consent" type="checkbox" required />
-        <div>
-          I authorize Realtor Guard to conduct background verification through
-          a third-party provider and understand approval is required before
-          accessing the platform.
-        </div>
+      <label>Confirm Password</label>
+      <div class="password-wrapper">
+        <input id="confirmPassword" type="password" required />
+        <span id="toggleConfirm" class="toggle">Show</span>
       </div>
 
-      <button onclick="submitApplication()">
-        Submit Application
-      </button>
-    </div>
+      <button type="submit">Create Account</button>
+    </form>
   </div>
 
   <script>
-    function submitApplication() {
-      const observer = {
-        email: document.getElementById("email").value.trim().toLowerCase(),
-        password: document.getElementById("password").value,
-        name: document.getElementById("name").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        city: document.getElementById("city").value,
-        state: document.getElementById("state").value,
-        zip: document.getElementById("zip").value,
-        status: "pending_verification",
-        createdAt: new Date().toISOString()
-      };
+    const form = document.getElementById("signupForm");
+    const errorBox = document.getElementById("errorBox");
 
-      if (!observer.email || !observer.password || !observer.name) {
-        alert("Please complete all required fields.");
+    const passwordInput = document.getElementById("password");
+    const confirmInput = document.getElementById("confirmPassword");
+
+    const togglePassword = document.getElementById("togglePassword");
+    const toggleConfirm = document.getElementById("toggleConfirm");
+
+    togglePassword.addEventListener("click", () => {
+      const hidden = passwordInput.type === "password";
+      passwordInput.type = hidden ? "text" : "password";
+      togglePassword.textContent = hidden ? "Hide" : "Show";
+    });
+
+    toggleConfirm.addEventListener("click", () => {
+      const hidden = confirmInput.type === "password";
+      confirmInput.type = hidden ? "text" : "password";
+      toggleConfirm.textContent = hidden ? "Hide" : "Show";
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      errorBox.style.display = "none";
+
+      if (passwordInput.value !== confirmInput.value) {
+        errorBox.textContent = "Passwords do not match.";
+        errorBox.style.display = "block";
         return;
       }
 
-      if (!document.getElementById("consent").checked) {
-        alert("You must authorize verification to continue.");
-        return;
-      }
-
-      localStorage.setItem("observerAccount", JSON.stringify(observer));
-      window.location.href = "observer-background-check.html";
-    }
+      // Frontend-only flow: proceed to verification
+      window.location.href = "observer-verification.html";
+    });
   </script>
 </body>
 </html>
