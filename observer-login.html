@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,18 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
       background: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
       color: #000;
     }
 
@@ -29,21 +28,32 @@
 
     h1 {
       text-align: center;
-      font-size: 32px;
       margin-bottom: 32px;
+      font-size: 32px;
+      font-weight: 600;
+    }
+
+    .error {
+      display: none;
+      background: #fdeaea;
+      color: #b00020;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     label {
-      display: block;
-      margin-bottom: 6px;
       font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
     }
 
     input {
       width: 100%;
       padding: 14px;
       font-size: 16px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid #ccc;
       margin-bottom: 20px;
     }
@@ -54,50 +64,33 @@
 
     .toggle {
       position: absolute;
-      right: 14px;
+      right: 16px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 14px;
       cursor: pointer;
       color: #2563eb;
-      user-select: none;
+      font-weight: 600;
     }
 
     button {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background: #2563eb;
       color: #fff;
-      font-size: 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
       cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .error {
-      display: none;
-      margin-bottom: 20px;
-      padding: 12px;
-      border-radius: 6px;
-      background: #fde8e8;
-      color: #991b1b;
-      font-size: 14px;
+      margin-top: 10px;
     }
 
     .forgot {
-      margin-top: 16px;
       text-align: center;
-    }
-
-    .forgot a {
+      margin-top: 24px;
       color: #2563eb;
-      text-decoration: none;
-      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -109,88 +102,37 @@
     <div id="errorBox" class="error"></div>
 
     <form id="loginForm">
-      <label for="email">Email</label>
-      <input
-        id="email"
-        type="email"
-        placeholder="you@example.com"
-        required
-      />
+      <label>Email</label>
+      <input type="email" required />
 
-      <label for="password">Password</label>
+      <label>Password</label>
       <div class="password-wrapper">
-        <input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          required
-        />
+        <input id="password" type="password" required />
         <span id="togglePassword" class="toggle">Show</span>
       </div>
 
-      <button id="loginBtn" type="submit">Log In</button>
+      <button type="submit">Log In</button>
     </form>
 
-    <div class="forgot">
-      <a href="#">Forgot password?</a>
-    </div>
+    <div class="forgot">Forgot password?</div>
   </div>
 
   <script>
-    const BACKEND_URL =
-      "https://realtor-guard-production.up.railway.app/login/observer";
-
     const form = document.getElementById("loginForm");
     const errorBox = document.getElementById("errorBox");
     const passwordInput = document.getElementById("password");
-    const togglePassword = document.getElementById("togglePassword");
-    const loginBtn = document.getElementById("loginBtn");
+    const toggle = document.getElementById("togglePassword");
 
-    togglePassword.addEventListener("click", () => {
-      const isHidden = passwordInput.type === "password";
-      passwordInput.type = isHidden ? "text" : "password";
-      togglePassword.textContent = isHidden ? "Hide" : "Show";
+    toggle.addEventListener("click", () => {
+      const hidden = passwordInput.type === "password";
+      passwordInput.type = hidden ? "text" : "password";
+      toggle.textContent = hidden ? "Hide" : "Show";
     });
 
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
-      errorBox.style.display = "none";
-      loginBtn.disabled = true;
-
-      const email = document.getElementById("email").value.trim();
-      const password = passwordInput.value;
-
-      try {
-        const response = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        const contentType = response.headers.get("content-type");
-
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Server did not return JSON");
-        }
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Login failed");
-        }
-
-        // SUCCESS
-        localStorage.setItem("observerToken", data.token);
-        window.location.href = "observer-dashboard.html";
-
-      } catch (err) {
-        errorBox.textContent = err.message;
-        errorBox.style.display = "block";
-      } finally {
-        loginBtn.disabled = false;
-      }
+      errorBox.style.display = "block";
+      errorBox.textContent = "Login service not connected yet (UI test mode).";
     });
   </script>
 </body>
