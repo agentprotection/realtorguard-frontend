@@ -3,186 +3,342 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observer Verification | Realtor Guard</title>
+  <title>Observer Signup & Verification | Realtor Guard</title>
 
   <style>
-    body {
-      margin: 0;
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --border:#d9dee7;
+      --soft:#eef2ff;
+      --softBorder:#c7d2fe;
+      --navy:#0b2a5b;
+      --danger:#b91c1c;
+      --success:#065f46;
+      --shadow: 0 14px 35px rgba(15, 23, 42, 0.10);
+      --radius: 16px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f6f8fb;
-      display: flex;
-      justify-content: center;
+      background: var(--bg);
+      color: var(--text);
+      display:flex;
+      justify-content:center;
     }
 
-    .page {
-      width: 100%;
-      max-width: 480px;
-      padding: 24px;
+    /* FORCE ALL LINKS NAVY */
+    a, a:visited, a:hover, a:active{
+      color: var(--navy);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
+    .page{
+      width:100%;
+      max-width:720px;
+      padding:26px 18px 60px;
     }
 
-    .logo img {
-      width: 170px;
+    .logo{
+      display:flex;
+      justify-content:center;
+      margin-bottom:18px;
+    }
+    .logo img{
+      width:190px;
+      max-width:70vw;
     }
 
-    .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 20px;
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:26px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 22px;
-      margin-bottom: 8px;
+    h1{
+      margin:6px 0 8px;
+      text-align:center;
+      font-size:42px;
     }
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 16px;
+    .sub{
+      text-align:center;
+      color:var(--muted);
+      font-size:20px;
+      margin-bottom:18px;
     }
 
-    .disclaimer {
-      background: #eef4ff;
-      border: 1px solid #cfdcff;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 13px;
-      color: #333;
-      margin-bottom: 20px;
+    .notice{
+      background:var(--soft);
+      border:2px solid var(--softBorder);
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:22px;
     }
 
-    .row {
-      margin-bottom: 12px;
+    .notice strong{
+      display:block;
+      font-size:22px;
+      margin-bottom:8px;
     }
 
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
-      font-size: 13px;
+    .notice p{
+      margin:0;
+      font-size:18px;
+      line-height:1.45;
     }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
+    label{
+      font-weight:800;
+      font-size:18px;
+      margin:10px 0 6px;
+      display:block;
     }
 
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      background: #1f4ed8;
-      color: #fff;
-      font-size: 15px;
-      cursor: pointer;
+    input, select{
+      width:100%;
+      padding:14px;
+      border:2px solid #111827;
+      border-radius:10px;
+      font-size:18px;
     }
 
-    button:hover {
-      background: #173bb3;
+    input:focus, select:focus{
+      border-color:var(--navy);
+      outline:none;
+      box-shadow:0 0 0 3px rgba(11,42,91,.15);
     }
 
-    .note {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #666;
-      text-align: center;
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    @media(max-width:640px){
+      .grid{ grid-template-columns:1fr; }
+      h1{ font-size:34px; }
+    }
+
+    .pw-wrap{
+      position:relative;
+    }
+
+    .pw-wrap input{
+      padding-right:46px;
+    }
+
+    .eye-btn{
+      position:absolute;
+      right:10px;
+      top:50%;
+      transform:translateY(-50%);
+      width:34px;
+      height:34px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:10px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .file{
+      border:2px dashed #111827;
+      padding:14px;
+      border-radius:12px;
+    }
+
+    .checkline{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+      font-size:16px;
+    }
+
+    .checkline input{
+      width:18px;
+      height:18px;
+      margin-top:4px;
+    }
+
+    .actions{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      background:#111827;
+      color:#fff;
+      border:none;
+      padding:14px 18px;
+      border-radius:12px;
+      font-size:18px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .btn.secondary{
+      background:#fff;
+      color:#111827;
+      border:2px solid #111827;
+    }
+
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+    .msg{
+      display:none;
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      font-size:16px;
+    }
+
+    .msg.error{
+      background:#fee2e2;
+      color:var(--danger);
+      border:1px solid #fecaca;
+    }
+
+    .msg.ok{
+      background:#dcfce7;
+      color:var(--success);
+      border:1px solid #bbf7d0;
+    }
+
+    .footer-links{
+      margin-top:18px;
+      text-align:center;
+      font-size:16px;
+      color:var(--muted);
     }
   </style>
 </head>
 
 <body>
   <div class="page">
-
     <div class="logo">
       <img src="logo.png" alt="Realtor Guard">
     </div>
 
     <div class="card">
-      <h1>Observer Verification</h1>
-      <div class="subtitle">
-        Complete verification to become an approved Realtor Guard observer
+      <h1>Observer Signup & Verification</h1>
+      <p class="sub">Complete signup and verification to become an approved Realtor Guard observer</p>
+
+      <div class="notice">
+        <strong>Important Notice</strong>
+        <p>
+          Realtor Guard does <b>not</b> collect or store Social Security Numbers.
+          Background checks are completed directly with our third-party screening provider.
+        </p>
       </div>
 
-      <div class="disclaimer">
-        <strong>Important Notice:</strong><br><br>
-        Realtor Guard does <strong>not</strong> collect or store Social Security Numbers.
-        Background checks are completed directly with our third-party screening provider.
-        After submitting this form, you will be guided to contact the provider yourself
-        to complete identity verification and authorize approval status.
-      </div>
+      <form id="observerForm" novalidate>
+        <div class="grid">
+          <div>
+            <label>Email</label>
+            <input type="email" required>
+          </div>
 
-      <form action="observer-background-check.html">
+          <div>
+            <label>Full Legal Name</label>
+            <input type="text" required>
+          </div>
 
-        <div class="row">
-          <label>Full Legal Name</label>
-          <input type="text" required>
+          <div>
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input id="pw1" type="password" required minlength="8">
+              <button type="button" class="eye-btn" onclick="toggle('pw1')">👁️</button>
+            </div>
+          </div>
+
+          <div>
+            <label>Confirm Password</label>
+            <div class="pw-wrap">
+              <input id="pw2" type="password" required minlength="8">
+              <button type="button" class="eye-btn" onclick="toggle('pw2')">👁️</button>
+            </div>
+          </div>
+
+          <div>
+            <label>Street Address</label>
+            <input type="text" required>
+          </div>
+
+          <div>
+            <label>City</label>
+            <input type="text" required>
+          </div>
+
+          <div>
+            <label>State</label>
+            <select required>
+              <option value="">Select</option>
+              <option>VA</option><option>MD</option><option>DC</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Zip Code</label>
+            <input type="text" required>
+          </div>
+
+          <div style="grid-column:1/-1">
+            <label>Profile Photo</label>
+            <input class="file" type="file" accept="image/*" required>
+          </div>
         </div>
 
-        <div class="row">
-          <label>Street Address</label>
-          <input type="text" required>
+        <div class="checkline">
+          <input type="checkbox" required>
+          <span>I understand a background check is required.</span>
         </div>
 
-        <div class="row">
-          <label>City</label>
-          <input type="text" required>
+        <div class="actions">
+          <button class="btn" type="submit">Submit & Continue</button>
+          <button class="btn secondary" type="button" onclick="location.href='observer-login.html'">
+            Already have an account? Login
+          </button>
         </div>
 
-        <div class="row">
-          <label>State</label>
-          <input type="text" required>
+        <div id="msg" class="msg"></div>
+
+        <div class="footer-links">
+          By continuing you agree to our
+          <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
         </div>
-
-        <div class="row">
-          <label>ZIP Code</label>
-          <input type="text" required>
-        </div>
-
-        <div class="row">
-          <label>Phone Number</label>
-          <input type="tel" required>
-        </div>
-
-        <div class="row">
-          <label>Email Address</label>
-          <input type="email" required>
-        </div>
-
-        <div class="row">
-          <label>Create Password</label>
-          <input type="password" required>
-        </div>
-
-        <div class="row">
-          <label>Confirm Password</label>
-          <input type="password" required>
-        </div>
-
-        <button type="submit">
-          Submit Verification
-        </button>
-
-        <div class="note">
-          Approval is required before login access is granted.
-        </div>
-
       </form>
     </div>
-
   </div>
+
+  <script>
+    function toggle(id){
+      const i=document.getElementById(id);
+      i.type=i.type==='password'?'text':'password';
+    }
+
+    document.getElementById('observerForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      document.getElementById('msg').className='msg ok';
+      document.getElementById('msg').style.display='block';
+      document.getElementById('msg').innerText='Redirecting to background check…';
+      setTimeout(()=>location.href='observer-background-check.html',700);
+    });
+  </script>
 </body>
 </html>
