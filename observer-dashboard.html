@@ -6,170 +6,124 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    :root {
+      --navy: #0a2540;
+      --green: #16a34a;
+      --gray: #6b7280;
+      --light: #f8fafc;
+      --border: #e5e7eb;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f6f8fb;
+      font-family: Arial, sans-serif;
+      background: var(--light);
+      color: var(--navy);
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .page {
-      width: 100%;
-      max-width: 420px;
-      padding: 24px;
+    header h1 {
+      font-size: 20px;
+      margin: 0;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+    header button {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 16px;
     }
 
     .card {
-      background: #ffffff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .card p {
-      margin: 6px 0;
-      font-size: 14px;
-    }
-
-    .fee {
-      font-weight: bold;
-      color: #1a7f37;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 24px;
     }
 
     .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-weight: bold;
-      margin-top: 8px;
+      font-size: 16px;
     }
 
-    .accepted {
-      color: green;
+    .status span {
+      color: var(--green);
     }
 
-    button {
-      margin-top: 12px;
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+    }
+
+    .empty h3 {
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+
+    .footer-note {
+      text-align: center;
       font-size: 14px;
-      cursor: pointer;
-    }
-
-    .accept-btn {
-      background: #0b5ed7;
-      color: white;
-    }
-
-    .cancel-btn {
-      background: #dc3545;
-      color: white;
+      color: var(--gray);
+      margin-top: 40px;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="page">
-    <h1>Available Assignments</h1>
-    <div id="assignmentList"></div>
-  </div>
+  <header>
+    <h1>Observer Dashboard</h1>
+    <button type="button">Logout</button>
+  </header>
 
-  <script>
-    // MOCK OBSERVER PROFILE (replace with backend session data)
-    const observerProfile = {
-      state: "VA",
-      city: "Richmond",
-      zip: "23220"
-    };
+  <main>
 
-    // MOCK ASSIGNMENTS (replace with API response)
-    const assignments = [
-      {
-        id: 1,
-        address: "123 Main St",
-        city: "Richmond",
-        state: "VA",
-        zip: "23220",
-        agentName: "John Smith",
-        duration: "30 minutes",
-        fee: "$45.00",
-        status: "pending"
-      },
-      {
-        id: 2,
-        address: "88 Bay Ave",
-        city: "Norfolk",
-        state: "VA",
-        zip: "23510",
-        agentName: "Sarah Johnson",
-        duration: "1 hour",
-        fee: "$70.00",
-        status: "pending"
-      }
-    ];
+    <!-- STATUS -->
+    <div class="card">
+      <div class="status">
+        Status: <span>Approved</span>
+      </div>
+      <p>
+        You are approved and eligible to accept assignments.
+      </p>
+    </div>
 
-    const list = document.getElementById("assignmentList");
+    <!-- ASSIGNMENTS -->
+    <div class="card">
+      <div class="empty">
+        <h3>No assignments available</h3>
+        <p>
+          When an agent submits a request in your area, it will appear here.
+        </p>
+      </div>
+    </div>
 
-    function renderAssignments() {
-      list.innerHTML = "";
+    <div class="footer-note">
+      Realtor Guard will notify you when new assignments are available.
+    </div>
 
-      const localAssignments = assignments.filter(a =>
-        a.state === observerProfile.state &&
-        a.city === observerProfile.city &&
-        a.zip === observerProfile.zip
-      );
-
-      if (localAssignments.length === 0) {
-        list.innerHTML = "<p>No assignments available in your area.</p>";
-        return;
-      }
-
-      localAssignments.forEach(a => {
-        const card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-          <p><strong>Address:</strong> ${a.address}</p>
-          <p><strong>Location:</strong> ${a.city}, ${a.state} ${a.zip}</p>
-          <p><strong>Agent:</strong> ${a.agentName}</p>
-          <p><strong>Duration:</strong> ${a.duration}</p>
-          <p class="fee">Observer Fee: ${a.fee}</p>
-          <p class="status ${a.status === "accepted" ? "accepted" : ""}">
-            Status: ${a.status}
-          </p>
-        `;
-
-        const btn = document.createElement("button");
-
-        if (a.status === "pending") {
-          btn.textContent = "Accept Assignment";
-          btn.className = "accept-btn";
-          btn.onclick = () => {
-            a.status = "accepted";
-            renderAssignments();
-          };
-        } else {
-          btn.textContent = "Cancel Assignment";
-          btn.className = "cancel-btn";
-          btn.onclick = () => {
-            a.status = "pending";
-            renderAssignments();
-          };
-        }
-
-        card.appendChild(btn);
-        list.appendChild(card);
-      });
-    }
-
-    renderAssignments();
-  </script>
+  </main>
 
 </body>
 </html>
