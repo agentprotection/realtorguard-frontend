@@ -157,14 +157,26 @@
     }
 
     // Duration dropdown (30 min increments)
-    function buildDurations() {
-      for (let i = 0.5; i <= 6; i += 0.5) {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = i === 1 ? "1 hour" : `${i} hours`;
-        durationSelect.appendChild(opt);
-      }
-    }
+    // Duration dropdown (30 min increments, max 4 hours)
+function buildDurations() {
+  const durations = [
+    { value: 30, label: "30 minutes" },
+    { value: 60, label: "1 hour" },
+    { value: 90, label: "1 hour 30 minutes" },
+    { value: 120, label: "2 hours" },
+    { value: 150, label: "2 hours 30 minutes" },
+    { value: 180, label: "3 hours" },
+    { value: 210, label: "3 hours 30 minutes" },
+    { value: 240, label: "4 hours" }
+  ];
+
+  durations.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.value;
+    opt.textContent = d.label;
+    durationSelect.appendChild(opt);
+  });
+}
 
     buildTimes();
     buildDurations();
