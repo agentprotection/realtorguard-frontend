@@ -140,7 +140,7 @@ function loadRequest() {
   date.textContent = request.showingDate;
   time.textContent = request.showingTime;
   timezone.textContent = request.timezone;
-  duration.textContent = request.durationMinutes || "—";
+ duration.textContent = request.duration || "-";
 
   const banner = document.getElementById("statusBanner");
   const observerSection = document.getElementById("observerSection");
