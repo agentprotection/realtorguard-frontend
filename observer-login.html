@@ -157,17 +157,56 @@
   </div>
 
   <script>
-    if (!window.API_BASE_URL) {
-      document.getElementById("configAlert").style.display = "block";
+<script>
+  // Safety check: API base URL
+  if (!window.API_BASE_URL) {
+    alert("API base URL not configured. Check config.js");
+  }
+
+  function togglePassword() {
+    const input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+  }
+
+  async function loginObserver() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      alert("Please enter email and password.");
+      return;
     }
 
-    function togglePassword() {
-      const input = document.getElementById("password");
-      input.type = input.type === "password" ? "text" : "password";
-   
-  
- 
-}
+    try {
+      const response = await fetch(`${window.API_BASE_URL}/api/auth/observer/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      // Save token + observer info
+      localStorage.setItem("observerToken", data.token);
+      localStorage.setItem("observer", JSON.stringify(data.observer));
+
+      // Redirect to observer dashboard
+      window.location.href = "observer-dashboard.html";
+
+    } catch (err) {
+      console.error("Observer login error:", err);
+      alert("Server error. Please try again.");
+    }
+  }
+</script>
+
   </script>
 
 </body>
