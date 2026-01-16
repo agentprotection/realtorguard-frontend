@@ -132,7 +132,7 @@
       Backend URL not set. Configure API base URL in <b>config.js</b> (Railway) then refresh.
     </div>
 
-    <form id="loginForm">
+   <form id="loginForm" onsubmit="event.preventDefault(); loginObserver();">
       <label>Email</label>
       <input type="email" id="email" required />
 
