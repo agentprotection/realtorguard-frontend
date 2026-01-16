@@ -183,10 +183,7 @@ async function loginObserver() {
 
     const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      alert(data.message || "Login failed");
-      return;
-    }
+    
 
     // TEMP (mock backend success)
     window.location.href = "observer-dashboard.html";
