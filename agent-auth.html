@@ -146,9 +146,23 @@
     */
 
     function login() {
-      localStorage.setItem("rg_agent_logged_in", "true");
-      window.location.href = "agent-dashboard.html";
-    }
+  const email = document.querySelector('input[type="email"]').value.trim();
+  const password = document.querySelector('input[type="password"]').value.trim();
+
+  if (!email || !password) {
+    alert("Please enter email and password.");
+    return;
+  }
+
+  // TEMP role routing (frontend only)
+  if (email.toLowerCase().includes("observer")) {
+    localStorage.setItem("rg_observer_logged_in", "true");
+    window.location.href = "observer-dashboard.html";
+  } else {
+    localStorage.setItem("rg_agent_logged_in", "true");
+    window.location.href = "agent-dashboard.html";
+  }
+}
 
     function goBack() {
       window.location.href = "choose-role.html";
