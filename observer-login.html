@@ -148,13 +148,6 @@
 </p>
     </form>
 
-    <div class="links">
-      <p>
-        New observer?
-        <a href="observer-verification.html">Signup & Verification</a>
-      </p>
-    </div>
-  </div>
 <script src="config.js"></script>
  <script>
   function togglePassword() {
@@ -163,6 +156,7 @@
   }
 
   async function loginObserver() {
+      alert("loginObserver fired");
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
