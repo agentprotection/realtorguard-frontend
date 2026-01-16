@@ -142,7 +142,7 @@
        <span class="toggle" onclick="togglePassword()">👁</span>
       </div>
 
-      <button type="submit">Login</button>
+     <button type="button" onclick="loginObserver()">Login</button>
       <p class="forgot">
   <a href="#">Forgot password?</a>
 </p>
@@ -166,11 +166,9 @@
       input.type = input.type === "password" ? "text" : "password";
     }
 
-    document.getElementById("loginForm").addEventListener("submit", e => {
-      e.preventDefault();
-      if (!window.API_BASE_URL) return;
-      // Auth call wired when backend URL is live
-    });
+  
+ 
+}
   </script>
 
 </body>
