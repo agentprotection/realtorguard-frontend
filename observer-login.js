@@ -1,45 +1,29 @@
-console.log("observer-login.js loaded");
+// observer-login.js
+// FINAL: Observer login flow test + proper form handling
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Elements
-  const passwordInput = document.getElementById("password");
-  const emailInput = document.getElementById("email");
-  const toggleIcon = document.getElementById("togglePassword");
-  const loginBtn = document.getElementById("loginBtn");
+  const form = document.getElementById("observerLoginForm");
 
-  // Guard checks
-  if (!passwordInput || !emailInput || !toggleIcon || !loginBtn) {
-    console.error("Observer login elements missing", {
-      passwordInput,
-      emailInput,
-      toggleIcon,
-      loginBtn,
-    });
+  // Safety check
+  if (!form) {
+    console.error("Observer login form not found");
     return;
   }
 
-  // 👁 Toggle password visibility
-  toggleIcon.addEventListener("click", () => {
-    passwordInput.type =
-      passwordInput.type === "password" ? "text" : "password";
-  });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); // 🔑 STOP PAGE RELOAD
 
-  // 🔐 Login handler
-  loginBtn.addEventListener("click", async () => {
-    console.log("Observer login clicked");
+    console.log("Observer login submit fired");
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-if (!email || !password) {
-  alert("Please enter email and password");
-  return;
-}
+    // TEMP SUCCESS REDIRECT (FLOW TEST)
+    // This confirms JS + navigation are working
+    window.location.href = "observer-dashboard.html";
+    return;
 
-// TEMP SUCCESS REDIRECT (FLOW TEST)
-window.location.href = "observer-dashboard.html";
-    is thib
-      return;
-    }
+    /*
+    // 🔒 REAL LOGIN (we will enable this next)
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
     try {
       const response = await fetch(
@@ -60,16 +44,11 @@ window.location.href = "observer-dashboard.html";
         return;
       }
 
-      console.log("Observer login success", data);
-
-      // Save token
-      localStorage.setItem("observerToken", data.token);
-
-      // Redirect
       window.location.href = "observer-dashboard.html";
     } catch (err) {
-      console.error("Observer login error", err);
-      alert("Server error. Please try again.");
+      console.error("Login error:", err);
+      alert("Server error. Try again.");
     }
+    */
   });
 });
