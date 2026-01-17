@@ -30,9 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
+if (!email || !password) {
+  alert("Please enter email and password");
+  return;
+}
 
-    if (!email || !password) {
-      alert("Please enter email and password");
+// TEMP SUCCESS REDIRECT (FLOW TEST)
+window.location.href = "observer-dashboard.html";
+    is thib
       return;
     }
 
