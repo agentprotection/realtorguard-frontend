@@ -1,4 +1,4 @@
-alert("observer login script loaded");
+console.log("observer-login.js loaded");
 
 function togglePassword() {
   const input = document.getElementById("password");
