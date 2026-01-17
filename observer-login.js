@@ -1,32 +1,70 @@
 console.log("observer-login.js loaded");
 
-function togglePassword() {
-  const input = document.getElementById("password");
-  if (!input) {
-    alert("password input not found");
-    return;
-  }
-  input.type = input.type === "password" ? "text" : "password";
-}
-
-async function loginObserver() {
-  alert("loginObserver fired");
-
-  const emailInput = document.getElementById("email");
+document.addEventListener("DOMContentLoaded", () => {
+  // Elements
   const passwordInput = document.getElementById("password");
+  const emailInput = document.getElementById("email");
+  const toggleIcon = document.getElementById("togglePassword");
+  const loginBtn = document.getElementById("loginBtn");
 
-  if (!emailInput || !passwordInput) {
-    alert("email or password input missing");
+  // Guard checks
+  if (!passwordInput || !emailInput || !toggleIcon || !loginBtn) {
+    console.error("Observer login elements missing", {
+      passwordInput,
+      emailInput,
+      toggleIcon,
+      loginBtn,
+    });
     return;
   }
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+  // 👁 Toggle password visibility
+  toggleIcon.addEventListener("click", () => {
+    passwordInput.type =
+      passwordInput.type === "password" ? "text" : "password";
+  });
 
-  if (!email || !password) {
-    alert("Please enter email and password.");
-    return;
-  }
+  // 🔐 Login handler
+  loginBtn.addEventListener("click", async () => {
+    console.log("Observer login clicked");
 
-  alert("Inputs captured correctly");
-}
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${window.API_BASE_URL}/observer/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      console.log("Observer login success", data);
+
+      // Save token
+      localStorage.setItem("observerToken", data.token);
+
+      // Redirect
+      window.location.href = "observer-dashboard.html";
+    } catch (err) {
+      console.error("Observer login error", err);
+      alert("Server error. Please try again.");
+    }
+  });
+});
