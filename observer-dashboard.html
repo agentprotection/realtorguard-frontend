@@ -4,184 +4,93 @@
   <meta charset="UTF-8" />
   <title>Observer Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    :root {
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: #d0d7e2;
-      --navy: #0b2a5b;
-      --green: #15803d;
-      --yellow: #ca8a04;
-      --red: #b91c1c;
-      --radius: 16px;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .container {
-      max-width: 860px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    h1 {
-      margin-bottom: 6px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-
-    .status {
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .status.pending span { color: var(--yellow); }
-    .status.approved span { color: var(--green); }
-    .status.denied span { color: var(--red); }
-
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .assignment {
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      margin-top: 16px;
-    }
-
-    .assignment h3 {
-      margin: 0 0 6px;
-    }
-
-    .btn {
-      margin-top: 12px;
-      padding: 12px 18px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn.accept {
-      background: var(--navy);
-      color: white;
-    }
-
-    .btn.cancel {
-      background: #e5e7eb;
-    }
-
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--muted);
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <div class="container">
-    <h1>Observer Dashboard</h1>
-    <div class="subtitle">Welcome to Realtor Guard</div>
 
-    <!-- ===================== -->
-    <!-- STATUS: PENDING -->
-    <!-- ===================== -->
-    <div class="card">
-      <div class="status pending">
-        Status: <span>Pending Approval</span>
-      </div>
+  <!-- LOGIN / GATE SECTION -->
+  <div id="loginSection">
+   <h2 id="dashboardTitle">Observer Dashboard</h2>
+ <p id="dashboardSubtitle">
+  Please enter your email and password to continue.
+</p>
 
-      <p>
-        Your background check is currently under review by our screening partner.
-      </p>
+    <input
+      type="email"
+      id="email"
+      placeholder="Email"
+      required
+    />
 
-      <p class="muted">
-        You will gain full access once approved. No action is required at this time.
-      </p>
-    </div>
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      required
+    />
 
-    <!-- ===================== -->
-    <!-- STATUS: APPROVED -->
-    <!-- ===================== -->
-    <div class="card">
-      <div class="status approved">
-        Status: <span>Approved</span>
-      </div>
+    <button id="enterDashboardBtn">
+      Enter Dashboard
+    </button>
 
-      <p>
-        You are approved and eligible to accept assignments in your area.
-      </p>
-    </div>
-
-    <!-- ===================== -->
-    <!-- ASSIGNMENTS -->
-    <!-- ===================== -->
-    <div class="card">
-      <h2>Available Assignments</h2>
-
-     <div class="assignment">
-  <h3>Property Showing Request</h3>
-
-  <p><strong>Agent:</strong> Marvin Harris</p>
-  <p><strong>Property:</strong> 4600 PEEK TRL APT 114</p>
-  <p><strong>City:</strong> Chesapeake, VA</p>
-  <p><strong>Date:</strong> Jan 16, 2026</p>
-  <p><strong>Time:</strong> 8:00 AM (ET)</p>
-  <p><strong>Duration:</strong> 2 hours</p>
-
-  <div class="actions">
-    <button class="btn accept" id="acceptBtn" onclick="acceptAssignment()">Accept Assignment</button>
-    <button class="btn cancel hidden" id="cancelBtn" onclick="cancelAssignment()">Cancel Assignment</button>
+    <p id="loginError" style="color:red; display:none;"></p>
   </div>
-</div>
+
+  <!-- DASHBOARD SECTION -->
+  <div id="dashboardSection" style="display:none;">
+    <h2>New Observer Assignments</h2>
+
+    <div class="assignment-card">
+      <p><strong>Property:</strong> 123 Main St</p>
+      <p><strong>City:</strong> Richmond, VA</p>
+      <button>Accept Assignment</button>
     </div>
 
-    <!-- ===================== -->
-    <!-- STATUS: DENIED -->
-    <!-- ===================== -->
-    <div class="card">
-      <div class="status denied">
-        Status: <span>Not Approved</span>
-      </div>
-
-      <p>
-        Your application was not approved based on our screening process.
-      </p>
-
-      <p class="muted">
-        This decision is final. If you believe this is an error, please contact support.
-      </p>
-    </div>
-
-    <footer>
-      Realtor Guard © 2026
-    </footer>
+    <!-- more assignments will go here -->
   </div>
+
+  <script>
+    // =========================
+    // TEMP MOCK DATA (V1)
+    // =========================
+    const APPROVED_OBSERVER_EMAIL = "approved@observer.com";
+    const APPROVED_OBSERVER_PASSWORD = "password123";
+    const OBSERVER_STATUS = "approved"; // approved | pending
+
+    const loginSection = document.getElementById("loginSection");
+    const dashboardSection = document.getElementById("dashboardSection");
+    const errorText = document.getElementById("loginError");
+
+    document
+      .getElementById("enterDashboardBtn")
+      .addEventListener("click", () => {
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        // Check approval first
+        if (OBSERVER_STATUS !== "approved") {
+          window.location.href = "observer-pending.html";
+          return;
+        }
+
+        // Check credentials
+        if (
+          email !== APPROVED_OBSERVER_EMAIL ||
+          password !== APPROVED_OBSERVER_PASSWORD
+        ) {
+          errorText.textContent = "Invalid email or password.";
+          errorText.style.display = "block";
+          return;
+        }
+
+        document.getElementById("dashboardTitle").textContent = "Welcome";
+document.getElementById("dashboardSubtitle").style.display = "none";
+        // SUCCESS → SHOW DASHBOARD
+        loginSection.style.display = "none";
+        dashboardSection.style.display = "block";
+      });
+  </script>
+
 </body>
 </html>
