@@ -25,17 +25,27 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* Agent Login Logo – SINGLE SOURCE OF TRUTH */
 .login-logo {
-  display: block;
-  margin: -8px auto 20px auto;
   width: 220px;
- max-width: 220px;
+  max-width: 90%;
   height: auto;
+  display: block;
+  margin: 0 auto 24px;
 }
 
 @media (max-width: 480px) {
   .login-logo {
-    max-width: 120px;
+    width: 180px;
+  }
+}
+ 
+
+/* Agent Login Logo – Final Size */
+
+@media (max-width: 480px) {
+  .login-logo {
+    max-width: 180px;
   }
 }
 
