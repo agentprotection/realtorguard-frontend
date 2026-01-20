@@ -5,6 +5,9 @@
   <title>Agent Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Global config -->
+  <script src="config.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -18,192 +21,188 @@
       width: 100%;
       max-width: 420px;
       padding: 24px;
-    }
-
-    .logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 24px;
+      text-align: center;
     }
 
     .logo img {
-      width: 160px;
+      width: 140px;
+      margin: 20px auto 10px;
+      display: block;
     }
 
     h1 {
-      text-align: center;
       font-size: 22px;
-      margin-bottom: 8px;
-    }
-
-    p.subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 24px;
-    }
-
-    label {
-      display: block;
-      font-size: 14px;
       margin-bottom: 6px;
-      margin-top: 16px;
     }
 
-    input, select, button {
+    p {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    input {
       width: 100%;
       padding: 12px;
+      margin-bottom: 12px;
       font-size: 15px;
-      border-radius: 10px;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #555;
     }
 
     button {
-      margin-top: 20px;
-      background: #0b2a4a;
+      width: 100%;
+      padding: 12px;
+      background: #0f2a44;
       color: #fff;
+      font-size: 15px;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
+      margin-top: 10px;
     }
 
-    button.secondary {
-      background: #e5e7eb;
-      color: #111;
+    .forgot {
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .forgot a {
+      color: #0f2a44;
+      text-decoration: none;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .dashboard {
+      display: none;
+      text-align: left;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
 
 <body>
-<script>
-  // Agent dashboard auth guard
-  const token = localStorage.getItem("authToken");
-  const role = localStorage.getItem("userRole");
+  <div class="page">
 
-  if (!token || role !== "agent") {
-    window.location.href = "agent-login.html";
-  }
-</script>
-<div class="page">
-
+    <!-- LOGO -->
     <div class="logo">
       <img src="logo.png" alt="Realtor Guard Logo" />
     </div>
 
-    <h1>Request an Observer</h1>
-    <p class="subtitle">Submit details for your property showing</p>
+    <!-- LOGIN SECTION -->
+    <div id="loginBox">
+      <h1>Agent Dashboard</h1>
+      <p>Please enter your email and password to continue.</p>
 
-    <form id="agentRequestForm">
+      <input id="email" type="email" placeholder="Email" />
 
-      <label>Agent Full Name</label>
-      <input type="text" id="agentName" required />
+      <div class="password-wrapper">
+        <input id="password" type="password" placeholder="Password" />
+        <span class="toggle-eye" onclick="togglePassword()">👁</span>
+      </div>
 
-      <label>Property Address</label>
-      <input type="text" id="propertyAddress" required />
+      <button onclick="loginAgent()">Enter Dashboard</button>
 
-      <label>City</label>
-      <input type="text" id="city" required />
+      <div class="forgot">
+        <a href="#">Forgot password?</a>
+      </div>
 
-      <label>State</label>
-      <select id="state" required>
-     
+      <div id="error" class="error"></div>
+    </div>
 
-<option value="VA">Virginia</option>
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard" class="dashboard">
+      <h2>Welcome, Agent</h2>
 
-<option value="AL" disabled>Alabama (Coming Soon)</option>
-<option value="AK" disabled>Alaska (Coming Soon)</option>
-<option value="AZ" disabled>Arizona (Coming Soon)</option>
-<option value="AR" disabled>Arkansas (Coming Soon)</option>
-<option value="CA" disabled>California (Coming Soon)</option>
-<option value="CO" disabled>Colorado (Coming Soon)</option>
-<option value="CT" disabled>Connecticut (Coming Soon)</option>
-<option value="DE" disabled>Delaware (Coming Soon)</option>
-<option value="FL" disabled>Florida (Coming Soon)</option>
-<option value="GA" disabled>Georgia (Coming Soon)</option>
-<option value="MD" disabled>Maryland (Coming Soon)</option>
-<option value="NC" disabled>North Carolina (Coming Soon)</option>
-<option value="NJ" disabled>New Jersey (Coming Soon)</option>
-<option value="NY" disabled>New York (Coming Soon)</option>
-<option value="PA" disabled>Pennsylvania (Coming Soon)</option>
-<option value="SC" disabled>South Carolina (Coming Soon)</option>
-<option value="TX" disabled>Texas (Coming Soon)</option>
-      </select>
+      <div class="card">
+        <strong>Create Request</strong>
+        <p>Submit a new property verification request.</p>
+      </div>
 
-      <label>ZIP Code</label>
-      <input type="text" id="zip" pattern="\d{5}" placeholder="5-digit ZIP" required />
+      <div class="card">
+        <strong>Request Status</strong>
+        <p>Track your active and completed requests.</p>
+      </div>
 
-      <label>Showing Date</label>
-      <input type="date" id="showingDate" required onkeydown="return false" />
-
-      <label>Showing Time</label>
-      <select id="showingTime" required></select>
-
-      <label>Time Zone</label>
-      <select id="timezone" required>
-        <option value="ET">Eastern (ET)</option>
-        <option value="CT">Central (CT)</option>
-        <option value="MT">Mountain (MT)</option>
-        <option value="PT">Pacific (PT)</option>
-      </select>
-
-     <label>Showing Duration</label>
-<input
-  type="text"
-  id="duration"
-  placeholder="e.g. 30 minutes or 1 hour"
-  required
-/>
-
-      <button type="submit">Request Observer</button>
-      <button type="button" class="secondary" onclick="location.reload()">Refresh Form</button>
-    </form>
+      <button onclick="logout()">Log Out</button>
+    </div>
 
   </div>
 
   <script>
-    const timeSelect = document.getElementById("showingTime");
+    const token = localStorage.getItem("authToken");
+    const role = localStorage.getItem("userRole");
 
-    function addTimes() {
-      for (let h = 8; h <= 20; h++) {
-        for (let m of [0, 30]) {
-          if (h === 20 && m === 30) continue;
-          const hour = h > 12 ? h - 12 : h;
-          const ampm = h >= 12 ? "PM" : "AM";
-          const minute = m === 0 ? "00" : "30";
-          const text = `${hour}:${minute} ${ampm}`;
-          const opt = document.createElement("option");
-          opt.value = text;
-          opt.textContent = text;
-          timeSelect.appendChild(opt);
-        }
+    if (token && role === "agent") {
+      showDashboard();
+    }
+
+    function togglePassword() {
+      const pass = document.getElementById("password");
+      pass.type = pass.type === "password" ? "text" : "password";
+    }
+
+    async function loginAgent() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorBox = document.getElementById("error");
+
+      errorBox.textContent = "";
+
+      try {
+        const res = await fetch(`${window.API_BASE_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role: "agent" })
+        });
+
+        if (!res.ok) throw new Error("Invalid login");
+
+        const data = await res.json();
+
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("userRole", "agent");
+
+        showDashboard();
+      } catch (err) {
+        errorBox.textContent = "Invalid email or password.";
       }
     }
 
-    addTimes();
+    function showDashboard() {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+    }
 
-    document.getElementById("agentRequestForm").addEventListener("submit", e => {
-      e.preventDefault();
-
-      const requestId = "req_" + Date.now();
-
-      const request = {
-        id: requestId,
-        status: "pending",
-        agentName: agentName.value,
-        propertyAddress: propertyAddress.value,
-        city: city.value,
-        state: state.value,
-        zip: zip.value,
-        showingDate: showingDate.value,
-        showingTime: showingTime.value,
-        timezone: timezone.value,
-        duration: duration.value
-      };
-
-      localStorage.setItem("activeRequest", JSON.stringify(request));
-      window.location.href = `agent-request-status.html?requestId=${requestId}`;
-    });
+    function logout() {
+      localStorage.clear();
+      location.reload();
+    }
   </script>
-
 </body>
 </html>
