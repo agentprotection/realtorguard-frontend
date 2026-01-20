@@ -170,9 +170,9 @@ togglePassword.addEventListener("click", () => {
 
         const data = await res.json();
 
-        if (!res.ok || !data.success) {
-          throw new Error(data.message || "Login failed");
-        }
+       if (!res.ok || !data.token) {
+  throw new Error(data.message || "Invalid email or password");
+}
 
         // STORE MOCK AUTH DATA
         localStorage.setItem("authToken", data.token);
