@@ -44,7 +44,20 @@
       <p><strong>Property:</strong> 123 Main St</p>
       <p><strong>City:</strong> Richmond, VA</p>
       <button>Accept Assignment</button>
-    </div>
+    </div><!-- PROFILE COMPLETION GATE -->
+<div id="profileGate" style="display:none;">
+  <h2>Complete Your Profile</h2>
+
+  <div class="assignment-card">
+    <label>Full Name</label>
+    <input type="text" id="observerName" placeholder="Your full legal name" />
+
+    <label>Phone Number</label>
+    <input type="tel" id="observerPhone" placeholder="555-555-5555" />
+
+    <button onclick="submitObserverProfile()">Save Profile</button>
+  </div>
+</div>
 
     <!-- more assignments will go here -->
   </div>
