@@ -1,54 +1,19 @@
-// observer-login.js
-// FINAL: Observer login flow test + proper form handling
+function loginObserver() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const errorDiv = document.getElementById("error");
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("observerLoginForm");
+  errorDiv.textContent = "";
 
-  // Safety check
-  if (!form) {
-    console.error("Observer login form not found");
+  // Basic validation
+  if (!email || !password) {
+    errorDiv.textContent = "Please enter email and password.";
     return;
   }
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault(); // 🔑 STOP PAGE RELOAD
+  // FRONTEND-ONLY AUTH (mirror agent login)
+  localStorage.setItem("observerApproved", "true");
 
-    console.log("Observer login submit fired");
-
-    // TEMP SUCCESS REDIRECT (FLOW TEST)
-    // This confirms JS + navigation are working
-    window.location.href = "observer-dashboard.html";
-    return;
-
-    /*
-    // 🔒 REAL LOGIN (we will enable this next)
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    try {
-      const response = await fetch(
-        `${window.API_BASE_URL}/observer/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.message || "Login failed");
-        return;
-      }
-
-      window.location.href = "observer-dashboard.html";
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Server error. Try again.");
-    }
-    */
-  });
-});
+  // Redirect to observer dashboard
+  window.location.href = "observer-dashboard.html";
+}
