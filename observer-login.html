@@ -29,4 +29,77 @@
     .logo {
       width: 170px;
       margin-bottom: 20px;
-    
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #0b1f44;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0b1f44;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #102d63;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+    <img src="images/realtor-guard-logo.png" alt="Realtor Guard Logo" class="logo" />
+
+    <h2>Observer Login</h2>
+
+    <input type="email" id="email" placeholder="Email address" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <button onclick="loginObserver()">Login</button>
+
+    <div id="error" class="error"></div>
+  </div>
+
+  <script>
+    function loginObserver() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+
+      errorDiv.textContent = "";
+
+      if (!email || !password) {
+        errorDiv.textContent = "Please enter email and password.";
+        return;
+      }
+
+      // Backend auth will be wired here
+      errorDiv.textContent = "Observer authentication not yet enabled.";
+    }
+  </script>
+
+</body>
+</html>
