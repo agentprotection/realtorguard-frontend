@@ -95,10 +95,15 @@
         errorDiv.textContent = "Please enter email and password.";
         return;
       }
-// TEMP FRONTEND LOGIN (mirror agent login)
-localStorage.setItem("observerApproved", "true");
+// TEMP approval gate (frontend only)
+const isApproved = localStorage.getItem("observerApproved") === "true";
 
-// Redirect to observer dashboard
+if (!isApproved) {
+  errorDiv.textContent = "Your account is pending approval.";
+  return;
+}
+
+// Approved → redirect to dashboard
 window.location.href = "observer-dashboard.html";
       
   </script>
