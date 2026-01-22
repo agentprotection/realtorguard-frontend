@@ -13,36 +13,10 @@
 </head>
 <body>
 
-  <!-- LOGIN / GATE SECTION -->
-  <div id="loginSection">
-   <h2 id="dashboardTitle">Observer Dashboard</h2>
- <p id="dashboardSubtitle">
-  Please enter your email and password to continue.
-</p>
-
-    <input
-      type="email"
-      id="email"
-      placeholder="Email"
-      required
-    />
-
-    <input
-      type="password"
-      id="password"
-      placeholder="Password"
-      required
-    />
-
-    <button id="enterDashboardBtn">
-      Enter Dashboard
-    </button>
-
-    <p id="loginError" style="color:red; display:none;"></p>
-  </div>
+ 
 
   <!-- DASHBOARD SECTION -->
-  <div id="dashboardSection" style="display:none;">
+  <div id="dashboardSection">
     <h2>New Observer Assignments</h2>
 
     <div class="assignment-card">
@@ -68,7 +42,22 @@
   </div>
 
   <script>
-   
+// Guard: prevent direct access if not approved
+const isApproved = localStorage.getItem("observerApproved") === "true";
+
+if (!isApproved) {
+  window.location.href = "observer-login.html";
+}
+
+// Logout handler
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("observerApproved");
+    window.location.href = "observer-login.html";
+  });
+}
+
 
       </script>
 
