@@ -2,15 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Redirecting...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Login | Realtor Guard</title>
 
-  <!-- Agent login page permanently disabled -->
-  <script>
-    window.location.replace("agent-dashboard.html");
-  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #ffffff;
+      padding: 30px;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      width: 170px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #0b1f44;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0b1f44;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #102d63;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 
 <body>
-  <p>Redirecting to dashboard…</p>
+
+  <div class="login-container">
+    <img src="images/realtor-guard-logo.png" alt="Realtor Guard Logo" class="logo" />
+
+    <h2>Agent Login</h2>
+
+    <input type="email" id="email" placeholder="Email address" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <button onclick="loginAgent()">Login</button>
+
+    <div id="error" class="error"></div>
+  </div>
+
+  <script>
+    function loginAgent() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+
+      errorDiv.textContent = "";
+
+      if (!email || !password) {
+        errorDiv.textContent = "Please enter email and password.";
+        return;
+      }
+
+      // TEMP AUTH (DEV MODE)
+      if (email === "agent@test.com" && password === "password123") {
+        window.location.href = "agent-dashboard.html";
+      } else {
+        errorDiv.textContent = "Invalid email or password.";
+      }
+    }
+  </script>
+
 </body>
 </html>
+      
