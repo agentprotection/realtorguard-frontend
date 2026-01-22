@@ -95,10 +95,12 @@
         errorDiv.textContent = "Please enter email and password.";
         return;
       }
+// TEMP FRONTEND LOGIN (mirror agent login)
+localStorage.setItem("observerApproved", "true");
 
-      // Backend auth will be wired here
-      errorDiv.textContent = "Observer authentication not yet enabled.";
-    }
+// Redirect to observer dashboard
+window.location.href = "observer-dashboard.html";
+      
   </script>
 
 </body>
