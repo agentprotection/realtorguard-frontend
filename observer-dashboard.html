@@ -68,47 +68,9 @@
   </div>
 
   <script>
-    // =========================
-    // TEMP MOCK DATA (V1)
-    // =========================
-    const APPROVED_OBSERVER_EMAIL = "approved@observer.com";
-    const APPROVED_OBSERVER_PASSWORD = "password123";
-    const OBSERVER_STATUS = "approved"; // approved | pending
+   
 
-    const loginSection = document.getElementById("loginSection");
-    const dashboardSection = document.getElementById("dashboardSection");
-    const errorText = document.getElementById("loginError");
-
-    document
-      .getElementById("enterDashboardBtn")
-      .addEventListener("click", () => {
-
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-
-        // Check approval first
-        if (OBSERVER_STATUS !== "approved") {
-          window.location.href = "observer-pending.html";
-          return;
-        }
-
-        // Check credentials
-        if (
-          email !== APPROVED_OBSERVER_EMAIL ||
-          password !== APPROVED_OBSERVER_PASSWORD
-        ) {
-          errorText.textContent = "Invalid email or password.";
-          errorText.style.display = "block";
-          return;
-        }
-
-        document.getElementById("dashboardTitle").textContent = "Welcome";
-document.getElementById("dashboardSubtitle").style.display = "none";
-        // SUCCESS → SHOW DASHBOARD
-        loginSection.style.display = "none";
-        dashboardSection.style.display = "block";
-      });
-  </script>
+      </script>
 
 </body>
 </html>
