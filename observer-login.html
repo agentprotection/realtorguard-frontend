@@ -5,154 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Login | Realtor Guard</title>
 
-  <script src="config.js"></script>
-
   <style>
-    :root {
-      --bg: #f6f8fb;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: #d0d7e2;
-      --navy: #0b2a5b;
-      --danger: #b91c1c;
-      --radius: 16px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
       display: flex;
-      justify-content: center;
       align-items: center;
-      padding: 24px;
+      justify-content: center;
+      height: 100vh;
     }
 
-    .card {
+    .login-container {
+      background: #ffffff;
+      padding: 30px;
       width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 32px 24px;
-      border: 1px solid var(--border);
-    }
-
-    h1 {
-      margin: 0 0 24px;
-      font-size: 26px;
-      text-align: center;
-    }
-
-    .alert {
-      background: #fdecec;
-      color: var(--danger);
-      border: 1px solid #f5c2c2;
-      padding: 12px;
+      max-width: 380px;
       border-radius: 10px;
-      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      width: 170px;
       margin-bottom: 20px;
-      text-align: center;
-    }
-
-    label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    input {
-      width: 100%;
-      height: 48px;
-      padding: 12px 14px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      outline: none;
-      margin-bottom: 18px;
-    }
-
-    .password-wrapper {
-      position: relative;
-    }
-
-    .toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: var(--navy);
-      cursor: pointer;
-      user-select: none;
-    }
-
-    button {
-      width: 100%;
-      height: 48px;
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    button:hover {
-      opacity: 0.95;
-    }
-
-    .links {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .links a {
-      color: var(--navy);
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h1>Observer Login</h1>
-
-    <div id="configAlert" class="alert" style="display:none;">
-      Backend URL not set. Configure API base URL in <b>config.js</b> (Railway) then refresh.
-    </div>
-
-  <form id="observerLoginForm">
-      <label>Email</label>
-      <input type="email" id="email" required />
-
-      <label>Password</label>
-      <div class="password-wrapper">
-        <input type="password" id="password" required />
-       <span class="toggle" onclick="togglePassword()">👁</span>
-      </div>
-
-    <button type="submit">Login</button>
-      <p class="forgot">
-  <a href="#">Forgot password?</a>
-</p>
-    </form>
-
-<script src="config.js"></script>
-  
-
     
-
-<script src="observer-login.js"></script>
-</body>
-</html>
