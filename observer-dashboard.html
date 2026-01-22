@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+<script>
+  if (localStorage.getItem("observerApproved") !== "true") {
+    window.location.href = "observer-login.html";
+  }
+</script>
+<meta charset="UTF-8" />
   <title>Observer Dashboard | Realtor Guard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
