@@ -4,48 +4,130 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Observer Login | Realtor Guard</title>
-  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f4f7fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 520px;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 30px;
+      color: #0f172a;
+    }
+
+    label {
+      display: block;
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 22px;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      border-radius: 14px;
+      border: 2px solid #d7e0ea;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #12325b;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 20px;
+      user-select: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 34px;
+      padding: 18px;
+      font-size: 28px;
+      font-weight: 800;
+      border: none;
+      border-radius: 18px;
+      background: #12325b;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0f2746;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 34px; }
+      label { font-size: 18px; }
+      button { font-size: 24px; }
+    }
+  </style>
 </head>
+
 <body>
 
-  <div class="login-container">
-    <img
-      src="images/realtor-guard-logo.png"
-      alt="Realtor Guard Logo"
-      class="logo"
-    />
+  <div class="card">
+    <h1>Observer Login</h1>
 
-    <h2>Observer Login</h2>
+    <form id="observerLoginForm">
+      <label>Email</label>
+      <input type="email" required placeholder="observer@email.com" />
 
-    <label>Email</label>
-    <input type="email" id="email" placeholder="Email address" />
+      <label>Password</label>
+      <div class="password-wrap">
+        <input type="password" id="password" required placeholder="••••••••" />
+        <span class="toggle" id="toggle">👁</span>
+      </div>
 
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Password" />
-
-    <button onclick="loginObserver()">Login</button>
-
-    <div id="error" class="error"></div>
+      <button type="submit">Login</button>
+    </form>
   </div>
 
   <script>
-    function loginObserver() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorDiv = document.getElementById("error");
+    const form = document.getElementById("observerLoginForm");
+    const password = document.getElementById("password");
+    const toggle = document.getElementById("toggle");
 
-      errorDiv.textContent = "";
+    toggle.addEventListener("click", () => {
+      password.type = password.type === "password" ? "text" : "password";
+    });
 
-      if (!email || !password) {
-        errorDiv.textContent = "Please enter email and password.";
-        return;
-      }
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
 
-      // MIRROR AGENT LOGIN — DIRECT REDIRECT
+      // TEMPORARY: bypass auth so we can finish dashboard
       window.location.href = "observer-dashboard.html";
-    }
+    });
   </script>
 
 </body>
 </html>
-
