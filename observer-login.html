@@ -6,128 +6,132 @@
   <title>Observer Login | Realtor Guard</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: #f4f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#d7e0ea;
+      --navy:#12325b;
+      --navy2:#0f2746;
+      --shadow:0 12px 35px rgba(0,0,0,0.10);
+      --radius:20px;
     }
-
-    .card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 520px;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      color:var(--text);
     }
-
-    h1 {
-      text-align: center;
-      font-size: 42px;
-      margin-bottom: 30px;
-      color: #0f172a;
+    .card{
+      width:100%;
+      max-width:540px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:2px solid var(--line);
+      padding:38px 32px;
     }
-
-    label {
-      display: block;
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 22px;
-      margin-bottom: 8px;
+    h1{
+      margin:0 0 10px 0;
+      text-align:center;
+      font-size:42px;
+      font-weight:900;
+      letter-spacing:-0.02em;
     }
-
-    input {
-      width: 100%;
-      padding: 16px;
-      font-size: 18px;
-      border-radius: 14px;
-      border: 2px solid #d7e0ea;
-      outline: none;
+    .sub{
+      text-align:center;
+      color:var(--muted);
+      margin:0 0 26px 0;
+      font-size:14px;
+      font-weight:600;
     }
-
-    input:focus {
-      border-color: #12325b;
+    label{
+      display:block;
+      font-size:22px;
+      font-weight:800;
+      margin:18px 0 8px;
     }
-
-    .password-wrap {
-      position: relative;
+    input{
+      width:100%;
+      padding:16px 16px;
+      font-size:18px;
+      border-radius:14px;
+      border:2px solid var(--line);
+      outline:none;
     }
-
-    .toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 20px;
-      user-select: none;
+    input:focus{border-color:var(--navy);}
+    .pwWrap{position:relative;}
+    .toggle{
+      position:absolute;
+      right:12px;
+      top:50%;
+      transform:translateY(-50%);
+      width:44px;
+      height:44px;
+      border-radius:12px;
+      border:1px solid rgba(100,116,139,0.25);
+      background:#fff;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      user-select:none;
+      font-size:18px;
     }
-
-    button {
-      width: 100%;
-      margin-top: 34px;
-      padding: 18px;
-      font-size: 28px;
-      font-weight: 800;
-      border: none;
-      border-radius: 18px;
-      background: #12325b;
-      color: white;
-      cursor: pointer;
+    .btnLink{
+      display:block;
+      width:100%;
+      margin-top:28px;
+      padding:18px 16px;
+      text-align:center;
+      font-size:28px;
+      font-weight:900;
+      border-radius:18px;
+      background:var(--navy);
+      color:#fff;
+      text-decoration:none;
     }
-
-    button:hover {
-      background: #0f2746;
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 34px; }
-      label { font-size: 18px; }
-      button { font-size: 24px; }
+    .btnLink:hover{background:var(--navy2);}
+    @media (max-width:480px){
+      .card{padding:28px 18px;}
+      h1{font-size:34px;}
+      label{font-size:18px;}
+      input{font-size:16px;}
+      .btnLink{font-size:24px;}
     }
   </style>
 </head>
 
 <body>
-
   <div class="card">
     <h1>Observer Login</h1>
+    <p class="sub">Build mode: Login goes straight to the dashboard.</p>
 
-    <form id="observerLoginForm">
-      <label>Email</label>
-      <input type="email" required placeholder="observer@email.com" />
+    <label for="email">Email</label>
+    <input id="email" type="email" placeholder="observer@email.com" autocomplete="email" />
 
-      <label>Password</label>
-      <div class="password-wrap">
-        <input type="password" id="password" required placeholder="••••••••" />
-        <span class="toggle" id="toggle">👁</span>
-      </div>
+    <label for="password">Password</label>
+    <div class="pwWrap">
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      <button class="toggle" type="button" id="togglePw" aria-label="Show password">👁</button>
+    </div>
 
-      <button type="submit">Login</button>
-    </form>
+    <!-- THIS is why it cannot fail: it's a real link -->
+    <a class="btnLink" href="observer-dashboard.html">Login</a>
   </div>
 
   <script>
-    const form = document.getElementById("observerLoginForm");
-    const password = document.getElementById("password");
-    const toggle = document.getElementById("toggle");
-
-    toggle.addEventListener("click", () => {
-      password.type = password.type === "password" ? "text" : "password";
-    });
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      // TEMPORARY: bypass auth so we can finish dashboard
-      window.location.href = "observer-dashboard.html";
+    const pw = document.getElementById("password");
+    const t = document.getElementById("togglePw");
+    t.addEventListener("click", () => {
+      pw.type = pw.type === "password" ? "text" : "password";
     });
   </script>
-
 </body>
 </html>
