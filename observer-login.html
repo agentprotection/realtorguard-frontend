@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+t<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -122,23 +122,60 @@
       <button class="toggle" type="button" id="togglePw" aria-label="Show password">👁</button>
     </div>
 
-    <!-- THIS is why it cannot fail: it's a real link -->
-    <button
-  class="btnLink"
-  type="button"
-  style="width:100%; border:none; cursor:pointer;"
-  onclick="window.location.href='observer-dashboard.html'"
->
+   
+  </div>
+<button class="btnLink" id="loginBtn" type="button">
   Login
 </button>
-  </div>
+<script>
+  // password toggle
+  const pw = document.getElementById("password");
+  const toggle = document.getElementById("togglePw");
 
-  <script>
-    const pw = document.getElementById("password");
-    const t = document.getElementById("togglePw");
-    t.addEventListener("click", () => {
-      pw.type = pw.type === "password" ? "text" : "password";
-    });
-  </script>
+  toggle.addEventListener("click", () => {
+    pw.type = pw.type === "password" ? "text" : "password";
+  });
+
+  // observer login
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const password = pw.value.trim();
+
+    if (!email || !password) {
+      alert("Email and password required");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        "https://realtorguard-backend-production.up.railway.app/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            password,
+            role: "observer"
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Login failed");
+        return;
+      }
+
+      localStorage.setItem("rg_token", data.token);
+      localStorage.setItem("rg_role", data.user.role);
+
+      window.location.href = "observer-dashboard.html";
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+  });
+</script>
 </body>
 </html>
