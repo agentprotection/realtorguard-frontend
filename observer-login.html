@@ -6,72 +6,120 @@
   <title>Observer Login | Realtor Guard</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f4f7fb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#334155;
+      --border:#cbd5e1;
+      --navy:#0b2a57;
+      --input:#eaf2ff;
+      --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius:18px;
     }
 
-    .card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 420px;
-      padding: 32px;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background:var(--bg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      color:var(--text);
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 28px;
-      color: #0f172a;
+    .card{
+      width:min(900px, 100%);
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:44px 40px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #334155;
+    h1{
+      margin:0 0 26px 0;
+      font-size:52px;
+      line-height:1.1;
+      text-align:center;
+      letter-spacing:-0.5px;
     }
 
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 20px;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      font-size: 16px;
+    .field{
+      margin:22px auto;
+      width:min(720px, 100%);
     }
 
-    .pwWrap {
-      position: relative;
+    label{
+      display:block;
+      margin-bottom:10px;
+      font-size:34px;
+      font-weight:800;
+      color:var(--text);
     }
 
-    .toggle {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
+    input{
+      width:100%;
+      padding:22px 24px;
+      font-size:32px;
+      border-radius:22px;
+      border:2px solid var(--border);
+      outline:none;
+      background:var(--input);
     }
 
-    .btnLink {
-      width: 100%;
-      padding: 16px;
-      background: #0b2a5b;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-size: 20px;
-      font-weight: 700;
-      cursor: pointer;
+    .pwWrap{
+      position:relative;
+    }
+
+    .pwWrap input{
+      padding-right:78px;
+      background:#fff;
+    }
+
+    .togglePw{
+      position:absolute;
+      right:18px;
+      top:50%;
+      transform:translateY(-50%);
+      border:none;
+      background:transparent;
+      font-size:34px;
+      cursor:pointer;
+      padding:6px;
+      line-height:1;
+    }
+
+    /* REAL LINK styled as button (Option A) */
+    .btnLink{
+      display:block;
+      width:min(720px, 100%);
+      margin:34px auto 18px;
+      text-align:center;
+      background:var(--navy);
+      color:#fff;
+      text-decoration:none;
+      font-size:42px;
+      font-weight:900;
+      padding:26px 20px;
+      border-radius:26px;
+      border:0;
+    }
+
+    .btnLink:active{ transform: translateY(1px); }
+
+    .forgot{
+      width:min(720px, 100%);
+      margin:0 auto;
+      font-size:40px;
+      font-weight:700;
+      color:#1d4ed8;
+      text-decoration:underline;
+      display:inline-block;
+      padding:8px 2px;
     }
   </style>
 </head>
@@ -80,32 +128,32 @@
   <div class="card">
     <h1>Observer Login</h1>
 
-    <label for="email">Email</label>
-    <input id="email" type="email" placeholder="observer@email.com" />
-
-    <label for="password">Password</label>
-    <div class="pwWrap">
-      <input id="password" type="password" placeholder="••••••••" />
-      <button id="togglePw" class="toggle" type="button">👁</button>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="observer@email.com" autocomplete="email" />
     </div>
 
-    <button id="loginBtn" class="btnLink" type="button">
-      Login
-    </button>
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="pwWrap">
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <button class="togglePw" id="togglePw" type="button" aria-label="Show password">👁</button>
+      </div>
+    </div>
+
+    <!-- OPTION A: Guaranteed access (real link to dashboard) -->
+    <a class="btnLink" href="observer-dashboard.html">Login</a>
+
+    <a class="forgot" href="#" onclick="alert('Password reset coming soon'); return false;">Forgot password?</a>
   </div>
 
   <script>
-    // password toggle
+    // Password toggle (works without needing any backend)
     const pw = document.getElementById("password");
     const toggle = document.getElementById("togglePw");
 
     toggle.addEventListener("click", () => {
-      pw.type = pw.type === "password" ? "text" : "password";
-    });
-
-    // TEMPORARY BYPASS LOGIN (to reach dashboard)
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      window.location.href = "observer-dashboard.html";
+      pw.type = (pw.type === "password") ? "text" : "password";
     });
   </script>
 </body>
