@@ -2,159 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observer Login | Realtor Guard</title>
+  <title>Redirecting...</title>
+
+  <!-- HARD redirect to observer dashboard -->
+  <meta http-equiv="refresh" content="0; url=observer-dashboard.html" />
 
   <style>
-    :root{
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#334155;
-      --border:#cbd5e1;
-      --navy:#0b2a57;
-      --input:#eaf2ff;
-      --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius:18px;
-    }
-
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background:var(--bg);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
-      color:var(--text);
-    }
-
-    .card{
-      width:min(900px, 100%);
-      background:var(--card);
-      border:2px solid var(--border);
-      border-radius:28px;
-      box-shadow:var(--shadow);
-      padding:44px 40px;
-    }
-
-    h1{
-      margin:0 0 26px 0;
-      font-size:52px;
-      line-height:1.1;
-      text-align:center;
-      letter-spacing:-0.5px;
-    }
-
-    .field{
-      margin:22px auto;
-      width:min(720px, 100%);
-    }
-
-    label{
-      display:block;
-      margin-bottom:10px;
-      font-size:34px;
-      font-weight:800;
-      color:var(--text);
-    }
-
-    input{
-      width:100%;
-      padding:22px 24px;
-      font-size:32px;
-      border-radius:22px;
-      border:2px solid var(--border);
-      outline:none;
-      background:var(--input);
-    }
-
-    .pwWrap{
-      position:relative;
-    }
-
-    .pwWrap input{
-      padding-right:78px;
-      background:#fff;
-    }
-
-    .togglePw{
-      position:absolute;
-      right:18px;
-      top:50%;
-      transform:translateY(-50%);
-      border:none;
-      background:transparent;
-      font-size:34px;
-      cursor:pointer;
-      padding:6px;
-      line-height:1;
-    }
-
-    /* REAL LINK styled as button (Option A) */
-    .btnLink{
-      display:block;
-      width:min(720px, 100%);
-      margin:34px auto 18px;
-      text-align:center;
-      background:var(--navy);
-      color:#fff;
-      text-decoration:none;
-      font-size:42px;
-      font-weight:900;
-      padding:26px 20px;
-      border-radius:26px;
-      border:0;
-    }
-
-    .btnLink:active{ transform: translateY(1px); }
-
-    .forgot{
-      width:min(720px, 100%);
-      margin:0 auto;
-      font-size:40px;
-      font-weight:700;
-      color:#1d4ed8;
-      text-decoration:underline;
-      display:inline-block;
-      padding:8px 2px;
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: #0b1f3a;
+      color: white;
+      font-size: 22px;
+      font-weight: 700;
     }
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <h1>Observer Login</h1>
-
-    <div class="field">
-      <label for="email">Email</label>
-      <input id="email" type="email" placeholder="observer@email.com" autocomplete="email" />
-    </div>
-
-    <div class="field">
-      <label for="password">Password</label>
-      <div class="pwWrap">
-        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-        <button class="togglePw" id="togglePw" type="button" aria-label="Show password">👁</button>
-      </div>
-    </div>
-
-    <!-- OPTION A: Guaranteed access (real link to dashboard) -->
-    <a class="btnLink" href="observer-dashboard.html">Login</a>
-
-    <a class="forgot" href="#" onclick="alert('Password reset coming soon'); return false;">Forgot password?</a>
-  </div>
-
-  <script>
-    // Password toggle (works without needing any backend)
-    const pw = document.getElementById("password");
-    const toggle = document.getElementById("togglePw");
-
-    toggle.addEventListener("click", () => {
-      pw.type = (pw.type === "password") ? "text" : "password";
-    });
-  </script>
+  Redirecting to Observer Dashboard…
 </body>
 </html>
