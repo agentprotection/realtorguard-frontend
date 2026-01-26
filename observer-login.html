@@ -1,4 +1,4 @@
-t<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,104 +6,72 @@ t<!DOCTYPE html>
   <title>Observer Login | Realtor Guard</title>
 
   <style>
-    :root{
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#d7e0ea;
-      --navy:#12325b;
-      --navy2:#0f2746;
-      --shadow:0 12px 35px rgba(0,0,0,0.10);
-      --radius:20px;
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f7fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
     }
-    *{box-sizing:border-box;}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:var(--bg);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:22px;
-      color:var(--text);
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
     }
-    .card{
-      width:100%;
-      max-width:540px;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:2px solid var(--line);
-      padding:38px 32px;
+
+    h1 {
+      text-align: center;
+      margin-bottom: 28px;
+      color: #0f172a;
     }
-    h1{
-      margin:0 0 10px 0;
-      text-align:center;
-      font-size:42px;
-      font-weight:900;
-      letter-spacing:-0.02em;
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #334155;
     }
-    .sub{
-      text-align:center;
-      color:var(--muted);
-      margin:0 0 26px 0;
-      font-size:14px;
-      font-weight:600;
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 16px;
     }
-    label{
-      display:block;
-      font-size:22px;
-      font-weight:800;
-      margin:18px 0 8px;
+
+    .pwWrap {
+      position: relative;
     }
-    input{
-      width:100%;
-      padding:16px 16px;
-      font-size:18px;
-      border-radius:14px;
-      border:2px solid var(--line);
-      outline:none;
+
+    .toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
     }
-    input:focus{border-color:var(--navy);}
-    .pwWrap{position:relative;}
-    .toggle{
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      width:44px;
-      height:44px;
-      border-radius:12px;
-      border:1px solid rgba(100,116,139,0.25);
-      background:#fff;
-      cursor:pointer;
-      display:grid;
-      place-items:center;
-      user-select:none;
-      font-size:18px;
-    }
-    .btnLink{
-      display:block;
-      width:100%;
-      margin-top:28px;
-      padding:18px 16px;
-      text-align:center;
-      font-size:28px;
-      font-weight:900;
-      border-radius:18px;
-      background:var(--navy);
-      color:#fff;
-      text-decoration:none;
-    }
-    .btnLink:hover{background:var(--navy2);}
-    @media (max-width:480px){
-      .card{padding:28px 18px;}
-      h1{font-size:34px;}
-      label{font-size:18px;}
-      input{font-size:16px;}
-      .btnLink{font-size:24px;}
+
+    .btnLink {
+      width: 100%;
+      padding: 16px;
+      background: #0b2a5b;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -111,71 +79,34 @@ t<!DOCTYPE html>
 <body>
   <div class="card">
     <h1>Observer Login</h1>
-    <p class="sub">Build mode: Login goes straight to the dashboard.</p>
 
     <label for="email">Email</label>
-    <input id="email" type="email" placeholder="observer@email.com" autocomplete="email" />
+    <input id="email" type="email" placeholder="observer@email.com" />
 
     <label for="password">Password</label>
     <div class="pwWrap">
-      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-      <button class="toggle" type="button" id="togglePw" aria-label="Show password">👁</button>
+      <input id="password" type="password" placeholder="••••••••" />
+      <button id="togglePw" class="toggle" type="button">👁</button>
     </div>
 
-   
+    <button id="loginBtn" class="btnLink" type="button">
+      Login
+    </button>
   </div>
-<button class="btnLink" id="loginBtn" type="button">
-  Login
-</button>
-<script>
-  // password toggle
-  const pw = document.getElementById("password");
-  const toggle = document.getElementById("togglePw");
 
-  toggle.addEventListener("click", () => {
-    pw.type = pw.type === "password" ? "text" : "password";
-  });
+  <script>
+    // password toggle
+    const pw = document.getElementById("password");
+    const toggle = document.getElementById("togglePw");
 
-  // observer login
-  document.getElementById("loginBtn").addEventListener("click", async () => {
-    const email = document.getElementById("email").value.trim();
-    const password = pw.value.trim();
+    toggle.addEventListener("click", () => {
+      pw.type = pw.type === "password" ? "text" : "password";
+    });
 
-    if (!email || !password) {
-      alert("Email and password required");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        "https://realtorguard-backend-production.up.railway.app/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            password,
-            role: "observer"
-          })
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Login failed");
-        return;
-      }
-
-      localStorage.setItem("rg_token", data.token);
-      localStorage.setItem("rg_role", data.user.role);
-
+    // TEMPORARY BYPASS LOGIN (to reach dashboard)
+    document.getElementById("loginBtn").addEventListener("click", () => {
       window.location.href = "observer-dashboard.html";
-    } catch (err) {
-      console.error(err);
-      alert("Server error");
-    }
-  });
-</script>
+    });
+  </script>
 </body>
 </html>
