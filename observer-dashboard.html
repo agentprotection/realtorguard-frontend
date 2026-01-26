@@ -45,9 +45,10 @@
 // Guard: prevent direct access if not approved
 const isApproved = localStorage.getItem("observerApproved") === "true";
 
-if (!isApproved) {
-  window.location.href = "observer-login.html";
-}
+// TEMP: disable approval gate for dashboard access
+// if (!isApproved) {
+//   window.location.href = "observer-login.html";
+// }
 
 // Logout handler
 const logoutBtn = document.getElementById("logoutBtn");
