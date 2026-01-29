@@ -6,105 +6,229 @@
   <title>Agent Login | Realtor Guard</title>
 
   <style>
-    body {
-      margin: 0;
+    :root{
+      --navy:#0b2a57;
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --border:#d1d5db;
+      --danger:#c62828;
+    }
+
+    body{
+      margin:0;
       font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      background: var(--bg);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:18px;
     }
 
-    .login-container {
-      background: #ffffff;
-      padding: 30px;
-      width: 100%;
-      max-width: 380px;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      text-align: center;
+    .card{
+      width: min(520px, 100%);
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      padding: 28px 26px;
+      text-align:center;
     }
 
-    .logo {
-      width: 170px;
-      margin-bottom: 20px;
+    .logo{
+      width: 140px;
+      height:auto;
+      margin: 6px auto 14px;
+      display:block;
     }
 
-    h2 {
-      margin-bottom: 20px;
-      color: #0b1f44;
+    h2{
+      margin: 6px 0 18px;
+      font-size: 28px;
+      color:#111827;
+      letter-spacing: .2px;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+    .field{
+      width:100%;
+      margin: 12px 0;
+      text-align:left;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #0b1f44;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #102d63;
-    }
-
-    .error {
-      color: red;
+    label{
       font-size: 14px;
+      color:#111827;
+      display:block;
+      margin-bottom:6px;
+    }
+
+    input{
+      width:100%;
+      padding: 14px 12px;
+      font-size:16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline:none;
+      box-sizing:border-box;
+      background:#fff;
+    }
+
+    input:focus{
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(11,42,87,.12);
+    }
+
+    .btn{
+      width:100%;
+      margin-top: 14px;
+      padding: 14px 12px;
+      background: var(--navy);
+      color:white;
+      font-size:18px;
+      border:none;
+      border-radius: 12px;
+      cursor:pointer;
+    }
+
+    .btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+
+    .error{
+      margin-top: 12px;
+      color: var(--danger);
+      font-weight: 700;
+      min-height: 22px;
+    }
+
+    .links{
+      margin-top: 14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      font-weight:700;
+    }
+
+    .links a{
+      color: var(--navy);
+      text-decoration:none;
+    }
+
+    .links a:hover{ text-decoration:underline; }
+
+    .small{
       margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
     }
   </style>
 </head>
 
 <body>
-
-  <div class="login-container">
+  <div class="card">
     <img src="images/realtor-guard-logo.png" alt="Realtor Guard Logo" class="logo" />
-
     <h2>Agent Login</h2>
 
-    <input type="email" id="email" placeholder="Email address" />
-    <input type="password" id="password" placeholder="Password" />
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="Email address" autocomplete="email" />
+    </div>
 
-    <button onclick="loginAgent()">Login</button>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    </div>
+
+    <!-- Role is hard-locked to agent -->
+    <input type="hidden" id="role" value="agent" />
+
+    <button class="btn" id="loginBtn" onclick="loginAgent()">Log In</button>
 
     <div id="error" class="error"></div>
+
+    <div class="links">
+      <a href="agent-signup.html">Create Agent Account</a>
+      <a href="#" onclick="alert('Password reset coming soon.'); return false;">Forgot Password?</a>
+    </div>
+
+    <div class="small">
+      If login succeeds, you will be routed to the Agent Dashboard.
+    </div>
   </div>
 
   <script>
-    function loginAgent() {
+    // ✅ IMPORTANT: This must match your Railway backend route exactly.
+    const LOGIN_URL = "https://realtorguard-production.up.railway.app/login";
+
+    function setLoading(isLoading){
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? "Signing in..." : "Log In";
+    }
+
+    function showError(msg){
+      document.getElementById("error").textContent = msg || "";
+    }
+
+    async function loginAgent(){
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
-      const errorDiv = document.getElementById("error");
+      const role = document.getElementById("role").value;
 
-      errorDiv.textContent = "";
+      showError("");
 
-      if (!email || !password) {
-        errorDiv.textContent = "Please enter email and password.";
+      if(!email || !password || !role){
+        showError("Email, password, and role are required");
         return;
       }
 
-      // TEMP AUTH (DEV MODE)
-      if (email === "agent@test.com" && password === "password123") {
+      setLoading(true);
+
+      try{
+        const res = await fetch(LOGIN_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role })
+        });
+
+        // Try JSON first, but don't crash if backend returns plain text
+        let data = null;
+        try { data = await res.json(); } catch(e){}
+
+        if(!res.ok){
+          const msg =
+            (data && (data.message || data.error)) ||
+            "Login failed. Check your email/password.";
+          showError(msg);
+          setLoading(false);
+          return;
+        }
+
+        // Optional token support if backend sends it
+        if(data && data.token){
+          localStorage.setItem("rg_token", data.token);
+        }
+        localStorage.setItem("rg_role", "agent");
+        localStorage.setItem("rg_email", email);
+
+        // ✅ Success route
         window.location.href = "agent-dashboard.html";
-      } else {
-        errorDiv.textContent = "Invalid email or password.";
+
+      }catch(err){
+        showError("Network error. Please try again.");
+      }finally{
+        setLoading(false);
       }
     }
-  </script>
 
+    // Enter key submits
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Enter"){
+        loginAgent();
+      }
+    });
+  </script>
 </body>
 </html>
-      
