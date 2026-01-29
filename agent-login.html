@@ -6,115 +6,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root{
-      --navy:#0b2a57;
-      --bg:#f4f6f8;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --border:#d1d5db;
-      --danger:#c62828;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
 
-    body{
-      margin:0;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      background:var(--bg);
-      font-family:Arial, sans-serif;
+    .card {
+      background: #ffffff;
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      text-align: center;
     }
 
-    .card{
-      background:var(--card);
-      width:100%;
-      max-width:420px;
-      padding:28px;
-      border-radius:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,.1);
+    h2 {
+      margin-bottom: 20px;
     }
 
-    h2{
-      text-align:center;
-      margin-bottom:20px;
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
 
-    input{
-      width:100%;
-      padding:12px;
-      margin-bottom:12px;
-      border:1px solid var(--border);
-      border-radius:6px;
-      font-size:16px;
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 16px;
+      background: #0b2a57;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    .pw-row{
-      position:relative;
+    button:disabled {
+      background: #999;
     }
 
-    .toggle{
-      position:absolute;
-      right:12px;
-      top:50%;
-      transform:translateY(-50%);
-      cursor:pointer;
-      font-size:14px;
-      color:var(--navy);
-      user-select:none;
+    .error {
+      color: red;
+      margin-top: 12px;
+      min-height: 20px;
+      font-weight: bold;
     }
 
-    button{
-      width:100%;
-      padding:14px;
-      background:var(--navy);
-      color:white;
-      border:none;
-      border-radius:8px;
-      font-size:16px;
-      cursor:pointer;
-      margin-top:6px;
+    .links {
+      margin-top: 18px;
     }
 
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
-    .error{
-      color:var(--danger);
-      font-weight:700;
-      min-height:20px;
-      margin-top:10px;
-      text-align:center;
-    }
-
-    .links{
-      margin-top:16px;
-      text-align:center;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      font-weight:700;
-    }
-
-    .links a{
-      text-decoration:none;
-      color:var(--navy);
+    .links a {
+      display: block;
+      color: #0b2a57;
+      text-decoration: none;
+      margin-top: 6px;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
-
   <div class="card">
     <h2>Agent Login</h2>
 
-    <input id="email" type="email" placeholder="Email address" />
-    
-    <div class="pw-row">
-      <input id="password" type="password" placeholder="Password" />
-      <span id="togglePw" class="toggle">Show</span>
-    </div>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
 
     <button id="loginBtn">Log In</button>
 
@@ -128,79 +95,63 @@
 
   <script>
     const BACKEND_URL = "https://realtorguard-production.up.railway.app";
-    const ROLE = "agent"; // 🔒 forced, cannot be missing
 
     const emailEl = document.getElementById("email");
     const passwordEl = document.getElementById("password");
-    const errorEl = document.getElementById("error");
     const loginBtn = document.getElementById("loginBtn");
-    const togglePw = document.getElementById("togglePw");
+    const errorEl = document.getElementById("error");
 
-    togglePw.addEventListener("click", () => {
-      const isHidden = passwordEl.type === "password";
-      passwordEl.type = isHidden ? "text" : "password";
-      togglePw.textContent = isHidden ? "Hide" : "Show";
-    });
+    async function loginAgent() {
+      errorEl.textContent = "";
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Logging in...";
 
-    loginBtn.addEventListener("click", loginAgent);
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") loginAgent();
-    });
-
-    function setError(msg){
-      errorEl.textContent = msg || "";
-    }
-
-    function setLoading(state){
-      loginBtn.disabled = state;
-      loginBtn.textContent = state ? "Logging in..." : "Log In";
-    }
-
-    async function loginAgent(){
       const email = emailEl.value.trim();
       const password = passwordEl.value.trim();
 
-      setError("");
-
-      if (!email || !password){
-        setError("Email and password are required");
+      if (!email || !password) {
+        errorEl.textContent = "Email and password are required";
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Log In";
         return;
       }
 
-      setLoading(true);
-
-      try{
-        const res = await fetch(`${BACKEND_URL}/login`, {
+      try {
+        const res = await fetch(`${BACKEND_URL}/auth/login`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({
             email,
             password,
-            role: ROLE
+            role: "agent"   // ✅ FORCED HERE – NO VALIDATION
           })
         });
 
         const data = await res.json();
 
-        if (!res.ok){
-          setError(data.message || "Login failed");
-          setLoading(false);
-          return;
+        if (!res.ok) {
+          throw new Error(data.message || "Login failed");
         }
 
         localStorage.setItem("token", data.token);
-        localStorage.setItem("role", ROLE);
+        localStorage.setItem("role", "agent");
 
         window.location.href = "agent-dashboard.html";
 
-      }catch(err){
-        setError("Network error. Please try again.");
-      }finally{
-        setLoading(false);
+      } catch (err) {
+        errorEl.textContent = err.message;
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Log In";
       }
     }
-  </script>
 
+    loginBtn.addEventListener("click", loginAgent);
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter") loginAgent();
+    });
+  </script>
 </body>
 </html>
