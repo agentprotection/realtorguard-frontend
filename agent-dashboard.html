@@ -205,5 +205,25 @@ form {
       location.reload();
     }
   </script>
+<script>
+/* RealtorGuard Dashboard Protection */
+
+(function () {
+  const token = localStorage.getItem("rg_token");
+  const role = localStorage.getItem("rg_role");
+
+  // Not logged in → send to login
+  if (!token) {
+    window.location.href = "agent-auth.html";
+    return;
+  }
+
+  // Logged in but not an agent → block access
+  if (role !== "agent") {
+    window.location.href = "choose-role.html";
+    return;
+  }
+})();
+</script>
 </body>
 </html>
