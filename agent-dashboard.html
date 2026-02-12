@@ -189,16 +189,13 @@ form {
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userRole", "agent");
 
-        showDashboard();
+        
       } catch (err) {
         errorBox.textContent = "Invalid email or password.";
       }
     }
 
-    function showDashboard() {
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-    }
+   
 
     function logout() {
       localStorage.clear();
