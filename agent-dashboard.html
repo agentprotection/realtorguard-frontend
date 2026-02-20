@@ -7,7 +7,24 @@
 
   <!-- Global config -->
   <script src="config.js"></script>
+<script>
+(async () => {
+  try {
+    const res = await fetch(window.API_BASE_URL + "/api/agent/me", {
+      method: "GET",
+      credentials: "include"
+    });
 
+    if (!res.ok) {
+      window.location.href = "agent-login.html";
+      return;
+    }
+
+  } catch (err) {
+    window.location.href = "agent-login.html";
+  }
+})();
+</script>
   <style>
   body {
   margin: 0;
