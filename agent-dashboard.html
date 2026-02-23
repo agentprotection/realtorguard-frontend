@@ -1,7 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Dashboard | Realtor Guard</title>
 
+<script>
+(async () => {
+  try {
+    const res = await fetch("https://realtorguard-backend-production-381c.up.railway.app/api/agent/me", {
+      method: "GET",
+      credentials: "include"
+    });
 
+    if (!res.ok) {
+      window.location.href = "agent-login.html";
+    }
+  } catch (err) {
+    window.location.href = "agent-login.html";
+  }
+})();
+</script>
+
+</head>
 <body>
   <div class="page">
 
